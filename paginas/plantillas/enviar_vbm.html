@@ -1,0 +1,236 @@
+<div id="div_enviarvb" title="Enviar Documento" class="ui-widget">
+    <!-- BEGIN: div_enviarvb -->
+    <div id="pestanas">
+        <ul id=lista>
+            <li id="pestana1" style="display: inline-block !important;"><a class="btn btn-warning btn-mk" href='javascript:cambiarPestanna(pestanas,pestana1,1);'>Mi unidad</a></li>
+            <li id="pestana2" style="display: inline-block !important;"><a class="btn btn-warning btn-mk" href='javascript:cambiarPestanna(pestanas,pestana2,2);'>Otra unidad</a></li>
+            <li id="pestana3" style="display: inline-block !important;"><a class="btn btn-warning btn-mk" href='javascript:cambiarPestanna(pestanas,pestana3,3);'>Buscar</a></li>
+        </ul>
+    </div>
+
+    <body onload="javascript:cambiarPestanna(pestanas,pestana1);">
+
+        <div id="contenidopestanas">
+            <form name="form_vb" id="form_vb" enctype="multipart/form-data">
+                <div id="cpestana1">
+                    <fieldset class="fieldset">
+                        <div class="sec1Destinatario">
+                            <label class='seleccionaPdf' for='para_vb'>Para: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>
+                            <select class="js-example-basic-single" name="para_vb" id="para_vb" style="width: 85%">
+                                    <option value>Seleccione</option>
+                                    {para_enviarvb}
+                            </select>
+                            <spam class="errorModificar" id="errorParaVB" style="display:none;">(*) Usted debe seleccionar una opción</spam>
+                        </div>
+
+                        <div class="sec1Destinatario">
+                            <label class='seleccionaPdf' for='visacion_vb'>Visación:&nbsp;&nbsp;&nbsp;</label>
+                            <select class="js-example-basic-single" name="visacion_vb" id="visacion_vb" style="width: 85%">
+                                    <option value>Seleccione</option>
+                                    <option value="de acuerdo">De acuerdo</option>
+                                </select>
+                            <spam class="errorModificar" id="errorVisacionVB" style="display:none;">(*) Usted debe seleccionar una opción</spam>
+                        </div>
+                        <div class="sec1Destinatario">
+                            <label class='seleccionaPdf' for='copia_vb'>Con copia:&nbsp;</label>
+                            <select class="js-example-basic-single" name="copia_vb" id="copia_vb" style="width: 85%" multiple>
+                                <option value>Seleccione</option>
+                                {copia_enviarvb}
+                            </select>
+                            <spam class="errorModificar" id="errorCopiaVB" style="display:none;">(*) Usted debe seleccionar una opción</spam>
+                        </div>
+                        <div class="sec1Destinatario">
+                            <label class='seleccionaPdf' for='comentario_vb'>Comentario:</label>
+                            <textarea class="comentario_vb" name="comentario_vb" id="comentario_vb"></textarea>
+
+                        </div>
+                        <diV class='sec1Destinatario'>
+                            <label class='archiv_vb' for='archivo_vb'>Adjuntar archivo al documento: </label>
+                            <input type="file" id="archivo_vb" name="archivo_vb" />
+                        </div><br><br>
+                        <diV class='sec1Destinatario'>
+                            <button class="btn btn-warning" type="button" id="btn_vb" name="btn_vb" onclick="accionEnviarVB();">Enviar</button>
+                        </div>
+
+                    </fieldset>
+                </div>
+
+                <div id="cpestana2" style="display:none">
+                    <fieldset class="fieldset">
+                        <div class="sec1Destinatario">
+                            <label class='seleccionaPdf' for='para_vb'>División: </label>
+                            <select class="js-example-basic-single" name="division_vb" id="division_vb" onchange="cargarParaOtraUnidad(this.value)" style="width: 85%">
+                                    <option value>Seleccione</option>
+                                    {division_OtraUnidadEnviarVB}
+                            </select>
+                            <spam class="errorModificar" id="errorDivisionVB" style="display:none;">(*) Usted debe seleccionar una opción</spam>
+                        </div>
+
+                        <div id="otraUnidadParaVB" name="otraUnidadParaVB"></div>
+                        <div id="otraUnidadCopiaVB" name="otraUnidadCopiaVB"></div>
+
+                        <div class="sec1Destinatario">
+                            <label class='seleccionaPdf' for='OtraUnidadVisacion_vb'>Visación:</label>
+                            <select class="js-example-basic-single" name="OtraUnidadVisacion_vb" id="OtraUnidadVisacion_vb" style="width: 85%">
+                                    <option value>Seleccione</option>
+                                    <option value="de acuerdo">De acuerdo</option>
+                                </select>
+                            <spam class="errorModificar" id="errorOtraUnidadVisacionVB" style="display:none;">(*) Usted debe seleccionar una opción</spam>
+                        </div>
+                        <div class="sec1Destinatario">
+                            <label class='seleccionaPdf' for='OtraUnidadComentario_vb'>Comentario:</label>
+                            <textarea class="comentario_vb" name="OtraUnidadComentario_vb" id="OtraUnidadComentario_vb"></textarea>
+                        </div>
+                        <diV class='sec1Destinatario'>
+                            <label class='OtraUnidadArchiv_vb' for='OtraUnidadArchivo_vb'>Adjuntar archivo al documento: </label>
+                            <input type="file" id="OtraUnidadArchivo_vb" name="OtraUnidadArchivo_vb" />
+                        </div><br><br>
+                        <diV class='sec1Destinatario'>
+                            <button class="btn btn-warning" type="button" id="OtraUnidadBtn_vb" name="OtraUnidadBtn_vb" onclick="accionOtraUnidadEVB();">Enviar</button>
+                        </div>
+
+                    </fieldset>
+                </div>
+
+                <div id="cpestana3" style="display:none">
+                    <fieldset class="fieldset">
+                        <div class="sec1Destinatario">
+                            <label class='seleccionaPdf' for='para_vb'>Para: </label>
+                            <select class="js-example-basic-single" name="paraVBTodos" id="paraVBTodos" style="width: 85%" onchange="mostrar_opciones_todos()">
+                                <option value>Seleccionar Funcionario :</option>
+                                {para_enviarvbtodos}
+                            </select>
+                            <spam class="errorModificar" id="errorParaVBTodos" style="display:none;">(*) Usted debe seleccionar una opción</spam>
+                        </div>
+                        <div class="sec1Destinatario" id="div_copia_todos" style="display:none;">
+                            <label class='seleccionaPdf' for='copia_vb'>Con copia:&nbsp;</label>
+                            <select class="js-example-basic-single" name="copiaVBTodos" id="copiaVBTodos" style="width: 85%" multiple>
+                                <option value>Buscar destinatario</option>
+                                {copia_enviarvbtodos}
+                            </select>
+                            <spam class="errorModificar" id="errorCopiaVBTodos" style="display:none;">(*) Usted debe seleccionar una opción</spam>
+                        </div>
+
+                        <div class="sec1Destinatario" id="div_visacion_todos" style="display:none;">
+                            <label class='seleccionaPdf' for='visacionVBTodos'>Visación:</label>
+                            <select class="js-example-basic-single" name="visacionVBTodos" id="visacionVBTodos" style="width: 85%">
+                                    <option value>Seleccione</option>
+                                    <option value="de acuerdo">De acuerdo</option>
+                                </select>
+                            <spam class="errorModificar" id="errorVisacionVBTodos" style="display:none;">(*) Usted debe seleccionar una opción</spam>
+                        </div>
+                        <div class="sec1Destinatario" id="div_comentario_todos" style="display:none;">
+                            <label class='seleccionaPdf' for='comentarioVBTodos'>Comentario:</label>
+                            <textarea class="ComentarioVBTodos" name="comentarioVBTodos" id="comentarioVBTodos"></textarea>
+                        </div>
+                        <diV class='sec1Destinatario' id="div_archivo_todos" style="display:none;">
+                            <label class='ArchivoVBTodos' for='archivoVBTodos'>Adjuntar archivo al documento: </label>
+                            <input type="file" id="archivoVBTodos" name="archivoVBTodos" />
+                        </div><br><br>
+                        <diV class='sec1Destinatario' id="div_btn_enviar_todos" style="display:none;">
+                            <button class="btn btn-warning" type="button" id="BtnEnviarVBTodos" name="BtnEnviarVBTodos" onclick="accionEVB_Todos();">Enviar</button>
+                        </div>
+                    </fieldset>
+                </div>
+
+            </form>
+
+        </div>
+        <script>
+            $(".js-example-basic-single").select2();
+            CKEDITOR.replace("comentario_vb", {
+                toolbarGroups: [{
+                    name: 'basicstyles',
+                    groups: ['basicstyles', 'cleanup']
+                }, {
+                    name: "paragraph",
+                    "groups": ['list', 'indent', 'blocks', 'align', 'bidi']
+                }, {
+                    name: "links",
+                    "groups": ["links"]
+                }, {
+                    name: 'editing',
+                    groups: ['find', 'selection', 'spellchecker']
+                }, {
+                    name: "insert",
+                    "groups": ["insert"]
+                }, {
+                    name: 'tools'
+                }, ],
+                // Remove the redundant buttons from toolbar groups defined above.
+                removeButtons: 'CreateDiv,Flash,Smiley,Iframe,ShowBlocks',
+                autoGrow_minHeight: 70,
+                autoGrow_onStartup: true,
+                ignoreEmptyParagraph: false,
+                format_tags: 'p;h1;h2;h3;pre',
+                extraPlugins: 'uploadimage,image2,quicktable,tableresize,autogrow,tabletools',
+                toolbarCanCollapse: true,
+                toolbarStartupExpanded: true,
+                toolbar: 'Basic',
+            });
+
+            CKEDITOR.replace("OtraUnidadComentario_vb", {
+                toolbarGroups: [{
+                    name: 'basicstyles',
+                    groups: ['basicstyles', 'cleanup']
+                }, {
+                    name: "paragraph",
+                    "groups": ['list', 'indent', 'blocks', 'align', 'bidi']
+                }, {
+                    name: "links",
+                    "groups": ["links"]
+                }, {
+                    name: 'editing',
+                    groups: ['find', 'selection', 'spellchecker']
+                }, {
+                    name: "insert",
+                    "groups": ["insert"]
+                }, {
+                    name: 'tools'
+                }, ],
+                // Remove the redundant buttons from toolbar groups defined above.
+                removeButtons: 'CreateDiv,Flash,Smiley,Iframe,ShowBlocks',
+                autoGrow_minHeight: 70,
+                autoGrow_onStartup: true,
+                ignoreEmptyParagraph: false,
+                format_tags: 'p;h1;h2;h3;pre',
+                extraPlugins: 'uploadimage,image2,quicktable,tableresize,autogrow,tabletools',
+                toolbarCanCollapse: true,
+                toolbarStartupExpanded: true,
+                toolbar: 'Basic',
+            });
+
+            CKEDITOR.replace("comentarioVBTodos", {
+                toolbarGroups: [{
+                    name: 'basicstyles',
+                    groups: ['basicstyles', 'cleanup']
+                }, {
+                    name: "paragraph",
+                    "groups": ['list', 'indent', 'blocks', 'align', 'bidi']
+                }, {
+                    name: "links",
+                    "groups": ["links"]
+                }, {
+                    name: 'editing',
+                    groups: ['find', 'selection', 'spellchecker']
+                }, {
+                    name: "insert",
+                    "groups": ["insert"]
+                }, {
+                    name: 'tools'
+                }, ],
+                // Remove the redundant buttons from toolbar groups defined above.
+                removeButtons: 'CreateDiv,Flash,Smiley,Iframe,ShowBlocks',
+                autoGrow_minHeight: 70,
+                autoGrow_onStartup: true,
+                ignoreEmptyParagraph: false,
+                format_tags: 'p;h1;h2;h3;pre',
+                extraPlugins: 'uploadimage,image2,quicktable,tableresize,autogrow,tabletools',
+                toolbarCanCollapse: true,
+                toolbarStartupExpanded: true,
+                toolbar: 'Basic',
+            });
+        </script>
+    </body>
+    <!-- END: div_enviarvb -->
+</div>

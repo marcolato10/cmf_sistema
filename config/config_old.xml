@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config>
+	<usa_sesion>SI</usa_sesion>
+	<usa_plantilla_gral>SI</usa_plantilla_gral>
+	<usa_bd>SI</usa_bd>	
+	<codigo>PUGDE</codigo>
+	<titulo>Generación de documentos electrónicos</titulo>
+	<version>1.0</version><head><archivoJS>/biblioteca/js/jquery/jquery-1.8.2.js</archivoJS>
+	<archivoJS>/biblioteca/js/jquery/jquery-ui-1.9.0.js</archivoJS>
+	<archivoJS>/biblioteca/js/jquery/jquery.myConfirm.js</archivoJS>
+	<archivoJS>/biblioteca/js/jqGrid-4.4.1/js/i18n/grid.locale-es.js</archivoJS>
+	<archivoJS>/biblioteca/js/jqGrid-4.4.1/js/jquery.jqGrid.min.js</archivoJS>
+	<archivoJS>/biblioteca/js/general.js</archivoJS>
+	<archivoCSS>/biblioteca/css/general1024_sinmenu.css</archivoCSS> 
+	<archivoCSS>/biblioteca/css/jquery-ui.css</archivoCSS>
+	<archivoCSS>/biblioteca/css/jquery-ui-svs.css</archivoCSS>
+	</head>
+	<variables>
+		<correo_error>culloa@cmfchile.cl</correo_error>
+	</variables>
+</config>

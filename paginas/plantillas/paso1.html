@@ -1,0 +1,35 @@
+<!-- BEGIN: paso1 -->
+<script type="application/javascript" src="Sistema/js/rut.js"></script>
+<script type="text/javascript">
+
+	function change_input_tipoResolucion(self){
+		callback_gral("index.php?pagina=paginas.redactar&funcion=fun_setTipoResolucion",{TIPRES_ID: $('#input_tipoResolucion').val()});
+	}
+			
+
+</script>
+
+<div class="ui-widget ui-widget-content" id="div_principalPaso1" style="display:{DISPLAY_PASO1}">
+  <form class="formulario-paso1">
+  <!-- BEGIN: no_va -->
+    <div id="div_tipoResolucion" class="form_text" >
+      <div style="display: table-cell">
+        <label for="input_tipoResolucion" class="label-paso1">Tipo de Resoluci&oacute;n</label>
+        :</div>
+      <div style="display: table-cell">
+        <select class="js-example-basic-single" id="input_tipoResolucion" onchange="change_input_tipoResolucion(this)">
+          <!-- BEGIN: tipo_resolucion -->
+          <option value="{TIPO_RESOLUCION.TIPRES_ID}" {TIPO_RESOLUCION.SELECTED}>{TIPO_RESOLUCION.TIPRES_NOMBRE}</option>
+          <!-- END: tipo_resolucion -->
+        </select>
+      </div>
+    </div>
+	<!-- END: no_va -->
+    {FILE "Sistema/paginas/plantillas/clasificacion.html"}
+    <br />
+    {FILE "Sistema/paginas/plantillas/destinatario.html"}
+    
+    <div style="display: table-cell; float:right; padding:20px"><a style="cursor:pointer" class="button" onclick="fun_irPaso(2)"><img src="Sistema/img/derecha.png" />Siguiente</a> </div>
+  </form>
+</div>
+<!-- END: paso1 --> 

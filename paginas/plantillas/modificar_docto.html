@@ -1,0 +1,563 @@
+<!-- BEGIN: main -->
+
+<script type="text/javascript" src="Sistema/js/modificar_docto.js"></script>
+<script src="Sistema/js/ckeditor/ckeditor.js"></script>
+<script src="Sistema/js/ckeditor/adapters/jquery.js"></script>
+<script type="text/javascript" src="Sistema/js/utiles_comun.js"></script>
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        $('.js-example-basic-single').select2();
+        check = CKEDITOR.replace('certificado_divCuerpo', {
+
+            toolbarGroups: [{
+                    name: 'basicstyles',
+                    groups: ['basicstyles', 'cleanup']
+                }, {
+                    name: "paragraph",
+                    "groups": ['list', 'indent', 'blocks', 'align', 'bidi']
+                }, {
+                    name: "links",
+                    "groups": ["links"]
+                }, {
+                    name: 'editing',
+                    groups: ['find', 'selection', 'spellchecker']
+                },
+
+                {
+                    name: "insert",
+                    "groups": ["insert"]
+                }, {
+                    name: 'tools'
+                },
+
+            ],
+            // Remove the redundant buttons from toolbar groups defined above.
+            removeButtons: 'CreateDiv,Flash,Smiley,Iframe,ShowBlocks',
+            autoGrow_minHeight: 70,
+            autoGrow_onStartup: true,
+            ignoreEmptyParagraph: false,
+            format_tags: 'p;h1;h2;h3;pre',
+            extraPlugins: 'uploadimage,image2,quicktable,tableresize,autogrow,tabletools',
+            toolbarCanCollapse: true,
+            toolbarStartupExpanded: true,
+            toolbar: 'Basic',
+        });
+
+        $(".errorModificar").css("display", "none");
+        $("#div_verExpediente").dialog({
+            autoOpen: false,
+            modal: true,
+            width: '650px'
+        });
+
+
+        $("#div_paraModificar").css("display", "none");
+        //$("#div_pregunta_usa_plantilla").css("display", "none");
+        //$("#div_opciones_usa_plantilla").css("display", "none");
+        //$("#div_plantillas_disponibles").css("display", "none");
+
+
+
+    })
+
+
+    function fun_modificar_cuerpo(opcion) {
+
+
+        console.log("Usted selecciono la opcion: " + opcion);
+
+        if (opcion == 1) { //usted cancelo la modificacion
+            callback_gral("index.php?pagina=paginas.modificar_docto&funcion=fun_cambia_estado_cuerpo&estado=" + opcion);
+            $("#div_micuerpo").css("display", "block");
+            $("#div_paraModificar").css("display", "none");
+        } else if (opcion == 2) { //usted quiere modificar el cuerpo
+
+            console.log("Estamos en el modificar");
+
+            //cambiamos el estado para saber que se hizo un cambio en el cuerpo
+            callback_gral("index.php?pagina=paginas.modificar_docto&funcion=fun_cambia_estado_cuerpo&estado=" + opcion);
+
+
+            $("input[name=usarPlantillaSINO][value='NO']").prop("checked", true);
+            $("#div_micuerpo").css("display", "none");
+            $("#div_paraModificar").css("display", "block");
+
+            $("#div_plantillas_disponibles").css("display", "none");
+            $("#divCuerpo1").css("display", "block");
+            $("#divCuerpo2").css("display", "block");
+            $("#divSeleccionaPdf").css("display", "block");
+            document.getElementById("archivoInput").value = "";
+            document.getElementById('visorArchivo').innerHTML = '';
+
+        } else {
+            console.log("No existe esta opcion");
+        }
+
+    }
+
+
+    function fun_modificar_cuerpo_old(opcion) {
+
+        console.log("aaa la opcion es :" + opcion);
+        //$('input[id=usarPlantillaNO]').attr('checked', true);
+        $("input[name=usarPlantillaSINO][value='NO']").prop("checked", true);
+
+        //ml: primero activamos las opciones cargadas en bbdd
+        /* mlatorre tiene que verlo, no dejar guaradar cuando se descomenta */
+
+        /*
+        $.ajax({
+            url: 'index.php?pagina=paginas.modificar_docto&funcion=fun_activar_usa_plantilla',
+            type: 'post',
+            success: function(html) {
+
+                if (html == 'SI') {
+                    $('input[id=usarPlantillaSI]').attr('checked', true);
+                    //$("#divSeleccionaPdf").css("display", "block");
+                } else {
+                    $('input[id=usarPlantillaNO]').attr('checked', true);
+                    //$("#divSeleccionaPdf").css("display", "block");
+                }
+            }
+        });
+        */
+
+        if (opcion == 1) { //usted quiere volver
+            console.log("usted quiere volver");
+            //Esta llamada sirve para llevar registro de si se hizo algun cambio en el cuerpo
+            //1 = canceló , 2 = hizo cambios
+            callback_gral("index.php?pagina=paginas.modificar_docto&funcion=fun_cambia_estado_cuerpo&estado=" + opcion);
+
+            $("#div_micuerpo").css("display", "block");
+            $("#div_pregunta_usa_plantilla").css("display", "none");
+            $("#div_opciones_usa_plantilla").css("display", "none");
+            $("#div_plantillas_disponibles").css("display", "none");
+            $("#divCuerpo1").css("display", "none"); //ocultamos el cuerpo
+            $("#divCuerpo2").css("display", "none"); //ocultamos el cuerpo
+            $("#divSeleccionaPdf").css("display", "none");
+
+            document.getElementById('visorArchivo').innerHTML = ''; //limpiamos div vista previa
+            document.getElementById("archivoInput").value = ""; //reseteamos el input file
+
+
+        } else if (opcion == 2) { //usted quiere modificar el cuerpo
+
+            console.log("usted quiere modificar");
+
+
+            //$('input[name=usarPlantillaSINO]').attr('checked', false);
+            $('input[name=tipoPlantilla]').attr('checked', false);
+            $("#div_micuerpo").css("display", "none");
+            $("#div_pregunta_usa_plantilla").css("display", "block");
+            $("#div_opciones_usa_plantilla").css("display", "block");
+            $("#div_plantillas_disponibles").css("display", "none");
+            $("#divSeleccionaPdf").css("display", "block");
+            $("#divCuerpo1").css("display", "block"); //ocultamos el cuerpo
+            $("#divCuerpo2").css("display", "block"); //ocultamos el cuerpo
+
+        } else {
+            console.log("No existe esta opción.");
+        }
+    }
+
+
+
+    //ml: mostramos la lista de plantillas en la vista si seleccionamos la opcion SI
+    // en caso contrario se oculta
+    function datoTipoPlantilla(valor) {
+
+        opcion = 2; //usted quiere modificar el cuerpo
+        callback_gral("index.php?pagina=paginas.modificar_docto&funcion=fun_cambia_estado_cuerpo&estado=" + opcion);
+        console.log("usted selecciono :" + valor);
+
+        //$("#tipoPlantilla").attr('checked', false);
+        document.querySelectorAll('[name=tipoPlantilla]').forEach((x) => x.checked = false);
+        if (valor == 'SI') {
+            //console.log("debemos mostrar las plantillas disponibles");
+            document.getElementById('visorArchivo').innerHTML = ''; //limpiamos div vista previa
+            $("#div_plantillas_disponibles").css("display", "block");
+            $("#divCuerpo1").css("display", "none"); //ocultamos el cuerpo
+            $("#divCuerpo2").css("display", "none"); //ocultamos el cuerpo
+            $("#divSeleccionaPdf").css("display", "none"); //ocultamos la seleccion de pdf 
+            document.getElementById("archivoInput").value = ""; //reseteamos el input file
+        } else {
+            //console.log("debemos ocultar las plantillas disponibles");
+            //CKEDITOR.instances.certificado_divCuerpo.setData('');
+            $("#div_plantillas_disponibles").css("display", "none");
+            $("#divCuerpo1").css("display", "block"); //ocultamos el cuerpo
+            $("#divCuerpo2").css("display", "block"); //ocultamos el cuerpo
+            $("#divSeleccionaPdf").css("display", "block");
+            //document.getElementById("archivoInput").value = ""; //reseteamos el input file
+
+
+        }
+    }
+
+
+    //ml: mostramos el cuerpo y lo cargamos con la data de la plantilla seleccionada 
+    function cargarCuerpo(plantilla) {
+        console.log("mostramos el cuerpo y lo cargamos con la data de la plantilla N°:" + plantilla);
+        $("#divCuerpo1").css("display", "block");
+        $("#divCuerpo2").css("display", "block");
+
+        opcion = 2;
+        callback_gral("index.php?pagina=paginas.modificar_docto&funcion=fun_cambia_estado_cuerpo&estado=" + opcion);
+
+        $.ajax({
+            data: {
+                p_plantilla: plantilla,
+
+            },
+            url: 'index.php?pagina=paginas.modificar_docto&funcion=fun_cargar_cuerpo_plantilla',
+            type: 'post',
+            success: function(html) {
+
+                console.log(html);
+                console.log("cargamos el cuerpo del certificado");
+                CKEDITOR.instances.certificado_divCuerpo.setData('<p>' + html + '<p>');
+
+                /*if (html == 'OK') {
+                    callback_gral("index.php?pagina=paginas.generar_docto&funcion=fun_respuesta");
+                } else {
+                    alert("ERROR: se produjo un error al tratar de guardar su certificado.");
+                }*/
+            }
+        });
+
+    }
+
+
+    function validarExt() {
+        var archivoInput = document.getElementById('archivoInput');
+        var archivoRuta = archivoInput.value;
+        var extPermitidas = /(.pdf)$/i;
+        if (!extPermitidas.exec(archivoRuta)) {
+            document.getElementById('visorArchivo').innerHTML = '';
+            $("#divCuerpo1").css("display", "block"); //mostramos el cuerpo
+            $("#divCuerpo2").css("display", "block"); //mostramos el cuerpo
+            alert('Asegurese de haber seleccionado un PDF');
+            archivoInput.value = '';
+            return false;
+        } else {
+
+            opcion = 2; //cambiamos el estado para saber que se hizo un cambio en el cuerpo
+            callback_gral("index.php?pagina=paginas.modificar_docto&funcion=fun_cambia_estado_cuerpo&estado=" + opcion);
+
+            console.log("1.- aqui se borra lo que esta en el cuerpo");
+            //CKEDITOR.instances.certificado_divCuerpo.setData('');
+            $("#divCuerpo1").css("display", "none"); //ocultamos el cuerpo
+            $("#divCuerpo2").css("display", "none"); //ocultamos el cuerpo
+
+            //PRevio del PDF
+            if (archivoInput.files && archivoInput.files[0]) {
+                var visor = new FileReader();
+                visor.onload = function(e) {
+                    document.getElementById('visorArchivo').innerHTML =
+                        '<embed src="' + e.target.result + '" width="500" height="375" />';
+                };
+                visor.readAsDataURL(archivoInput.files[0]);
+            }
+        }
+    }
+
+    function fun_aCertificado() {
+
+
+        $('#a_certificado').attr('style', 'display: none !important');
+        $("#div_vistaPrevia").hide();
+        $("#div_contentCertificado").show();
+
+
+    }
+
+    //ml: accionamos la vista previa del certificado
+    function accionBtnFormVistaPrevia() {
+
+        //console.log("accion vista previa");
+
+        if ($("#div_vistaPrevia").is(':hidden')) {
+
+            $("#a_certificado").show();
+
+            var dato3 = CKEDITOR.instances.certificado_divCuerpo.getData();
+            var dato_archivo = $('#archivoInput').prop("files")[0];
+            var formData = new FormData();
+            formData.append("p_cuerpo", dato3);
+            formData.append("file", dato_archivo);
+            $.ajax({
+                data: formData,
+                url: 'index.php?pagina=paginas.vista_previa&funcion=fun_inicio_vp',
+                type: 'post',
+                success: function(html) {
+                    $("#div_contentCertificado").hide();
+                    $("#div_vistaPrevia").show();
+                    if (html == 'ok') {
+                        console.log("deberia mostrar cuerpo");
+                        $('#iframeVistaPreviaM').attr('src', 'index.php?pagina=paginas.vista_previa&funcion=fun_pdf_con_cuerpo');
+                    } else if (html == 'ok1') {
+                        console.log("deberia mostrar pdf");
+                        $('#iframeVistaPreviaM').attr('src', 'index.php?pagina=paginas.vista_previa&funcion=fun_pdf_adjunto');
+                    }
+                },
+                cache: false,
+                contentType: false,
+                processData: false
+            });
+
+
+        }
+
+
+    }
+</script>
+
+
+
+
+
+
+<div id='certificado'>
+    <div class="col-sm-11">
+        <h1>Modificar Certificado</h1>
+    </div>
+    <div class="col-sm-1">
+        <!-- BEGIN: btn_aCertificado -->
+        <a id="a_certificado" style="display:{DISPLAY_btnACertificado} " class=" btn btn-warning btn-mk" onclick="fun_aCertificado()">volver</a>
+        <!-- END: btn_aCertificado -->
+    </div>
+</div>
+
+
+<!-- BEGIN: div_cotentCertificado -->
+<div style="clear:both; display:{DISPLAY_div_contentCertificado}" id="div_contentCertificado">
+    <!-- END: div_cotentCertificado -->
+    <div style="clear:both">
+        <form id='form_modificar' name='form_modificar' style="text-align:left" enctype="multipart/form-data">
+
+
+            <!-- BEGIN: paso1 -->
+            <fieldset class="fieldset">
+                <legend class="legend">Destinatario</legend>
+                <div class="sec1Destinatario">
+                    {FILE "Sistema/paginas/plantillas/destinatario.html"}
+                </div>
+
+                <div class="sec1Destinatario">
+                    <label class="textoPregunta" for="tipo_envio">
+                            Tipo de envío : 
+                        </label>
+                    <div class="errorModificar" id="errorTipoEnvio">(*) Usted debe seleccionar una opción</div>
+                </div>
+                <div class="sec1Destinatario">
+                    {resultado_tipo_envio}
+                </div>
+            </fieldset>
+            <!-- END: paso1 -->
+            <br>
+
+
+
+            <!-- BEGIN: existe_privacidad -->
+            <fieldset class="fieldset">
+                <legend class="legend">Privacidad</legend>
+                <div class="sec1Destinatario">
+                    <label class="textoPregunta" for="docContieneDatosSenciblesPersonales">
+                            Documento contiene datos sensibles o personales : 
+                        </label>
+                    <div class="errorModificar" id="errorDatosSensibles">(*) Usted debe seleccionar una opción</div>
+                </div>
+
+                <div class="sec1Destinatario">
+                    <label class="labelTipo">Si
+                    <input class="inputTipo" type="radio" id="datosensibleSI" name="datosensibleSINO" value="SI" onclick="miDatoSensibleSINO(this.value,'{cadena}');" {r_dato_sensible_si}></label>&nbsp;&nbsp;
+                    <label class="labelTipo">No
+                    <input class="inputTipo" type="radio" id="datosensibleNO" name="datosensibleSINO" value="NO" onclick="miDatoSensibleSINO(this.value,'{cadena}');" {r_dato_sensible_no}></label>&nbsp;&nbsp;
+                </div>
+                <br> {resultado_privacidad}
+            </fieldset>
+            <!-- END: existe_privacidad -->
+
+
+            <br>
+            <fieldset class="fieldset">
+                <legend class="legend">Cuerpo</legend>
+                <!-- BEGIN: usa_plantilla -->
+
+                <div id="div_paraModificar">
+
+                    <div class="sec1Destinatario" id="div_pregunta_usa_plantilla">
+                        <a id="a_modificar_cuerpo" class="button" onclick="fun_modificar_cuerpo(1)">Cancelar Modificación</a>
+                        <br><br>
+                        <label class="textoPregunta" for="DocUsaPlantilla">Usar plantilla :</label>
+                        <div class="errorModificar" id="errorUsaPlantilla">(*) Usted debe seleccionar una opción</div>
+                    </div>
+                    <div class="sec1Destinatario" id="div_opciones_usa_plantilla">
+                        <label class="labelTipo">Si</label>
+                        <input class="inputTipo" type="radio" id="usarPlantillaSI" name="usarPlantillaSINO" value="SI" onclick="datoTipoPlantilla(this.value);">
+                        <label class="labelTipo">No</label>
+                        <input class="inputTipo" type="radio" id="usarPlantillaNO" name="usarPlantillaSINO" value="NO" onclick="datoTipoPlantilla(this.value);">
+                    </div>
+                    <br>
+                    <div class="sec1Destinatario" id="div_plantillas_disponibles">
+                        <label class="labelTipo">¿Que plantilla quiere utilizar?:</label>
+                        <div class="errorModificar" id="errorTipoPlantilla">(*) Usted debe seleccionar una opción</div>
+                        <ul>
+                            <!-- BEGIN: plantillas_disponibles -->
+                            {plantilla_disponible}
+                            <!-- END: plantillas_disponibles -->
+                        </ul>
+                    </div>
+
+                    <diV class='sec1Destinatario' id="divSeleccionaPdf" style="display:none">
+                        <label class='seleccionaPdf' for='destinatario'>Seleccionar PDF</label>
+                        <input type="file" id="archivoInput" name="archivoInput" onchange="return validarExt()" />
+                        <br><br>
+                        <div id="visorArchivo">
+                            <!--Aqui se desplegará el fichero-->
+                        </div>
+                    </div>
+
+                    <div class="sec1Destinatario" id="divCuerpo1" style="display:none">
+                        <label class="textoPregunta" for="conCopia">Cuerpo :</label>
+                    </div>
+                    <div class="sec1Destinatario" id="divCuerpo2" style="display:none">
+                        <table width="90%" align="center">
+                            <tr>
+                                <td>
+                                    <textarea id="certificado_divCuerpo" name="certificado_divCuerpo">
+                                        <!-- BEGIN: cuerpo_certificado -->
+                                            {r_cuerpo}
+                                        <!-- END: cuerpo_certificado -->
+                                        </textarea>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+
+                <diV class='sec1Destinatario' id="div_micuerpo">
+                    <a id="a_modificar_cuerpo" class="button" onclick="fun_modificar_cuerpo(2)">Modificar Cuerpo</a>
+                    <br><br> {mostrar_opcion_cuerpo}
+                </div>
+
+                <!-- END: usa_plantilla -->
+
+            </fieldset>
+
+            <br>
+            <fieldset class="fieldset">
+                <legend class="legend">Expediente</legend><br>
+
+                <diV class='sec1Destinatario'>
+                    <!-- BEGIN: padre -->
+                    <input type="hidden" name="padre" id="padre" value="{padre}">
+                    <input type="hidden" name="wf" id="wf" value="{wf}">
+                    <input type="hidden" name="tipo" id="tipo" value="{tipo}">
+
+                    <a class='alink' href='javascript:void(0)' id='btnVerExpediente' onclick='click_verExpediente(1,{padre});'>Ver Expediente</a>
+                    <!-- END: padre -->
+                </diV>
+                <br>
+                <div class="sec1Destinatario">
+                    <label class="textoPregunta" for="DocContieneDatosSenciblesPersonales">Adjuntos :</label>
+                    <div id="div_adjuntosResolucion">
+                        <!-- BEGIN: div_adjuntosResolucion -->
+                        <ul class="filetree treeview">
+                            <!-- BEGIN: adjunto -->
+                            <li><span class="file"> <a href="index.php?pagina=paginas.redactar&funcion=adjunto&exp={ADJ.ID}&val={ADJ.VAL}" target="_blank"><img src="/biblioteca/images/jquery/treeview/file.gif"/> {ADJ.ADJ_NOMBRE}</a>
+                                <!-- BEGIN: eliminar -->
+                                &nbsp;&nbsp;&nbsp;<span style="cursor:pointer" onClick="click_eliminarAdjunto('{ADJ.ADJ_HASH}')">[<img src="Sistema/img/eliminar-destinatario.png" />Eliminar]
+                                <!-- END: eliminar --></span><br />
+                                </span>
+                            </li>
+                            <!-- END: adjunto -->
+                        </ul>
+                        <!-- END: div_adjuntosResolucion -->
+                    </div>
+                </div>
+            </fieldset>
+            <br>
+            <fieldset class="fieldset">
+                <legend class="legend">Versiones</legend>
+                <div class="sec1Destinatario">
+                    <ul>
+                        <!-- BEGIN: listado_versiones -->
+                        {listado_versiones}
+                        <!-- END: listado_versiones -->
+
+                    </ul>
+                </div>
+            </fieldset>
+            <br>
+            <fieldset class="fieldset">
+                <div class="secBotonera">
+                    <a class="btn btn-warning btn-mk" href='javascript:void(0)' id='btnFormCerrar' onclick="accionCerrarCertificado();">Cerrar</a> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    <a class="btn btn-warning btn-mk" href='javascript:void(0)' id='btnFormGrabar' onclick="accionActualizar();">Grabar</a>&nbsp;&nbsp;&nbsp;
+                    <a class="btn btn-warning btn-mk" href='javascript:void(0)' id='btnFormVistaPrevia' onclick="accionBtnFormVistaPrevia();">Vista Previa</a>&nbsp;&nbsp;&nbsp;
+                    <a class="btn btn-warning btn-mk" href='javascript:void(0)' id='btnFormEnviaraAVB' onclick="accionBtnFormEnviaraAVB();">Enviar A VB</a>&nbsp;&nbsp;&nbsp;
+
+                    <!-- BEGIN: mostrar_btn_firmar -->
+                    {mostrar_btn_firmar}&nbsp;&nbsp;&nbsp;
+                    <!-- END: mostrar_btn_firmar -->
+
+                    <a class="btn btn-warning btn-mk" href='javascript:void(0)' id='btnFormEliminar' onclick="accionBtnFormEliminar();" disabled>Eliminar</a>
+                </div>
+            </fieldset>
+
+        </form>
+    </div>
+</div>
+</div>
+
+
+
+<!-- BEGIN: div_vistaPrevia -->
+<div id="div_vistaPrevia" style="display:{DISPLAY_div_vistaPrevia}">
+    <div class="container">
+        <iframe style="display:{DISPLAY_iframeVistaPreviaM}" id="iframeVistaPreviaM" name="iframeVistaPreviaM" title="Previsualizacion" src="{SRC_IFRAME_VISTA_PREVIA}" frameborder="1" width="800px" height="500px" scrolling="auto"></iframe>
+    </div>
+</div>
+<!-- END: div_vistaPrevia -->
+
+
+
+
+
+<div id="div_respuesta" title="Atención" class="ui-widget">
+    <!-- BEGIN: div_respuesta -->
+    {mensaje_respuesta} {botonera_respuesta}
+    <!-- END: div_respuesta -->
+</div>
+
+<div id="div_verExpediente" title="Ver Expediente" class="ui-widget">
+    <!-- BEGIN: div_verExpediente -->
+    {FILE "Sistema/paginas/plantillas/ver_expediente.html"}
+    <!-- 	END: div_verExpediente -->
+</div>
+<div id="div_ver_version" title="Información de la Versión" class="ui-widget">
+    <!-- BEGIN: div_ver_version -->
+
+    <fieldset class="fieldset">
+        <div class="sec1Destinatario">
+            <label class='seleccionaPdf' for='para_vb'>Versión :</label>
+            <spam>{version_version}</spam>
+        </div>
+        <div class="sec1Destinatario">
+            <label class='seleccionaPdf' for='visacion_vb'>Fecha: </label>
+            <spam>{version_fecha}</spam>
+        </div>
+        <div class="sec1Destinatario">
+            <label class='seleccionaPdf' for='visacion_vb'>Usuario: </label>
+            <spam>{version_usuario}</spam>
+        </div>
+    </fieldset>
+    <!-- 	END: div_ver_version -->
+</div>
+
+
+{FILE "Sistema/paginas/plantillas/enviar_vbm.html"} {FILE "Sistema/paginas/plantillas/firmar_certificado.html"}
+
+
+
+<!-- END: main -->

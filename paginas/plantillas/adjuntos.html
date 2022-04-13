@@ -1,0 +1,30 @@
+<div id="droppable" style="width:100%;" class="caja ui-droppable">
+    <table width="100%">
+        <tbody>
+            <tr>
+                <td>
+                    <div style="border-bottom:1px dashed #ccc;  font-weight:bold; font-size:13px; padding:3px 0px 0px 5px;">Lista Anexos</div>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <div id="div_adjuntosResolucion">
+                        <!-- BEGIN: div_adjuntosResolucion -->
+                        <table>
+                            <tr>
+                                <!-- BEGIN: adjunto -->
+                                <td><span class="file"> 
+                                <a href="index.php?pagina=paginas.redactar&funcion=adjunto&exp={ADJ.ID}&val={ADJ.VAL}" target="_blank"><img src="/biblioteca/images/jquery/treeview/file.gif"/> {ADJ.ADJ_NOMBRE}</a><!-- BEGIN: eliminar -->&nbsp;&nbsp;&nbsp;<span style="cursor:pointer" onClick="click_eliminarAdjunto('{ADJ.ADJ_HASH}')">[<img src="Sistema/img/eliminar-destinatario.png" />Eliminar]
+                                <!-- END: eliminar --></span><br />
+                                    </span>
+                                </td>>
+                                <!-- END: adjunto -->
+                            </tr>
+                        </table>
+                        <!-- END: div_adjuntosResolucion -->
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>

@@ -1,0 +1,148 @@
+<!-- BEGIN: paso2 -->
+<script type="text/javascript">
+
+
+	$(document).ready(function(){	
+		inicializarTipoEnvio();
+	})
+	
+	function change_jurisprudencia(self){
+		callback_gral("index.php?pagina=paginas.redactar&funcion=fun_jurisprudencia",{RES_JURISPRUDENCIA : $(self).val()});
+	}
+
+	
+	function fun_agregarOtroEnvio(self){
+		callback_gral("index.php?pagina=paginas.redactar&funcion=fun_agregarOtroEnvio",{});
+	}
+	
+
+	
+	function change_moduloTipoAtributo(self){
+		
+		if($(self).val() == '1'){
+			$('.atributo_select').show();
+		}else{
+			$('.atributo_select').hide();
+		}
+		
+		
+	}
+	
+	function inicializarTipoEnvio(){
+		$("input[name='check_tipoEnvio[]']").change(
+			function(){
+				callback_gral("index.php?pagina=paginas.redactar&funcion=fun_setEnvio",$("input[name='check_tipoEnvio[]']:checked").serialize());
+			}
+		);
+		$('.atributo_select').hide();
+		 $( "#div_tipoEnvio" ).buttonset();
+	}
+		
+</script>
+  <style>
+  #format { margin-top: 2em; }
+  </style>
+<div id="div_agregarAtributo" title="Agregar Atributo " style="display:none">
+<form id="form_agregarAtributo">
+	<input type="hidden" name="hidden_idModulo" id="hidden_idModulo" />
+      <div style="display: table-cell">
+        <label for="select_tipoAtributo" class="label-paso1">Tipo de Atributo</label>
+        :</div>
+      <div style="display: table-cell">
+        <select class="js-example-basic-single" id="select_tipoAtributo" name="select_tipoAtributo" onchange="change_moduloTipoAtributo(this)">
+          <!-- BEGIN: option_tipoAtributo --><option value="{ATR.ATR_ID}" >{ATR.ATR_DESCRIPCION}</option><!-- END: option_tipoAtributo -->
+        </select>        
+      </div><br />
+      <div style="display: table-cell">
+        <label for="input_atrOrden" class="label-paso1">Orden (Ej: 1)</label>
+        :</div>
+      <div style="display: table-cell">
+        <input type="text" class="numero" id="input_atrOrden" name="input_atrOrden" />      
+      </div><br />
+      <div style="display: table-cell">
+        <label for="input_atrLabel" class="label-paso1">Label (Ej: Ingrese Fecha)</label>
+        :</div>
+      <div style="display: table-cell">
+        <input type="text" id="input_atrLabel" name="input_atrLabel" />      
+      </div><br />
+      <div style="display: table-cell">
+        <label for="input_atrLabel" class="label-paso1">Tamaño Input (Ej: 30)</label>
+        :</div>
+      <div style="display: table-cell">
+        <input type="text" class="numero" id="input_atrTamano" name="input_atrTamano" />      
+      </div><br />
+      <div style="display: table-cell">
+        <label for="input_atrColumna" class="label-paso1">Nombre Columna (Ej: FECHA_INGRESO)</label>
+        :</div>
+      <div style="display: table-cell">
+        <input type="text" id="input_atrColumna" name="input_atrColumna" />      
+      </div>
+      <br />
+      <div style="display: table-cell" class="atributo_select">
+        <label for="input_atrColumna" class="label-paso1">Tipos Datos</label>
+        :</div>
+      <div style="display: table-cell" class="atributo_select">
+       <select class="js-example-basic-single" class="js-example-basic-single" id="select_tipoDatosAtributo" name="select_tipoDatosAtributo" >
+          <option value="estatico" >Estaticos</option>
+          <option value="funcion" >Funcion (pl/sql)</option>
+        </select>       
+      </div>   <br />
+      <div style="display: table-cell" class="atributo_select">
+        <label for="input_atrDatoTipoDato" class="label-paso1">Datos o Funcion (Segun corresponda)</label>
+        :</div>
+      <div style="display: table-cell" class="atributo_select">
+       <input type="text" id="input_atrDatoTipoDato" name="input_atrDatoTipoDato" />          
+      </div>   
+</form>
+</div>
+<div class="ui-widget ui-widget-content" id="div_principalPaso2" style="display:{DISPLAY_PASO2}">
+  <form class="formulario-paso2">
+    <div id="div_jurisprudencia" class="form_text" >
+      <div style="display: table-cell">
+        <label for="select_jurisprudencia" class="label-paso1">Jurisprudencia</label>
+        :</div>
+      <div style="display: table-cell">
+        <select class="js-example-basic-single" id="select_jurisprudencia" name="select_jurisprudencia"  onchange="change_jurisprudencia(this)">
+          <option value="S" {SELECTED_JUR_S}>SI</option>
+          <option value="N" {SELECTED_JUR_N}>NO</option>
+        </select>
+      </div>
+    </div>
+    
+    <div id="div_tipoEnvio" class="form_text" >
+	<!-- BEGIN: div_tipoEnvio -->
+      <div style="display: table-cell">
+        <label for="select_tipoEnvio[]" class="label-paso1">Tipo de Envio</label>
+        :</div>
+      	<!-- BEGIN: select_tipoEnvio -->
+      <div style="display: table-cell">
+      <div id="div_tipoEnvio">
+        	<!-- BEGIN: option_tipoEnvio --><input type="checkbox" name="check_tipoEnvio[]" id="check_{TIPENV.ENV_ID}" value="{TIPENV.ENV_ID}" {TIPENV.CHECKED}><label for="check_{TIPENV.ENV_ID}">{TIPENV.ENV_NOMBRE}</label>&nbsp;
+            <!-- END: option_tipoEnvio -->
+      </div></div>
+      
+      <!-- END: select_tipoEnvio -->
+	  <script type="text/javascript">
+		$(document).ready(function(){
+			inicializarTipoEnvio();
+		})
+		
+	  </script>
+	 <!-- END: div_tipoEnvio -->
+    </div>
+    <br />
+    {FILE "Sistema/paginas/plantillas/propiedades_arbol.html"}
+    <BR />
+    {FILE "Sistema/paginas/plantillas/modulos_plantillas.html"}
+	<!-- BEGIN: firma_multiple -->
+	{FILE "Sistema/paginas/plantillas/modulo_firma_multiple.html"}
+	<!-- END: firma_multiple -->
+    <div style="display: table-cell; float:left; padding:20px"><a style="cursor:pointer" class="button" onclick="fun_irPaso(1)"><img src="Sistema/img/izquierda.png" />Anterior</a> </div>
+    <div style="display: table-cell; float:right; padding:20px"><a style="cursor:pointer" class="button" onclick="fun_irPaso(3)"><img src="Sistema/img/derecha.png" />Siguiente</a> </div>
+  </form>
+     
+    
+    
+
+</div>
+<!-- END: paso2 --> 

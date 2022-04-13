@@ -1,0 +1,731 @@
+<script type="text/javascript">
+    $(document).ready(function() {
+
+
+        $("#div_dialogPara").dialog({
+            autoOpen: false,
+            modal: true,
+            width: '650px',
+            close: function() {
+                $("#select_tipoDestinatarioPara").val('-1');
+                $("#select_tipoDestinatarioCopia").val('-1')
+            }
+        });
+        $("#div_dialogOtro").dialog({
+            autoOpen: false,
+            modal: true,
+            width: '650px'
+        });
+        $("#div_eligeUsuarios").dialog({
+            autoOpen: false,
+            modal: true,
+            width: '650px'
+        });
+        $("#div_buscarFiscalizado").dialog({
+            autoOpen: false,
+            modal: true,
+            width: '650px',
+            height: 300
+        });
+
+
+        $("#input_busquedaFiscalizado").autocomplete({
+            source: "index.php?pagina=paginas.redactar&funcion=fun_buscarFiscalizado",
+            minLength: 3,
+            select: function(event, ui) {
+                /*$("#input_clasificacionBuscada").val(ui.item.id);*/
+                var cadena = ui.item.id;
+                var arreglo = cadena.split("]SEPARA[");
+                var hid = "hidden_";
+                var distribucion = $("#div_buscarFiscalizado").find('#input_tipoDistribucion').val();
+                var valores = "checkbox_fiscalizado[]=" + arreglo[0] + "&hidden_" + arreglo[0] + "=" + encodeURIComponent(arreglo[1]) + "&hidden_tipoDistribucion=" + distribucion + "&hidden_tipoEntidad=" + arreglo[2];
+
+                //alert(arreglo.serialize())
+                callback_gral("index.php?pagina=paginas.generar_docto&funcion=fun_agregarSeleccionadoDestinatario",
+                    /*{"":arreglo[0],
+                    str1.concat(arreglo[0]):arreglo[1],
+                    "hidden_tipoDistribucion":1,
+                    "hidden_tipoEntidad":arreglo[2]¨*/
+                    valores);
+                $("#div_buscarFiscalizado").dialog('close');
+            },
+            open: function() {
+                $(this).removeClass("ui-corner-all").addClass("ui-corner-top");
+            },
+            close: function() {
+                $(this).removeClass("ui-corner-top").addClass("ui-corner-all");
+            }
+        });
+
+    })
+
+
+
+
+    function fun_completarDialogDestinatarios(tipo_entidad, distribucion, texto) {
+
+        //alert("Estoy con: " + tipo_entidad + "//" + distribucion + "//" + texto);
+        $("#div_dialogPara").html("Cargando... Un momento");
+        callback_gral("index.php?pagina=paginas.generar_docto&funcion=fun_getDestinatariosTipo", {
+            tipo_entidad: tipo_entidad,
+            distribucion: distribucion,
+            texto: texto
+        });
+    }
+
+    function fun_eliminarSeleccionadoDestinatario(rut) {
+        //$("#div_dialogPara").html("Cargando... Un momento");
+        //callback_gral("index.php?pagina=paginas.redactar&funcion=fun_eliminarSeleccionadoDestinatario", {
+        callback_gral("index.php?pagina=paginas.generar_docto&funcion=fun_eliminarSeleccionadoDestinatario", {
+            rut: rut
+        });
+    }
+
+    function change_selectPara(f, distribucion, texto) {
+        //alert($(f).val() + "///" + distribucion + "//" + texto);
+        if ($(f).val() == -1) return false;
+        fun_completarDialogDestinatarios($(f).val(), distribucion, texto);
+    }
+
+    function change_selectCopia(f, distribucion, texto) {
+        //alert($(f).val() + "///" + distribucion + "//" + texto);
+        if ($(f).val() == -1) return false;
+        fun_completarDialogDestinatarios($(f).val(), distribucion, texto);
+    }
+
+    function fun_mostrarSeilUsuario(rut) {
+        //callback_gral("index.php?pagina=paginas.redactar&funcion=fun_mostrarSeilUsuario", {
+        callback_gral("index.php?pagina=paginas.generar_docto&funcion=c", {
+            rut: rut
+        });
+    }
+
+    function click_agregarOtro(distribucion) {
+        callback_gral("index.php?pagina=paginas.generar_docto&funcion=fun_agregarOtro", {
+            distribucion: distribucion
+        });
+    }
+
+    function click_editarDestinatario(rut) {
+        //callback_gral("index.php?pagina=paginas.redactar&funcion=fun_editarDestinatario", {
+        callback_gral("index.php?pagina=paginas.generar_docto&funcion=fun_editarDestinatario", {
+            rut: rut
+        });
+    }
+
+
+    function fun_enviarOtro(distribucion) {
+
+        fun_limpiarFormularioOtroLabel();
+        var errorOtro = false;
+        if ($.trim($("#input_otroNombre").val()) == "") {
+            errorOtro = true;
+            $("#label_errorOtroNombre").text("Debe ingresar nombre del destinatario.")
+        }
+
+        if ($.trim($("#input_otroDireccion").val()) == "" && $.trim($("#input_otroCorreoElectronico").val()) == "") {
+            errorOtro = true;
+            $("#label_errorOtro").text("Debe ingresar dirección o correo electrónico.")
+        }
+
+        var valor_rut = $.trim($("#input_otroRut").val());
+        miRut = valor_rut.split("-")
+        var cantidad = miRut[0].length;
+        var tipo_rut = 0;
+        //alert(miRut[0]);
+        //alert(miRut[1]);
+
+        if (miRut.length > 1) {
+
+            if (cantidad > 6 && cantidad < 9) {
+                console.log("rut valido :" + miRut[0].length);
+                console.log("rut :" + miRut[0]);
+                tipo_rut = 1;
+            } else if (cantidad == 0) {
+                console.log("rut valido :" + miRut[0].length);
+                console.log("rut :" + miRut[0]);
+                tipo_rut = 2;
+            } else {
+                //alert("rut no valido :" + miRut[0].length);
+                errorOtro = true;
+                $("#label_errorOtroRut").text("Rut no válido, debe ingresar según formato sugerido, sin puntos y con guión.")
+            }
+
+        } else {
+
+            //alert("no tiene guion :" + valor_rut);
+            if (cantidad > 0) {
+                errorOtro = true;
+                $("#label_errorOtroRut").text("Rut no válido.")
+            } else {
+                console.log("rut valido :" + miRut[0].length);
+                console.log("rut :" + miRut[0]);
+                tipo_rut = 2;
+            }
+
+        }
+
+
+        /*if (validarRut(valor_rut) == false) {
+            errorOtro = true;
+            $("#label_errorOtroRut").text("Rut no válido, debe ingresar según formato sugerido, sin puntos y con guión.")
+        }*/
+
+        var valor_email = $.trim($("#input_otroCorreoElectronico").val());
+        if (valor_email != "") {
+            if (!validarEmail(valor_email)) {
+                errorOtro = true;
+                $("#label_errorOtroCorreoElectronico").text("Correo electrónico no válido")
+            }
+        }
+
+
+        if (!errorOtro) { //en caso de no existir errores se procedera a incluir el otro destinatario
+
+            opcion = 2; //cambiamos el estado para saber que se hizo un cambio en destinatarios
+            callback_gral("index.php?pagina=paginas.modificar_docto&funcion=fun_cambia_estado_destinatario&estado=" + opcion);
+
+            $("#form_agregarOtro").find("#hidden_distribucion").val(distribucion);
+            callback_gral("index.php?pagina=paginas.generar_docto&funcion=fun_agregarFiscalizadoParaOtro",
+                $("#form_agregarOtro").serialize(), {
+                    miRut: miRut[0],
+                    tipo_rut: tipo_rut
+                }
+            );
+            /*$.ajax({
+            	url: 'index.php?pagina=paginas.paso1&funcion=fun_agregarFiscalizadoParaOtro',
+            	type: 'POST',
+            	async: true,
+            	data: $("#form_agregarOtro").serialize(),
+            	success: function(html){
+            		$("#div_dialogOtroPara").dialog('close');
+            		fun_agregarSeleccionado();					
+            	},
+            	error: function(a,b,c){
+            		alert(a+b+c);
+            	}
+            });	*/
+        }
+
+    }
+
+    function fun_limpiarFormularioOtroLabel() {
+        $("#label_errorOtroNombre").text('');
+        $("#label_errorOtro").text('');
+        $("#label_errorOtroRut").text('');
+        $("#label_errorOtroCorreoElectronico").text('');
+    }
+
+    function fun_guardarUsuariosSeleccionados() {
+        if ($("#div_agregarOtroUsuarioEntidad").is(":visible")) {
+            retorno = click_guardaOtrosUsuarioEntidad(true);
+        } else {
+            callback_gral("index.php?pagina=paginas.redactar&funcion=fun_guardarUsuariosSeleccionados", $("#form_eligeUsuarios").serialize());
+        }
+    }
+
+    function fun_otroUsuariosSeleccionados() {
+        $("#div_agregarOtroUsuarioEntidad").show();
+        //callback_gral("index.php?pagina=paginas.redactar&funcion=fun_guardarUsuariosSeleccionados",$("#form_eligeUsuarios").serialize());
+    }
+
+    function fun_cargoDestinatario(self, rut) {
+
+        opcion = 2; //cambiamos el estado para saber que se hizo un cambio en destinatarios
+        callback_gral("index.php?pagina=paginas.modificar_docto&funcion=fun_cambia_estado_destinatario&estado=" + opcion);
+
+        /*
+        callback_gral("index.php?pagina=paginas.redactar&funcion=fun_cargoDestinatario", {
+            rut: rut,
+            cargo: $(self).val()
+        });*/
+    }
+
+    function click_busquedaDestinatario(distribucion) {
+        $("#input_busquedaFiscalizado").val("");
+        $("#div_buscarFiscalizado").find('#input_tipoDistribucion').val(distribucion);
+        $("#div_buscarFiscalizado").dialog('open');
+        //callback_gral("index.php?pagina=paginas.redactar&funcion=fun_busquedaDestinatario",{rut:rut,cargo:$(self).val(), distribucion:distribucion});
+    }
+
+
+    function click_guardaOtrosUsuarioEntidad(seleccionar) {
+        var v_rut = $("#form_eligeUsuarios").find("#hidden_rutFiscalizado").val();
+        var v_nombre = $("#form_eligeUsuarios").find("#text_NombreOtroEntidad").val();
+        var v_email = $("#form_eligeUsuarios").find("#text_EmailOtroEntidad").val();
+        var v_direccion = $("#form_eligeUsuarios").find("#text_DireccionOtroEntidad").val();
+        var v_correo_valido = false;
+        var v_direccion_valido = false;
+
+        if (v_nombre.length <= 0) {
+            alert('Debe ingresar el Nombre del Destinatario');
+            $("#form_eligeUsuarios").find("#text_NombreOtroEntidad").focus();
+            return false;
+        }
+        if (v_email.length > 0) {
+            if (validarEmail(v_email) == false) {
+                alert('El Email ingresado es incorrecto.');
+                return false;
+            }
+            v_correo_valido = true;
+        }
+        if (v_direccion.length > 0) {
+            v_direccion_valido = true
+        }
+        if (v_direccion_valido == false && v_correo_valido == false) {
+            alert('Debe ingresar Email o Direccion del destinatario');
+            return false;
+        }
+        if (seleccionar) {
+            callback_gral("index.php?pagina=paginas.redactar&funcion=fun_guardaOtrosUsuarioEntidad", {
+                    rut: v_rut,
+                    nombre: v_nombre,
+                    direccion: v_direccion,
+                    email: v_email
+                },
+                function() {
+                    callback_gral("index.php?pagina=paginas.redactar&funcion=fun_guardarUsuariosSeleccionados", $("#form_eligeUsuarios").serialize());
+                }
+            );
+
+        } else {
+            callback_gral("index.php?pagina=paginas.redactar&funcion=fun_guardaOtrosUsuarioEntidad", {
+                rut: v_rut,
+                nombre: v_nombre,
+                direccion: v_direccion,
+                email: v_email
+            });
+        }
+        return true;
+    }
+
+
+
+    function validarEmail(email) {
+        expr = /^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/;
+        if (!expr.test(email))
+            return false;
+        return true;
+    }
+
+
+    function validarRut(rut) {
+
+        if (rut.toString().trim() != '' && rut.toString().indexOf('-') > 0) {
+            var caracteres = new Array();
+            var serie = new Array(2, 3, 4, 5, 6, 7);
+            var dig = rut.toString().substr(rut.toString().length - 1, 1);
+            rut = rut.toString().substr(0, rut.toString().length - 2);
+
+            for (var i = 0; i < rut.length; i++) {
+                caracteres[i] = parseInt(rut.charAt((rut.length - (i + 1))));
+            }
+
+            var sumatoria = 0;
+            var k = 0;
+            var resto = 0;
+
+            for (var j = 0; j < caracteres.length; j++) {
+                if (k == 6) {
+                    k = 0;
+                }
+                sumatoria += parseInt(caracteres[j]) * parseInt(serie[k]);
+                k++;
+            }
+
+            resto = sumatoria % 11;
+            dv = 11 - resto;
+
+            if (dv == 10) {
+                dv = "K";
+            } else if (dv == 11) {
+                dv = 0;
+            }
+
+            if (dv.toString().trim().toUpperCase() == dig.toString().trim().toUpperCase())
+                return true;
+            else
+                return false;
+        } else {
+            return false;
+        }
+
+    }
+</script>
+
+<div id="div_destinatario" class="mb-3">
+    <div style="display: table-cell">
+        <label class="label-paso1">Destinatario(s) : </label></div>
+    <div style="display: table-cell; margin-left: 10px;">&nbsp;&nbsp;
+        <select class="js-example-basic-single" onChange="change_selectPara(this,1,null);" name="select_tipoDestinatarioPara" id="select_tipoDestinatarioPara">
+            <option value="-1">Seleccione</option>
+            <!-- BEGIN: option_para -->
+            <!-- BEGIN: grupo -->
+            <optgroup label="{PARA.GRUPO}">
+            <!-- END: grupo -->
+            <option value="{PARA.ID}">{PARA.DESTINATARIO}</option>
+            <!-- END: option_para -->
+        </select>&nbsp;&nbsp;&nbsp;
+    </div>
+    <div style="display: table-cell"> <a class="btn btn-sm btn-warning p-2" style="cursor:pointer" onClick="click_agregarOtro(1)">Agregar Otro</a> &nbsp;&nbsp;&nbsp;</div>
+    <div style="display: table-cell"> <a class="btn btn-sm btn-warning p-2" style="cursor:pointer" onClick="click_busquedaDestinatario(1)">Búsqueda Destinatario</a> </div>
+</div>
+
+
+<table cellspacing="0" cellpadding="1" style="width:100%; border:0;">
+    <tbody>
+        <tr>
+            <td><span> </span></td>
+        </tr>
+        {MIS_FISCALIZADOS}
+        <div id="div_fiscalizadosAeliminar"></div>
+    </tbody>
+</table>
+<div id="div_listaDistribucion">
+    <!-- BEGIN: div_listaDistribucion -->
+    <div style="width:90%;" class="caja" id="caja1">
+        <table cellspacing="0" cellpadding="1" style="width:100%; border:0;">
+            <tbody>
+                <tr>
+                    <td><span> </span></td>
+                </tr>
+                <!-- BEGIN: fiscalizado_lista -->
+                <tr>
+                    <td width="5%">
+                        <!-- input type="checkbox" name="checkbox_fiscalizadoLista[{FISCALIZADO.DES_RUT}]" onClick="fun_habilitarBotonEliminar1();" value="{FISCALIZADO.DES_RUT}" id="checkbox_fiscalizadoLista_{FISCALIZADO.DES_RUT}"-->
+                    </td>
+
+
+
+                    <td width="95%"><span class="item1">{FISCALIZADO.TRA_NOMBRE}</span>&nbsp;&nbsp;&nbsp;
+                        <label for="input_cargoFiscalizadoLista_{FISCALIZADO.DES_RUT}">Cargo ocupado </label> :
+                        <input type="text" class="textboxCargo" id="input_cargoFiscalizadoLista_{FISCALIZADO.DES_RUT}" onblur="fun_cargoDestinatario(this,{FISCALIZADO.DES_RUT})" value="{FISCALIZADO.DES_CARGO}" name="input_cargoFiscalizadoLista_{FISCALIZADO.DES_RUT}">
+                        <br>
+                        <!-- BEGIN: es_copia -->
+                        <font style="font-size:15px;font-weight:bold;background:#FC0">CC...:&nbsp;</font>
+                        <!-- END: es_copia -->
+                        <span style="font-weight:100;font-size:10px;" id=""> {FISCALIZADO.DES_NOMBRE}</span><span id="span_usuarioSeil"></span> <br>
+                        <input type="hidden" class="miNombreDes" name="miNombreDes[]" id="miNombreDes_{FISCALIZADO.DES_RUT}" value="{FISCALIZADO.DES_NOMBRE}">
+
+
+
+                        <!-- BEGIN: direccion --><img width="18px" id="" alt="" src="Sistema/img/sobre.png"> <span style="font-weight:100;font-size:9px;" id="">{FISCALIZADO.DES_DIRECCION}</span><br />
+                        <input type="hidden" class="miDireccion" name="miDireccion[]" id="miDireccion_{FISCALIZADO.DES_RUT}" value="{FISCALIZADO.DES_DIRECCION}">
+                        <!-- END: direccion -->
+                        <!-- BEGIN: email --><img width="18px" id="" alt="" src="Sistema/img/arroba.png"> <span style="font-weight:100;font-size:9px;" id="">{FISCALIZADO.DES_CORREO}</span><br />
+                        <input type="hidden" class="miCorreo" name="miCorreo[]" id="miCorreo_{FISCALIZADO.DES_RUT}" value="{FISCALIZADO.DES_CORREO}">
+                        <!-- END: email -->
+
+                        <input type="hidden" class="miTipo" name="miTipo[]" id="miTipo_{FISCALIZADO.DES_RUT}" value="{FISCALIZADO.DES_TIPO_ENT}">
+                        <input type="hidden" class="miDestinatario" name="miDestinatario[]" id="miDestinatario_{FISCALIZADO.DES_RUT}" value="{FISCALIZADO.DES_RUT}">
+                        <div style="display: table-cell">
+                            <a style="cursor:pointer" onClick="fun_eliminarSeleccionadoDestinatario('{FISCALIZADO.DES_RUT}');" class="btn btn-sm btn-warning"><img src="Sistema/img/eliminar-destinatario.png" />Eliminar&nbsp;Destinatario</a>
+                        </div>
+
+                        <!-- BEGIN: seleccionar_usuarios -->
+                        <!--<div style="display: table-cell">
+                            <a style="cursor:pointer" onClick="fun_mostrarSeilUsuario('{FISCALIZADO.DES_RUT}');" class="button"><img src="Sistema/img/seleccionar-usuario.png" />Seleccionar Usuarios <strong>({NUMERO_USUARIOS})</strong></a>
+                        </div>-->
+                        <!-- END: seleccionar_usuarios -->
+                        <!-- BEGIN: editar_destinatario -->
+                        <div style="display: table-cell">
+                            <a style="cursor:pointer" onClick="click_editarDestinatario('{FISCALIZADO.DES_RUT}');" class="btn btn-sm btn-warning"><img src="Sistema/img/modificar.png" />Modificar Destinatario</a>
+                        </div>
+                        <!-- END: editar_destinatario -->
+
+                        <br></td>
+                </tr>
+                <tr>
+                    <td><span><br />
+            </span></td>
+                </tr>
+
+                <!-- END: fiscalizado_lista -->
+            </tbody>
+        </table>
+    </div>
+    <br />
+    <!-- END: div_listaDistribucion -->
+</div>
+
+<!-- |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||    -->
+<!-- |||||||||||||||||||||||||||||||||||||||||||||||||< COPIA >|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||    -->
+<!-- |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||    -->
+
+<div id="div_destinatarioCopia" class="mb-3">
+    <div style="display: table-cell">
+        <label class="label-paso1">Con Copia(s) :</label></div>
+    <div style="display: table-cell">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <select class="js-example-basic-single" onChange="change_selectCopia(this,2,null);" name="select_tipoDestinatarioCopia" id="select_tipoDestinatarioCopia">
+            <option value="-1">Seleccione</option>
+            <!-- BEGIN: option_copia --><!-- BEGIN: grupo -->
+            <optgroup label="{PARA.GRUPO}">
+            <!-- END: grupo -->
+            <option value="{PARA.ID}">{PARA.DESTINATARIO}</option>
+            <!-- END: option_copia -->
+        </select>&nbsp;&nbsp;&nbsp;
+    </div>
+    <div style="display: table-cell"> <a class="btn btn-sm btn-warning p-2" style="cursor:pointer" onClick="click_agregarOtro(2)">Agregar Otro</a> &nbsp;&nbsp;&nbsp;</div>
+    <div style="display: table-cell"> <a class="btn btn-sm btn-warning p-2" style="cursor:pointer" onClick="click_busquedaDestinatario(2)">Búsqueda Destinatario</a> </div>
+</div>
+<div id="div_listaDistribucionCopia">
+    <!-- BEGIN: div_listaDistribucion_copia -->
+    <div style="width:90%;" class="caja" id="caja1">
+        <table cellspacing="0" cellpadding="1" style="width:100%; border:0;">
+            <tbody>
+                <tr>
+                    <td><span> </span></td>
+                </tr>
+                {MIS_COPIAS}
+                <!-- BEGIN: fiscalizado_lista -->
+                <tr>
+                    <td width="5%">
+                        <!-- input type="checkbox" name="checkbox_fiscalizadoLista[{FISCALIZADO.DES_RUT}]" onClick="fun_habilitarBotonEliminar1();" value="{FISCALIZADO.DES_RUT}" id="checkbox_fiscalizadoLista_{FISCALIZADO.DES_RUT}"-->
+                    </td>
+                    <td width="95%"><span class="item1">{FISCALIZADO.TRA_NOMBRE}</span>&nbsp;&nbsp;&nbsp;
+                        <label for="input_cargoFiscalizadoLista_{FISCALIZADO.DES_RUT}">Cargo ocupado {DES_TIPO_ENT}</label> :
+                        <input type="text" class="textboxCargo" id="input_cargoFiscalizadoLista_{FISCALIZADO.DES_RUT}" value="Gerente General" name="input_cargoFiscalizadoLista_{FISCALIZADO.DES_RUT}">
+                        <br>
+
+                        <!-- BEGIN: es_copia -->
+                        <font style="font-size:15px;font-weight:bold;background:#FC0">CC...:&nbsp;</font>
+                        <!-- END: es_copia -->
+                        <span style="font-weight:100;font-size:10px;" id="">{FISCALIZADO.DES_NOMBRE}</span><span id="span_usuarioSeil"></span> <br>
+                        <input type="hidden" class="miNombreDesCopia" name="miNombreDesCopia[]" id="miNombreDesCopia_{FISCALIZADO.DES_RUT}" value="{FISCALIZADO.DES_NOMBRE}">
+
+                        <!-- BEGIN: direccion --><img width="18px" id="" alt="" src="Sistema/img/sobre.png"> <span style="font-weight:100;font-size:9px;" id="">{FISCALIZADO.DES_DIRECCION}</span><br />
+                        <input type="hidden" class="miCopiaDireccion" name="miCopiaDireccion[]" id="miCopiaDireccion_{FISCALIZADO.DES_RUT}" value="{FISCALIZADO.DES_DIRECCION}">
+                        <!-- END: direccion -->
+                        <!-- BEGIN: email --><img width="18px" id="" alt="" src="Sistema/img/arroba.png"> <span style="font-weight:100;font-size:9px;" id="">{FISCALIZADO.DES_CORREO}</span><br />
+                        <input type="hidden" class="miCopiaCorreo" name="miCopiaCorreo[]" id="miCopiaCorreo_{FISCALIZADO.DES_RUT}" value="{FISCALIZADO.DES_CORREO}">
+                        <!-- END: email -->
+
+
+
+                        <input type="hidden" class="miTipoCopia" name="miTipoCopia[]" id="miTipoCopia_{FISCALIZADO.DES_RUT}" value="{FISCALIZADO.DES_TIPO_ENT}">
+                        <input type="hidden" class="miCopia" name="miCopia[]" id="miCopia_{FISCALIZADO.DES_RUT}" value="{FISCALIZADO.DES_RUT}">
+
+                        <div style="display: table-cell">
+                            <a style="cursor:pointer" onClick="fun_eliminarSeleccionadoDestinatario('{FISCALIZADO.DES_RUT}');" class="btn btn-sm btn-warning"><img src="Sistema/img/eliminar-destinatario.png" />Eliminar&nbsp;Destinatario</a>
+                        </div>
+
+                        <!-- BEGIN: seleccionar_usuarios -->
+                        <!--<div style="display: table-cell">
+                            <a style="cursor:pointer" onClick="fun_mostrarSeilUsuario('{FISCALIZADO.DES_RUT}');" class="button"><img src="Sistema/img/seleccionar-usuario.png" />Seleccionar Usuarios <strong>({NUMERO_USUARIOS})</strong></a>
+                        </div>-->
+                        <!-- END: seleccionar_usuarios -->
+                        <!-- BEGIN: editar_destinatario -->
+                        <div style="display: table-cell">
+                            <a style="cursor:pointer" onClick="click_editarDestinatario('{FISCALIZADO.DES_RUT}');" class="btn btn-sm btn-warning"><img src="Sistema/img/modificar.png" />Modificar Destinatario</a>
+                        </div>
+                        <!-- END: editar_destinatario -->
+                        <br></td>
+                </tr>
+                <tr>
+                    <td><span><br />
+            </span></td>
+                </tr>
+
+                <!-- END: fiscalizado_lista -->
+            </tbody>
+        </table>
+    </div>
+    <br />
+    <!-- END: div_listaDistribucionCopia -->
+</div>
+<div id="div_dialogPara" title="Fiscalizados" class="ui-widget">
+    <!-- BEGIN: div_dialogPara -->
+    <script type="text/javascript">
+        $.expr[':'].icontains = function(obj, index, meta, stack) {
+            return (obj.textContent || obj.innerText || jQuery(obj).text() || '').toLowerCase().indexOf(meta[3].toLowerCase()) >= 0;
+        };
+        $(document).ready(function() {
+
+            $('#input_textoBuscar').keyup(function() {
+                buscar = $(this).val();
+                $('#form_fiscalizadosTodos').find('td').hide();
+
+                if ($.trim(buscar) != '') {
+                    $("#form_fiscalizadosTodos").find("label:icontains('" + buscar + "')").parents('td').show();
+                } else {
+                    $('#form_fiscalizadosTodos').find('td').show();
+                }
+            });
+        });
+
+        function fun_checkearAll(self) {
+            $("[name='checkbox_fiscalizado[]']").attr('checked', $(self).is(':checked'));
+        }
+
+        function fun_agregarSeleccionadoDestinatario() {
+
+            //console.log("agregamos los destinatarios selelccionados");
+            $.each($("[name='checkbox_fiscalizado[]']:checked"), function(key, value) {
+                //muestra los hidden de los datos del destinatario seleccionado en la vista
+                $("#hidden_" + $(value).val()).attr('name', "hidden_" + $(value).val());
+            });
+
+            opcion = 2; //cambiamos el estado para saber que se hizo un cambio en destinatarios
+            callback_gral("index.php?pagina=paginas.modificar_docto&funcion=fun_cambia_estado_destinatario&estado=" + opcion);
+
+            callback_gral("index.php?pagina=paginas.generar_docto&funcion=fun_agregarSeleccionadoDestinatario", $("#form_fiscalizadosTodos").serialize());
+
+        }
+    </script>
+    <center>
+        <div style="width:640px;">
+            <div class="popupTitulo">Fiscalizados : {DES_TIPO_ENT}</div>
+            <div class="popupABC"><a href="#focus_A">A</a> - <a href="#focus_B">B</a> - <a href="#focus_C">C</a> - <a href="#focus_D">D</a> - <a href="#focus_E">E</a> - <a href="#focus_F">F</a> - <a href="#focus_G">G</a> - <a href="#focus_H">H</a> - <a href="#focus_I">I</a>                - <a href="#focus_J">J</a> - <a href="#focus_K">K</a> - <a href="#focus_L">L</a> - <a href="#focus_M">M</a> - <a href="#focus_N">N</a> - <a href="#focus_&;">&Ntilde;</a> - <a href="#focus_O">O</a> - <a href="#focus_P">P</a> - <a href="#focus_Q">Q</a>                - <a href="#focus_R">R</a> - <a href="#focus_S">S</a> - <a href="#focus_T">T</a> - <a href="#focus_U">U</a> - <a href="#focus_V">V</a> - <a href="#focus_W">W</a> - <a href="#focus_X">X</a> - <a href="#focus_Y">Y</a> - <a href="#focus_Z">Z</a></div>
+            <div style="margin-top:15px; text-align:left">
+                <label for="ctl0_Contenido_TextBoxBuscar">Buscar : </label>
+                <input name="input_textoBuscar" type="text" id="input_textoBuscar" style="width:350px;" />
+                <img src="Sistema/img/home/ayuda.png" title="Ingrese filtro de b&uacute;squeda" width="18" height="18" /> <br/>
+                <br/>
+                <strong>Atenci&oacute;n:</strong> Los fiscalizados marcados con rojo no tienen usuarios registrados en SEIL, es decir, no ser&aacute;n notificados de la Resoluci&oacute;n.
+                <br/>Los Destinatarios marcados en Azul serán despachados mediante Doc Digital del estado. </div>
+            <div id="div_contenidoFiscalizados">
+                <div class="caja" style="width:570px; height:300px; margin-top:10px; overflow-y:scroll;">
+
+
+                    <form id="form_fiscalizadosTodos" name="form_fiscalizadosTodos">
+
+                        <input type="hidden" id="hidden_tipoDistribucion" name="hidden_tipoDistribucion" value="{DISTRIBUCION}" />
+                        <input type="hidden" id="hidden_tipoEntidad" name="hidden_tipoEntidad" value="{DES_TIPO_ENT}" />
+                        <table width="96%" border="0" cellspacing="0" cellpadding="1" id="">
+
+                            <!-- ml:Aaqui listo los destinatarios  -->
+                            <!-- BEGIN: fiscalizado -->
+                            <tr style="font-size:10px; background-color:{FISCALIZADO.COLOR}">
+                                <td align="left">
+                                    <a name="focus_{FISCALIZADO.LETRA_INICIAL}"></a>
+                                    <font color='{FISCALIZADO.COLOR_USUARIO}'>
+                                        <input id="checkbox_fiscalizado{FISCALIZADO.DES_RUT}" type="checkbox" value="{FISCALIZADO.DES_RUT}" name="checkbox_fiscalizado[]" {FISCALIZADO.CHECKED} {FISCALIZADO.DISABLED}/>
+                                        <label for="checkbox_fiscalizado{FISCALIZADO.DES_RUT}">{FISCALIZADO.DES_NOMBRE} ({FISCALIZADO.CANTIDAD} Usuarios)</label>
+                                    </font>&nbsp; <img src="Sistema/img/sobre.png" title="{FISCALIZADO.DES_DIRECCION}" width="18px" />
+                                    <input type="hidden" id="hidden_{FISCALIZADO.DES_RUT}" value="{FISCALIZADO.DES_DIRECCION}&|C{FISCALIZADO.DES_NOMBRE}&|C{FISCALIZADO.DES_CARGO}&|C{FISCALIZADO.CORREO}&|C{FISCALIZADO.MEDIO_ENVIO}&|C" /></td>
+                            </tr>
+                            <!-- END: fiscalizado -->
+                        </table>
+                    </form>
+
+
+                </div>
+                <table width="100%">
+                    <tr>
+                        <td width="30%">&nbsp;&nbsp;&nbsp;
+                            <label>
+                <input type="checkbox" id="checkAll" OnClick="fun_checkearAll(this);"/>
+                Seleccionar Todos</label></td>
+                        <td width="40" align="center"><a style="cursor:pointer" onClick="fun_agregarSeleccionadoDestinatario();" class="btn btn-sm btn-warning">Agregar seleccionados</a>
+                            <!--input type="submit" name="button_agregarSeleccionados" value="Agregar seleccionados" id="button_agregarSeleccionados"  onClick="fun_agregarSeleccionado();" /-->
+                        </td>
+                        <td width="30%">&nbsp;</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </center>
+    <!-- END: div_dialogPara -->
+</div>
+<div id="div_dialogOtro" title="Agregar Otro">
+    <!-- BEGIN: div_dialogOtro -->
+    <form id="form_agregarOtro">
+        <div align="center">
+            <input type="hidden" value="" id="hidden_distribucion" name="hidden_distribucion" />
+            <input type="hidden" value="" id="hidden_copia" name="hidden_copia" />
+
+            <br />
+            <div class="form-group row">
+                <label for="staticEmail" class="col-sm-2 col-form-label">Tratamiento</label>
+                <div class="col-sm-4">
+                    <select class="js-example-basic-single form-control" id="select_listaTratamiento" name="select_listaTratamiento">
+                        <option value=""></option>
+                        <!-- BEGIN: option_tratamiento -->
+                        <option value="{TRA.TRA_ID}" {TRA.SELECTED}>{TRA.TRA_NOMBRE}</option>
+                        <!-- END: option_tratamiento -->
+                      </select>
+                </div>
+                <label for="staticEmail" class="col-sm-1 col-form-label">Rut</label>
+                <div class="col-sm-4">
+                    <input class="form-control" onclick="$('#label_errorOtroRut').text('')" type="text" id="input_otroRut" name="input_otroRut" value="{CIU.DES_RUT}" maxlength="10" size="10" onKeypress="if (event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;"
+                    />Ejemplo: 11222333-4
+                    <font style="color:#F00">
+                        <label id="label_errorOtroRut" />
+                        <input type="hidden" name="hidden_rutEditar" id="hidden_rutEditar" value="{CIU.RUT_EDITAR}" />
+                    </font>
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <label for="staticEmail" class="col-sm-2 col-form-label">Nombre</label>
+                <div class="col-sm-9">
+                    <input class="form-control" onclick="$('#label_errorOtroNombre').text('')" type="text" id="input_otroNombre" name="input_otroNombre" size="70" value="{CIU.DES_NOMBRE}" maxlength="150" />
+
+                    <font style="color:#F00">
+                        <label id="label_errorOtroNombre" />
+                    </font>
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <label for="staticEmail" class="col-sm-2 col-form-label">Direcci&oacute;n</label>
+                <div class="col-sm-9">
+                    <input class="form-control" onclick="$('#label_errorOtro').text('')" type="text" id="input_otroDireccion" name="input_otroDireccion" size="70" maxlength="4000" value="{CIU.DES_DIRECCION}" />
+
+                    <font style="color:#F00">
+                        <label id="label_errorOtroNombre" />
+                    </font>
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <label for="staticEmail" class="col-sm-2 col-form-label">Correo electr&oacute;nico</label>
+                <div class="col-sm-9">
+                    <input class="form-control" value="{CIU.DES_CORREO}" onclick="$('#label_errorOtroCorreoElectronico').text('');$('#label_errorOtro').text('')" type="text" id="input_otroCorreoElectronico" name="input_otroCorreoElectronico" size="50" maxlength="50" />
+                    <font style="color:#F00"> <label id="label_errorOtroCorreoElectronico" /></font>
+                    <label id="label_errorTipoDestinatario" />
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <div class="col-sm-4">&nbsp;</div>
+                <div align="center" class="col-sm-4"> <a style="cursor:pointer" class="btn btn-sm btn-warning" onclick="fun_enviarOtro('{DISTRIBUCION}')">Agregar</a> </div>
+                <div class="col-sm-4">&nbsp;</div>
+            </div>
+
+
+        </div>
+    </form>
+    <!-- 	END: div_dialogOtro -->
+</div>
+
+<div id="div_eligeUsuarios" title="Seleccionar Usuarios SEIL" class="ui-widget">
+    <!-- BEGIN: div_eligeUsuarios -->
+    <form id="form_eligeUsuarios">
+        Seleccione de la Lista de Usuarios SEIL, cual es el que debe recibir la resolucion de <strong>{DES_NOMBRE}</strong><br /><br /> Si la resolución es <b> Reservada </b>, puede elegir que usuarios SEIL tendran acceso y también agregar otros usuarios.
+        Si la resolución es <b> Pública </b>, Todos los usuarios SEIL tendran acceso. También puede agregar otros usuarios.
+        <br /> <br />
+        <input type="hidden" name="hidden_rutFiscalizado" id="hidden_rutFiscalizado" value="{DES_RUT}" />
+        <!-- BEGIN: usuario -->
+        <label><input type="checkbox" value="{USUARIO.COD_USUARIO}" {USUARIO.CHECKED} name="check_usuariosSeleccionados[]"/>&nbsp;&nbsp;{USUARIO.NOMBRE_USUARIO} ({USUARIO.COD_USUARIO} {USUARIO.MAIL}) </label><br/>
+        <!-- END: usuario -->
+        <div id="div_agregarOtroUsuarioEntidad" style="display:none">
+            <input name="text_NombreOtroEntidad" id="text_NombreOtroEntidad" type="text" placeholder="Nombre..." /> <input name="text_EmailOtroEntidad" id="text_EmailOtroEntidad" type="text" placeholder="E-mail..." /> <input readonly="true" name="text_DireccionOtroEntidad"
+                id="text_DireccionOtroEntidad" type="text" size="40" value="{DES_DIRECCION}" placeholder="Direccion..." />&nbsp;&nbsp;&nbsp;<img onclick="click_guardaOtrosUsuarioEntidad(false)" style="cursor:pointer" src="Sistema/img/guardar.png" />
+        </div>
+    </form>
+
+    <br />
+    <div style="display: table-cell"><a style="cursor:pointer" class="btn btn-sm btn-warning" onclick="fun_guardarUsuariosSeleccionados('{DISTRIBUCION}')">Guardar Seleccionados</a> </div>
+    <div style="display: table-cell"><a style="cursor:pointer" class="btn btn-sm btn-warning" onclick="fun_otroUsuariosSeleccionados('{DISTRIBUCION}')">Agregar Otro</a> </div>
+    <!-- END: div_eligeUsuarios -->
+</div>
+
+
+<div id="div_buscarFiscalizado" title="Busqueda de fiscalizados X" style="display:none; color: black !important;">
+    <!-- BEGIN: div_buscarFiscalizado -->
+    Buscar : <input id="input_busquedaFiscalizado" name="input_busquedaFiscalizado" size="60" />
+    <!-- <a class="btn btn-sm btn-warning" style="cursor:pointer; float:right" onclick="click_seleccionadoFiscalizado()">Seleccionar</a> -->
+    <input type="hidden" name="input_tipoDistribucion" id="input_tipoDistribucion" />
+    <!-- END: div_buscarFiscalizado -->
+</div>

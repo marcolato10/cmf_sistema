@@ -1,0 +1,39 @@
+<div class="ui-widget ui-widget-content" id="div_principalPaso4" style="font-weight: bold; background-color:#d7a227; color:#000000">
+    <form class="formulario-paso4">
+        <h3>Adjuntar Expedientes</h3>
+        <table class="table table-striped table-hover table-bordered">
+            <thead>
+                <tr class="text-center text-body" style="font-weight: bold; background-color:#d7a227; color:#000000">
+                    <td width="15%" >Fecha</td>
+                    <td width="60%" >Descripción</td>
+                    <td width="15%" >SGD</td>
+                    <td width="5%" >Ver</td>
+                    <td width="5%" >Subir</td>
+
+                </tr>
+            </thead>
+            <tbody>
+                <!-- BEGIN: registro_expediente_fecha -->
+                <tr >
+                    <td >{EXP.FECHA}</td>
+                    <td >{EXP.DESCRIPCION}</td>
+                    <td >{EXP.SGD}</td>
+                    <td >
+                        <a href="index.php?pagina=paginas.redactar&funcion=adjunto&exp={EXP.ID_DOC}&val={EXP.VAL}" target="_blank"><img src="Sistema/img/doc.png" />
+                    </td>
+                    <!-- BEGIN: subir2 -->
+                    <td >
+                        <input type="hidden" class="id_doc" value="{EXP.ID_DOC}" />
+                        <input type="hidden" class="id_sistema" value="{EXP.ID_SISTEMA}" />
+                        <input type="hidden" class="tipo" value="{EXP.WFA_TIPO}" />
+                        <input type="hidden" class="id" value="{EXP.WFA_ID_REFERENCIAL}" />
+                        <span onClick="fun_dropSubirAdjunto('{EXP.WFA_TIPO}','{EXP.ID_DOC}')" style="cursor:pointer"><img height="14" width="10" src="Sistema/img/subir.png"/></span>
+                    </td>
+                    <!-- END: subir2 -->
+                </tr>
+                <!-- END: registro_expediente_fecha -->
+
+            </tbody>
+        </table>
+    </form>
+</div>

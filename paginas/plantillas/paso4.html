@@ -1,0 +1,221 @@
+<!-- BEGIN: paso4 -->
+<!-- link href='Sistema/css/uploadfile.min.css' rel='stylesheet' type='text/css' />
+<script src="Sistema/js/jquery.uploadfile.min.js"></script -->
+<script src="Sistema/js/ajaxfileupload.js"></script>
+<script src="/biblioteca/js/jquery/jquery.treeview.js" type="text/javascript"></script>
+<style>
+    @import url("/biblioteca/css/jquery.treeview.css");
+    /*#draggable { width: 75px; height: 25px; background: silver; padding: 10px; }
+    #droppable { position: absolute; left: 250px; top: 0; width: 125px; height: 75px; background: gray; color: white; padding: 10px; }*/
+    
+    .drag {
+        cursor: url(/biblioteca/images/openhand.cur), default;
+    }
+</style>
+<script type="text/javascript">
+    function click_buttonEnviarOficio() {
+
+        $.ajax({
+            url: "index.php?pagina=paginas.enviar",
+            context: document.body,
+            success: function(html) {
+                $("#modalEnviar").html(html);
+                $("#modalEnviar").dialog('open');
+
+                //parche cleditor ya que se queda desabilitado
+                //$('#texttareaComentario').cleditor()[0].disable(false).refresh(); //HACK; 
+            },
+            error: function(xhr, ajaxOptions, thrownError) {
+                alert('Error: ' + xhr.status + ' - ' + thrownError);
+            }
+        });
+    }
+
+
+
+
+    $(function() {
+        $("#modalEnviar").dialog({
+            width: 600,
+            autoOpen: false,
+            title: 'Enviar Documento',
+            modal: true,
+            buttons: [{
+                text: "Enviar",
+                click: function() {
+                    click_enviar();
+                    $(this).dialog("close");
+                },
+                icons: {
+                    primary: 'ui-icon-disk'
+                }
+            }]
+        });
+        //$("#divArbolExpediente").load('index.php?pagina=paginas.cargarExpediente')
+        $("#tabs").tabs();
+        /*
+        $("#fileuploader").uploadFile({
+        	url:"index.php",
+        	fileName:"myfile",
+        	dragDropStr: "<span style='font-weight:bold; font-size:13px;color:#000'><b>Mueva sus archivos aquí</b></span>",
+        	//showStatusAfterSuccess:false,
+        	onSuccess:function(files,data,xhr)
+        	{
+        		//alert('Listo')
+        		//$("#fileuploader").uploadFile().done().click();
+        	//files: list of files
+        	//data: response from server
+        	//xhr : jquer xhr object
+        	},
+        });*/
+
+    });
+
+    jQuery(document).ready(
+        function() {
+            $("#archivosSugerencia").treeview();
+            $(".draggable").draggable({
+                revert: true
+            });
+            $("#droppable").droppable({
+                drop: function(event, ui) {
+                    tipo = jQuery(ui.draggable.find(".tipo")).val();
+                    id = jQuery(ui.draggable.find(".id_doc")).val();
+                    fun_dropSubirAdjunto(tipo, id);
+                }
+            });
+        }
+    );
+
+
+    function fun_dropSubirAdjunto(tipo, id) {
+        callback_gral("index.php?pagina=paginas.redactar&funcion=fun_dropSubirAdjunto", {
+            'v_tipo': tipo,
+            'v_id': id
+        });
+    }
+
+    function click_eliminarAdjunto(id) {
+        callback_gral("index.php?pagina=paginas.redactar&funcion=click_eliminarAdjunto", {
+            'id': id
+        });
+    }
+
+
+
+
+
+    function click_enviar() {
+        var index = $("#tabs_enviar").tabs("option", "active");
+
+        if (index == 0) {
+            enviar = $("#selectParaMiUnidad").val();
+        } else {
+            if (index == 2) {
+                //si existe 3 es firmador
+                enviar = $("#selectFirmante").val();
+            } else {
+                if (index == 1) {
+                    enviar = $("#selectParaOtraUnidadPersona").val();
+                }
+            }
+        }
+        var privado = 'N';
+        if ($("#privado").is(':checked')) {
+            privado = 'S';
+        } else {
+            privado = 'N';
+        }
+
+        var notificacion = 'N';
+        if ($("#no_email").is(':checked')) {
+            notificacion = 'S';
+        } else {
+            notificacion = 'N';
+        }
+
+        var notificacion_int = 'N';
+        if ($("#si_email_para_mi").is(':checked')) {
+            notificacion_int = 'S';
+        } else {
+            notificacion_int = 'N';
+        }
+
+        if ($("#file_adjuntoComentario").val() != "") {
+
+
+            $.ajaxFileUpload({
+                url: 'index.php?pagina=paginas.redactar&funcion=fun_enviarResolucionArchivo',
+                secureuri: false,
+                fileElementId: 'file_adjuntoComentario',
+                dataType: 'json',
+                success: function(data, status) {
+                    if (data.RESPUESTA == 'OK') {
+                        callback_gral("index.php?pagina=paginas.redactar&funcion=fun_enviarResolucion", {
+                            'usr_enviar': enviar,
+                            'textarea_comentario': $("#textarea_comentario").val(),
+                            'privado': privado,
+                            'notificacion': notificacion,
+                            'notificacion_int': notificacion_int,
+                            'adjunto': 'S'
+                        });
+                    } else {
+                        alert('Error en el envio (1)');
+                    }
+
+                },
+                error: function(data, status, e) {
+                    /*
+                    $("#cargando_"+$("#"+id_archivo).attr('id')).hide();
+                    $("#nok_"+$("#"+id_archivo).attr('id')).show();
+                    $("#ok_"+$("#"+id_archivo).attr('id')).hide();
+                    //alert(data + status + e)
+                    //alert(data + status + e+"#nok_"+$("#"+id_archivo).attr('id'))
+                    */
+                    alert('Error en el envio (2)');
+                }
+            });
+        } else {
+            callback_gral("index.php?pagina=paginas.redactar&funcion=fun_enviarResolucion", {
+                'usr_enviar': enviar,
+                'textarea_comentario': $("#textarea_comentario").val(),
+                'privado': privado,
+                'usuarios_copia': $("#select_conCopiaCorreo").val(),
+                'notificacion': notificacion,
+                'notificacion_int': notificacion_int
+            });
+        }
+
+    }
+</script>
+
+<div class="ui-widget ui-widget-content" id="div_principalPaso4">
+    <form class="formulario-paso4">
+        <fieldset>
+            <legend>Archivos Adjuntos</legend>
+            <table class="tabla1">
+                <tr>
+                    <td width="98%"> {FILE "Sistema/paginas/plantillas/adjuntos.html"}</td>
+                </tr>
+                <tr>
+                    <td width="98%">
+                        <div style="border-bottom:1px dashed #ccc;  font-weight:bold; font-size:13px; padding:3px 0px 0px 5px;">Formas de adjuntar </div>
+                        <br> {FILE "Sistema/paginas/plantillas/expediente.html"}
+                    </td>
+                </tr>
+            </table>
+            <br />
+            <br />
+        </fieldset>
+        <div style="display: table-cell; float:left; padding:20px">
+            <a style="cursor:pointer" class="button" onclick="fun_irPaso(3)"><img src="Sistema/img/izquierda.png" />Anterior</a>
+        </div>
+        <!-- BEGIN: boton_enviar -->
+        <div style="display: table-cell; float:right; padding:20px">
+            <a style="cursor:pointer" class="button" onclick="click_buttonEnviarOficio()"><img src="Sistema/img/derecha.png" />ENVIAR</a>
+        </div>
+        <!-- END: boton_enviar -->
+    </form>
+</div>
+<div id="modalEnviar"></div>
+<!-- END: paso4 -->

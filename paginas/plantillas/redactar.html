@@ -1,0 +1,44 @@
+<!-- BEGIN: main -->
+<style>
+    .resalta {
+        border: 2px solid red;
+    }
+</style>
+
+
+<script type="text/javascript">
+    function fun_anularResolucion() {
+        $("#div_modalAnular").dialog('open');
+    }
+
+    function fun_irPaso(numero) {
+        var result = true;
+        if (numero > 2) {
+            $("#div_modulosClasificacion").find("[required=required]").each(function(i) {
+                if ($(this).val() == "") {
+                    if (result) {
+                        alert("Existen campos en Módulos que son obligatorios");
+                        $(this).focus();
+                    }
+
+                    $(this).addClass("resalta").delay(2000).queue(function() {
+                        $(this).removeClass("resalta");
+                        $(this).dequeue();
+                    });
+                    //$(this).addClass("resalta");				
+                    result = false;
+
+                }
+            })
+        }
+        if (result) {
+            callback_gral("index.php?pagina=paginas.redactar&funcion=fun_validarPaso", {
+                paso: numero
+            });
+        }
+
+
+    }
+</script>
+{FILE "Sistema/paginas/plantillas/menu_pasos.html"} {FILE "Sistema/paginas/plantillas/paso1.html"} {FILE "Sistema/paginas/plantillas/paso2.html"} {FILE "Sistema/paginas/plantillas/paso3.html"} {FILE "Sistema/paginas/plantillas/paso4.html"} {FILE "Sistema/paginas/plantillas/anular.html"}
+<!-- END: main -->

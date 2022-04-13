@@ -1,0 +1,570 @@
+<!-- BEGIN: main -->
+
+<script type="text/javascript" src="Sistema/js/generar_docto.js"></script>
+<script src="Sistema/js/ckeditor/ckeditor.js"></script>
+<script src="Sistema/js/ckeditor/adapters/jquery.js"></script>
+<script type="text/javascript" src="Sistema/js/utiles_comun.js"></script>
+
+
+
+<script type="text/javascript">
+    $(document).ready(function() {
+
+
+        $(".errorModificar").css("display", "none");
+        $(".js-example-basic-single").select2();
+
+        check = CKEDITOR.replace('certificado_divCuerpo', {
+
+            toolbarGroups: [{
+                    name: 'basicstyles',
+                    groups: ['basicstyles', 'cleanup']
+                }, {
+                    name: "paragraph",
+                    "groups": ['list', 'indent', 'blocks', 'align', 'bidi']
+                }, {
+                    name: "links",
+                    "groups": ["links"]
+                }, {
+                    name: 'editing',
+                    groups: ['find', 'selection', 'spellchecker']
+                },
+
+                {
+                    name: "insert",
+                    "groups": ["insert"]
+                }, {
+                    name: 'tools'
+                },
+
+            ],
+            // Remove the redundant buttons from toolbar groups defined above.
+            removeButtons: 'CreateDiv,Flash,Smiley,Iframe,ShowBlocks',
+            autoGrow_minHeight: 70,
+            autoGrow_onStartup: true,
+            ignoreEmptyParagraph: false,
+            format_tags: 'p;h1;h2;h3;pre',
+            extraPlugins: 'uploadimage,image2,quicktable,tableresize,autogrow,tabletools',
+            toolbarCanCollapse: true,
+            toolbarStartupExpanded: true,
+            toolbar: 'Basic',
+        });
+    })
+
+
+
+    function click_verExpediente(distribucion, padre) {
+        callback_gral("index.php?pagina=paginas.generar_docto&funcion=fun_verExpediente", {
+            distribucion: distribucion,
+            padre: padre
+        });
+    }
+
+
+
+
+
+
+    //ml: mostramos el cuerpo y lo cargamos con la data de la plantilla seleccionada 
+    function cargarCuerpo(plantilla) {
+        //console.log("mostramos el cuerpo y lo cargamos con la data de la plantilla N°:" + valor);
+        $("#divCuerpo1").css("display", "block");
+        $("#divCuerpo2").css("display", "block");
+
+
+        $.ajax({
+            data: {
+                p_plantilla: plantilla,
+
+            },
+            url: 'index.php?pagina=paginas.generar_docto&funcion=fun_cargar_cuerpo_plantilla',
+            type: 'post',
+            success: function(html) {
+
+                //console.log(html);
+                console.log("cargamos el cuerpo del certificado");
+                CKEDITOR.instances.certificado_divCuerpo.setData('<p>' + html + '<p>');
+
+                /*if (html == 'OK') {
+                    callback_gral("index.php?pagina=paginas.generar_docto&funcion=fun_respuesta");
+                } else {
+                    alert("ERROR: se produjo un error al tratar de guardar su certificado.");
+                }*/
+            }
+        });
+
+    }
+
+
+
+
+    function validarExt() {
+        var archivoInput = document.getElementById('archivoInput');
+        var archivoRuta = archivoInput.value;
+        var extPermitidas = /(.pdf)$/i;
+        if (!extPermitidas.exec(archivoRuta)) {
+            document.getElementById('visorArchivo').innerHTML = '';
+            $("#divCuerpo1").css("display", "block"); //mostramos el cuerpo
+            $("#divCuerpo2").css("display", "block"); //mostramos el cuerpo
+            alert('Asegurese de haber seleccionado un PDF');
+            archivoInput.value = '';
+            return false;
+        } else {
+
+            CKEDITOR.instances.certificado_divCuerpo.setData('');
+            $("#divCuerpo1").css("display", "none"); //ocultamos el cuerpo
+            $("#divCuerpo2").css("display", "none"); //ocultamos el cuerpo
+
+            //PRevio del PDF
+            if (archivoInput.files && archivoInput.files[0]) {
+                var visor = new FileReader();
+                visor.onload = function(e) {
+                    document.getElementById('visorArchivo').innerHTML =
+                        '<embed src="' + e.target.result + '" width="500" height="375" />';
+                };
+                visor.readAsDataURL(archivoInput.files[0]);
+            }
+        }
+    }
+
+    function accionGrabar() {
+
+        var errores = 0;
+        $("#errorTipoEnvio").css("display", "none");
+        $("#errorDatosSensibles").css("display", "none");
+        $("#errorPrivacidad").css("display", "none");
+        $("#errorUsaPlantilla").css("display", "none");
+        $("#errorTipoPlantilla").css("display", "none");
+
+
+        var dato_archivo = $('#archivoInput').prop("files")[0];
+        let arrayCorreo = [];
+        let arrayDireccion = [];
+        let rutDestinatario = document.getElementsByClassName("miDestinatario"),
+            arrayDestinatario = [];
+        let arrayCargoDestinatario = [];
+        let arrayMiTipo = [];
+        var arrayMiNombreDes = [];
+
+        for (var i = 0; i < rutDestinatario.length; i++) {
+            arrayDestinatario[i] = rutDestinatario[i].value + '_';
+            arrayCargoDestinatario[i] = $("#input_cargoFiscalizadoLista_" + rutDestinatario[i].value).val() + '_';
+            arrayDireccion[i] = $("#miDireccion_" + rutDestinatario[i].value).val() + '_';
+            arrayCorreo[i] = $("#miCorreo_" + rutDestinatario[i].value).val() + '_';
+            arrayMiTipo[i] = $("#miTipo_" + rutDestinatario[i].value).val() + '_';
+            arrayMiNombreDes[i] = $("#miNombreDes_" + rutDestinatario[i].value).val() + '_';
+
+            //alert(arrayMiNombreDes[i]);
+        }
+
+
+        let miCopiaCorreo = document.getElementsByClassName("miCopiaCorreo"),
+            arrayCopiaCorreo = [];
+        let direccionCopia = document.getElementsByClassName("miCopiaDireccion"),
+            arrayCopiaDireccion = [];
+        let rutCopia = document.getElementsByClassName("miCopia"),
+            arrayCopia = [];
+        let arrayCargoCopia = [];
+        let arrayMiTipoCopia = [];
+        var arrayMiNombreDesCopia = [];
+
+        for (var x = 0; x < rutCopia.length; x++) {
+            arrayCopia[x] = rutCopia[x].value + '_';
+            arrayCargoCopia[x] = $("#input_cargoFiscalizadoLista_" + rutCopia[x].value).val() + '_';
+            arrayCopiaDireccion[x] = $("#miCopiaDireccion_" + rutCopia[x].value).val() + '_';
+            arrayCopiaCorreo[x] = $("#miCopiaCorreo_" + rutCopia[x].value).val() + '_';
+            arrayMiTipoCopia[x] = $("#miTipoCopia_" + rutCopia[x].value).val() + '_';
+            arrayMiNombreDesCopia[x] = $("#miNombreDesCopia_" + rutCopia[x].value).val() + '_';
+
+        }
+
+
+        var miCCertificado = $("#miCCertificado").val();
+        var padre = $("#padre").val();
+        var dato3 = CKEDITOR.instances.certificado_divCuerpo.getData();
+        var datosensibleSINO = $('input:radio[name=datosensibleSINO]:checked').val();
+        var usarPlantillaSINO = $('input:radio[name=usarPlantillaSINO]:checked').val();
+        var tipo_envio = $('input:radio[name=tipo_envio]:checked').val();
+        var tipoPlantilla = $('input:radio[name=tipoPlantilla]:checked').val();
+        var privacidadTipo = $('input:radio[name=privacidadTipo]:checked').val();
+
+
+
+        var formData = new FormData();
+        formData.append("file", dato_archivo);
+
+        formData.append("p_cuerpo", dato3);
+        formData.append("p_datosensibleSINO", datosensibleSINO);
+        formData.append("p_usarPlantillaSINO", usarPlantillaSINO);
+
+        formData.append("p_tipo_envio", tipo_envio);
+
+        formData.append("p_privacidadTipo", privacidadTipo);
+        formData.append("p_miccertificado", miCCertificado);
+        formData.append("p_padre", padre);
+        formData.append("p_arrayCopia", arrayCopia);
+        formData.append("p_arrayDestinatario", arrayDestinatario);
+
+        formData.append("p_arrayMiNombreDes", arrayMiNombreDes);
+        formData.append("p_arrayMiNombreDesCopia", arrayMiNombreDesCopia);
+
+        formData.append("p_arrayCargoCopia", arrayCargoCopia);
+        formData.append("p_arrayCargoDestinatario", arrayCargoDestinatario);
+        formData.append("p_arrayCopiaDireccion", arrayCopiaDireccion);
+        formData.append("p_arrayCopiaCorreo", arrayCopiaCorreo);
+        formData.append("p_arrayDireccion", arrayDireccion);
+        formData.append("p_arrayCorreo", arrayCorreo);
+        formData.append("p_arrayMiTipo", arrayMiTipo);
+        formData.append("p_arrayMiTipoCopia", arrayMiTipoCopia);
+
+
+        //validamos tipos de envios
+        if (!tipo_envio) {
+            $("#errorTipoEnvio").css("display", "block");
+            errores++;
+        }
+        //validamos datos sensibles
+        if (!datosensibleSINO) {
+            $("#errorDatosSensibles").css("display", "block");
+            errores++;
+        }
+        //validamos  seleccion de tipo privacidad    
+        if (!privacidadTipo) {
+            $("#errorPrivacidad").css("display", "block");
+            errores++;
+        }
+        //validamos  seleccion de usa plantilla    
+        if (!usarPlantillaSINO) {
+            $("#errorUsaPlantilla").css("display", "block");
+            errores++;
+        } else {
+            if (!tipoPlantilla && usarPlantillaSINO == 'SI') {
+                $("#errorTipoPlantilla").css("display", "block");
+                errores++;
+            }
+        }
+
+
+        //validamos si existen errores
+        if (errores > 0) {
+            //console.log("ERRORES : Usted tiene " + errores + " errores.");
+            callback_gral("index.php?pagina=paginas.generar_docto&funcion=fun_respuesta", {
+                errores: errores,
+                respuesta: 'NOK'
+            });
+        } else {
+
+            $.ajax({
+                data: formData,
+                url: 'index.php?pagina=paginas.generar_docto&funcion=fun_agregar_certificado',
+                type: 'post',
+                success: function(html) {
+                    if (html == 'OK') {
+                        callback_gral("index.php?pagina=paginas.generar_docto&funcion=fun_respuesta", {
+                            errores: errores,
+                            respuesta: html
+                        });
+                    } else {
+                        alert("ERROR: al intentar agregar el certificado");
+                    }
+                },
+                cache: false,
+                contentType: false,
+                processData: false
+            });
+
+        }
+    }
+
+
+    function fun_aCertificado() {
+
+
+        $('#a_certificado').attr('style', 'display: none !important');
+        $("#div_vistaPrevia").hide();
+        $("#div_contentCertificado").show();
+
+
+    }
+
+
+
+    function accionBtnFormVistaPrevia() {
+
+        if ($("#div_vistaPrevia").is(':hidden')) {
+            $("#a_certificado").show();
+            var dato3 = CKEDITOR.instances.certificado_divCuerpo.getData();
+            var dato_archivo = $('#archivoInput').prop("files")[0];
+            var formData = new FormData();
+            formData.append("p_cuerpo", dato3);
+            formData.append("file", dato_archivo);
+            $.ajax({
+                data: formData,
+                url: 'index.php?pagina=paginas.vista_previa&funcion=fun_inicio_vp',
+                type: 'post',
+                success: function(html) {
+                    $("#div_contentCertificado").hide();
+                    $("#div_vistaPrevia").show();
+                    if (html == 'ok') {
+                        $('#iframeVistaPrevia').attr('src', 'index.php?pagina=paginas.vista_previa&funcion=fun_pdf_con_cuerpo');
+                    } else if (html == 'ok1') {
+                        $('#iframeVistaPrevia').attr('src', 'index.php?pagina=paginas.vista_previa&funcion=fun_pdf_adjunto');
+                    }
+                },
+                cache: false,
+                contentType: false,
+                processData: false
+            });
+
+
+        }
+
+
+    }
+</script>
+
+
+<div id='certificado'>
+    <div class="container">
+        <div class="col-sm-11">
+            <h1>Certificado</h1>
+        </div>
+        <div class="col-sm-1">
+            <!-- BEGIN: btn_aCertificado -->
+            <a id="a_certificado" style="display:{DISPLAY_btnACertificado}" class=" btn btn-warning btn-mk" onclick="fun_aCertificado()">Volver</a>
+            <!-- END: btn_aCertificado -->
+        </div>
+    </div>
+</div>
+<!-- BEGIN: div_cotentCertificado -->
+<div style="clear:both; display:{DISPLAY_div_contentCertificado}" id="div_contentCertificado">
+    <!-- END: div_cotentCertificado -->
+    <div style="clear:both">
+        <form id='form_certificado' name='form_certificado' style="text-align:left" enctype="multipart/form-data">
+
+
+
+
+
+            <!-- BEGIN: paso1 -->
+            <fieldset class="fieldset">
+                <legend class="legend">Destinatario</legend>
+                <div class="sec1Destinatario">
+                    {FILE "Sistema/paginas/plantillas/destinatario.html"}
+                </div>
+                <div class="sec1Destinatario">
+                    <label class="textoPregunta" for="tipo_envio">
+                            Tipo de envío : 
+                        </label>
+                    <div class="errorModificar" id="errorTipoEnvio">(*) Usted debe seleccionar una opción</div>
+                </div>
+                <div class="sec1Destinatario">
+                    {resultado_tipo_envio}
+                </div>
+            </fieldset>
+            <!-- END: paso1 -->
+            <br>
+
+
+
+            <!-- BEGIN: existe_privacidad -->
+            <fieldset class="fieldset">
+                <legend class="legend">Privacidad</legend>
+                <div class="sec1Destinatario">
+                    <label class="textoPregunta" for="docContieneDatosSenciblesPersonales">
+                            Documento contiene datos sensibles o personales : 
+                        </label>
+                    <div class="errorModificar" id="errorDatosSensibles">(*) Usted debe seleccionar una opción</div>
+                </div>
+
+                <div class="sec1Destinatario">
+                    <div class="form-check form-check-inline">
+                        <label class="form-check-label">Si
+                            <input class="inputTipo" type="radio" id="datosensibleSI" name="datosensibleSINO" value="SI" onclick="datoSensibleSINO(this.value,'{cadena}');" {disponible_dato_sensible_si}>
+                        </label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <label class="form-check-label">No
+                            <input class="inputTipo" type="radio" id="datosensibleNO" name="datosensibleSINO" value="NO" onclick="datoSensibleSINO(this.value,'{cadena}');" {disponible_dato_sensible_no}>
+                        </label>
+                    </div>
+                </div>
+                <br> {resultado_privacidad}
+            </fieldset>
+            <!-- END: existe_privacidad -->
+
+            <br>
+            <fieldset class="fieldset">
+                <legend class="legend">Cuerpo</legend>
+                <!-- BEGIN: usa_plantilla -->
+                <div class="sec1Destinatario">
+                    <label class="textoPregunta" for="DocUsaPlantilla">Usar plantilla :</label>
+                    <div class="errorModificar" id="errorUsaPlantilla">(*) Usted debe seleccionar una opción</div>
+                </div>
+                <div class="sec1Destinatario">
+                    <div class="form-check form-check-inline">
+                        <label class="form-check-label">Si
+                            <input class="inputTipo" type="radio" id="usarPlantillaSINO" name="usarPlantillaSINO" value="SI" onclick="datoTipoPlantilla(this.value);" {r_usa_plantilla_si}>
+                        </label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <label class="form-check-label">No
+                            <input class="form-check-input" type="radio" id="usarPlantillaSINO" name="usarPlantillaSINO" value="NO" onclick="datoTipoPlantilla(this.value);" {r_usa_plantilla_no}>
+                        </label>
+                    </div>
+                </div>
+
+                <br>
+                <div class="sec1Destinatario" id="div_plantillas_disponibles" style="display:none">
+                    <label class="labelTipo">¿Que plantilla quiere utilizar?:</label>
+                    <div class="errorModificar" id="errorTipoPlantilla">(*) Usted debe seleccionar una opción</div>
+                    <ul>
+                        <!-- BEGIN: plantillas_disponibles -->
+                        {plantilla_disponible}
+                        <!-- END: plantillas_disponibles -->
+                    </ul>
+                </div>
+
+
+                <!-- END: usa_plantilla -->
+
+                <diV class='sec1Destinatario' id="divSeleccionaPdf" style="display:none">
+                    <label class='seleccionaPdf' for='destinatario'>Seleccionar PDF</label>
+                    <input type="file" id="archivoInput" name="archivoInput" onchange="return validarExt()" />
+                    <br><br>
+                    <div id="visorArchivo">
+                        <!--Aqui se desplegará el fichero-->
+                    </div>
+
+                    <!-- <input class='inputSeleccionaPdf' type='file' id='miFilex' name='miFilex' onchange='ejemplo();'> -->
+                </div>
+
+
+
+
+                <!-- BEGIN: selecciona_pdf -->
+                <!-- {selecciona_pdf} -->
+                <!-- END: selecciona_pdf -->
+
+                <div class="sec1Destinatario" id="divCuerpo1" style="display:none">
+                    <label class="textoPregunta" for="conCopia">Cuerpo :</label>
+                </div>
+                <div class="sec1Destinatario" id="divCuerpo2" style="display:none">
+                    <table width="90%" align="center">
+                        <tr>
+                            <td>
+                                <textarea id="certificado_divCuerpo" name="certificado_divCuerpo">
+                                    <!-- BEGIN: cuerpo_certificado -->
+                                        {r_cuerpo}
+                                    <!-- END: cuerpo_certificado -->
+                                    </textarea>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </fieldset>
+            <br>
+
+
+
+
+
+            <fieldset class="fieldset">
+                <legend class="legend">Expediente</legend><br>
+
+                <diV class='sec1Destinatario'>
+                    <!-- BEGIN: padre -->
+                    <input type="hidden" name="miCCertificado" id="miCCertificado" value="{miCCertificado}">
+                    <input type="hidden" name="padre" id="padre" value="{padre}">
+                    <a class='alink' href='javascript:void(0)' id='btnVerExpediente' onclick='click_verExpediente(1,{padre});'>Ver Expediente</a>
+                    <!-- END: padre -->
+                </diV>
+                <br>
+                <div class="sec1Destinatario">
+                    <label class="textoPregunta" for="DocContieneDatosSenciblesPersonales">Adjuntos :</label>
+
+                    <div id="div_adjuntosResolucion">
+                        <!-- BEGIN: div_adjuntosResolucion -->
+                        <ul class="filetree treeview">
+                            <!-- BEGIN: adjunto -->
+                            <li><span class="file"> <a href="index.php?pagina=paginas.redactar&funcion=adjunto&exp={ADJ.ID}&val={ADJ.VAL}" target="_blank"><img src="/biblioteca/images/jquery/treeview/file.gif"/> {ADJ.ADJ_NOMBRE}</a><!-- BEGIN: eliminar -->&nbsp;&nbsp;&nbsp;<span style="cursor:pointer" onClick="click_eliminarAdjunto('{ADJ.ADJ_HASH}')">[<img src="Sistema/img/eliminar-destinatario.png" />Eliminar]<!-- END: eliminar --></span><br
+                                />
+                                </span>
+                            </li>
+                            <!-- END: adjunto -->
+                        </ul>
+                        <!-- END: div_adjuntosResolucion -->
+                    </div>
+
+                </div>
+            </fieldset>
+            <br>
+            <fieldset class="fieldset">
+                <legend class="legend">Visaciones</legend>
+                <div class="sec1Destinatario">
+                    <ul>
+                        <!-- BEGIN: listado_visaciones -->
+                        {listado_visaciones}
+                        <!-- END: listado_visaciones -->
+                    </ul>
+                </div>
+            </fieldset>
+            <br>
+            <fieldset class="fieldset">
+                <legend class="legend">Versiones</legend>
+                <div class="sec1Destinatario">
+                    <ul>
+                        <!-- BEGIN: listado_versiones -->
+                        {listado_versiones}
+                        <!-- END: listado_versiones -->
+
+                    </ul>
+                </div>
+            </fieldset>
+            <br />
+            <fieldset class="fieldset">
+
+                <div class="secBotonera" style="text-align: center;">
+                    <a class="btn btn-warning btn-mk" href='javascript:void(0)' id='btnFormCerrar' onclick="accionCerrarCertificado();">Cerrar</a>&nbsp;&nbsp;&nbsp;
+                    <!-- <a class="btn btn-warning btn-mk" href='javascript:void(0)' id='btnFormGrabar' onclick="accionBtnFormGrabar();">Grabar</a> -->
+                    <a class="btn btn-warning btn-mk" href='javascript:void(0)' id='btnFormGrabar' onclick="accionGrabar();">Grabar</a>&nbsp;&nbsp;&nbsp;
+
+                    <a class="btn btn-warning btn-mk" href='javascript:void(0)' id='btnFormVistaPrevia' onclick="accionBtnFormVistaPrevia();">Vista Previa</a>&nbsp;&nbsp;&nbsp;
+
+
+                    <a class="btn btn-warning btn-mk" href='javascript:void(0)' id='btnFormEnviaraAVB' onclick="accionBtnFormEnviaraAVB();">Enviar A VB</a>&nbsp;&nbsp;&nbsp;
+                    <a class="btn btn-warning btn-mk" href='javascript:void(0)' id='btnFormFirmar' onclick="accionBtnFormFirmar();" disabled>Firmar</a>&nbsp;&nbsp;&nbsp;
+                    <a class="btn btn-warning btn-mk" href='javascript:void(0)' id='btnFormEliminar' onclick="accionBtnFormEliminar();" disabled>Eliminar</a>
+                </div>
+            </fieldset>
+        </form>
+    </div>
+</div>
+<!-- BEGIN: div_vistaPrevia -->
+<div id="div_vistaPrevia" style="display:{DISPLAY_div_vistaPrevia}">
+    <div class="container">
+        <iframe style="display:{DISPLAY_iframeVistaPrevia}" id="iframeVistaPrevia" name="iframeVistaPrevia" title="Previsualizacion" src="{SRC_IFRAME_VISTA_PREVIA}" frameborder="1" width="800px" height="500px" scrolling="auto"></iframe>
+    </div>
+</div>
+<!-- END: div_vistaPrevia -->
+</div>
+
+<div id="div_verExpediente" title="Ver Expediente" class="ui-widget">
+    <!-- BEGIN: div_verExpediente -->
+    {FILE "Sistema/paginas/plantillas/ver_expediente.html"}
+    <!-- 	END: div_verExpediente -->
+</div>
+
+
+<div id="div_respuesta" title="Atención" class="ui-widget">
+    <!-- BEGIN: div_respuesta -->
+    {mensaje_respuesta} {botonera_respuesta}
+    <!-- END: div_respuesta -->
+</div>
+
+{FILE "Sistema/paginas/plantillas/enviar_vb.html"}
+
+
+
+
+<!-- END: main -->

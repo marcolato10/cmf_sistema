@@ -1,0 +1,61 @@
+<div id="tabs">
+    <table>
+        <tr>
+            <td><a href="#tabs-4">Expediente Por Documento</a></td>
+            <td><a href="#tabs-2">Expediente Por Fecha</a></td>
+        </tr>
+    </table>
+    <br><br>
+    <div id="tabs-2">
+        <div style="width:100%">
+            <table width="100%">
+                <tbody>
+                    <tr>
+                        <td>
+                            <div>
+                                <table border="0" align="center" class="tabla1">
+                                    <thead>
+                                        <tr>
+                                            <td width="15%" bgcolor="#CCCCCC" class="itemForm">Fecha</td>
+                                            <td width="60%" bgcolor="#CCCCCC" class="itemForm">Descripción</td>
+                                            <td width="15%" bgcolor="#CCCCCC" class="itemForm">SGD</td>
+                                            <td width="5%" bgcolor="#CCCCCC" class="itemForm">Ver</td>
+                                            <!-- BEGIN: subir1 -->
+                                            <td width="5%" bgcolor="#CCCCCC" class="itemForm">Subir</td>
+                                            <!-- END: subir1 -->
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- BEGIN: registro_expediente_fecha -->
+                                        <tr bgcolor="{EXP.BGCOLOR}">
+                                            <td class="itemForm2">{EXP.FECHA}</td>
+                                            <td class="itemForm2">{EXP.DESCRIPCION}</td>
+                                            <td class="itemForm2">{EXP.SGD}</td>
+                                            <td class="itemForm2">
+                                                <a href="index.php?pagina=paginas.redactar&funcion=adjunto&exp={EXP.ID_DOC}&val={EXP.VAL}" target="_blank"><img src="Sistema/img/doc.png" />
+                                                    <a></td>
+                                            <!-- BEGIN: subir2 -->
+                                            <td class="itemForm2"><input type="hidden" class="id_doc" value="{EXP.ID_DOC}" />
+                                                <input type="hidden" class="id_sistema" value="{EXP.ID_SISTEMA}" />
+                                                <input type="hidden" class="tipo" value="{EXP.WFA_TIPO}" />
+                                                <input type="hidden" class="id" value="{EXP.WFA_ID_REFERENCIAL}" />
+                                                <span onClick="fun_dropSubirAdjunto('{EXP.WFA_TIPO}','{EXP.ID_DOC}')" style="cursor:pointer"><img height="14" width="10" src="Sistema/img/subir.png"/></span></td>
+                                            <!-- END: subir2 -->
+                                        </tr>
+                                        <!-- END: registro_expediente_fecha -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>&nbsp;</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div id="tabs-4">
+        <div id="divArbolExpediente"> {XML_EXPEDIENTE} </div>
+    </div>
+</div>

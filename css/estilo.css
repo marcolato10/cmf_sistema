@@ -1,0 +1,35 @@
+.legend {
+    background: #ffc107;
+    border: 1px solid #A4ABB4;
+    padding: 2px 6px;
+    font-size: 2em;
+    font-weight: bold;
+}
+
+.fieldset {
+    border: 1px solid #555;
+    padding: 8px;
+}
+
+fieldset a {
+    text-decoration:none;
+}
+
+.sec1Destinatario {
+    width: 100%;
+    margin-bottom: 5px;
+    margin-left: 9px;
+}
+
+.errorModificar {
+    color: red;
+}
+
+.btn-mk {
+ width: 100px;
+}
+
+.btn-mk:hover {
+    color: #ffffff;
+    font-weight: bold;
+   }
