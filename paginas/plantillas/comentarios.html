@@ -1,0 +1,87 @@
+<style>
+    .comentario_visar {
+        width: 280px;
+        background: #FFC;
+        border: 1px solid #CCC;
+        padding: 5px;
+        margin: 3px;
+    }
+    
+    .tabla_comentario_princial {
+        overflow-y: scroll;
+        max-height: 300px;
+        line-height: 1.1;
+    }
+    
+    .div_comentario {
+        right: 9%;
+        position: fixed;
+    }
+</style>
+<script type="text/javascript">
+    function ver_comentario(numero) {
+        $(".comentario_visar").hide();
+        $(".numero_" + numero).show();
+    }
+
+    function fun_ocultar_comentario(numero) {
+        $(".comentario_desplegar_" + numero).hide();
+        $("#img_ocultar_com_" + numero).hide();
+        $("#img_mostrar_com_" + numero).show();
+
+
+    }
+
+    function fun_mostrar_comentario(numero) {
+        $(".comentario_desplegar_" + numero).show();
+        $("#img_mostrar_com_" + numero).hide();
+        $("#img_ocultar_com_" + numero).show();
+
+    }
+</script>
+<!-- BEGIN: comentariosVisar -->
+<div class="div_comentario">
+    <table class="tabla_comentario_princial">
+        <tr>
+            <td>
+                <!-- BEGIN: comentario -->
+
+                <table class="comentario_visar numero_{NUMERO}" style="display:{DISPLAY}">
+                    <tr>
+                        <td><strong>Comentario:</strong>
+                            <div style="float:right">
+                                <table>
+                                    <tr>
+                                        <td><img id="img_ocultar_com_{NUMERO}" style="cursor:pointer; padding:4px" onclick="fun_ocultar_comentario('{NUMERO}')" src="Sistema/img/arriba-16.png" />
+                                            <img id="img_mostrar_com_{NUMERO}" style="cursor:pointer; padding:4px; display:none" onclick="fun_mostrar_comentario('{NUMERO}')" src="Sistema/img/abajo-16.png" /></td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr class="comentario_desplegar_{NUMERO}">
+                        <td><br /> {COMENTARIO}
+                        </td>
+                    </tr>
+                    <tr class="comentario_desplegar_{NUMERO}">
+                        <td><br /> {DESDE} <img src="Sistema/img/flecha-derecha-16.png" /> {HACIA} <i>({FECHA_CHAR})</i></td>
+                    </tr>
+
+
+                    <tr>
+                        <td><br />
+
+                            <!-- BEGIN: siguiente --><a href="javascript:ver_comentario('{NUMERO_MAS}')">[Mensaje_Anterior]</a>
+                            <!-- END: siguiente -->&nbsp;&nbsp;&nbsp;
+                            <!-- BEGIN: anterior --><a href="javascript:ver_comentario('{NUMERO_MENOS}')">[Mensaje_Siguiente]</a>
+                            <!-- END: anterior -->
+                        </td>
+                    </tr>
+                </table>
+
+                <!-- END: comentario -->
+            </td>
+        </tr>
+    </table>
+</div>
+<!-- END: comentariosVisar -->

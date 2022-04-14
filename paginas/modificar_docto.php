@@ -104,14 +104,21 @@ class modificar_docto extends Pagina{
         $this->fun_chequear_destinatario($wf,$tipo);
         //privacidad
         $this->fun_chequea_datos_sensibles($certificado[0]['DOC_DATOS_SENSIBLES'],$certificado[0]['GDE_PRIVACIDAD_PRI_ID'],$wf,$tipo);
-        
         //cuerpo
         $this->fun_chequea_usa_plantilla($certificado[0]['DOC_USA_PLANTILLA']);    
-        
         //expediente
         $this->fun_chequear_expediente($certificado[0]['DOC_CASO_PADRE'],$tipo,$wf);
         //versiones
         $this->fun_chequear_versiones_wf($wf,$tipo);
+
+        //posit comentarios certificado
+        //$visaciones = $this->fun_listar_visaciones($wf,$tipo);
+        //$comentarios = $this->fun_html_posit_comentarios($visaciones);
+        $this->fun_html_posit_comentarios($wf,$tipo);
+
+        //$comentarios = 'ESTE ES UN COMENTARIO DE PRUEBA';
+        //$this->_TEMPLATE->assign('comentarios_certificado',$comentarios); 
+        //$this->_TEMPLATE->parse('main.div_comentarios_certificado');
 
 
         //ml: validamos si se debe  mostrar o no el btn firmar
@@ -122,6 +129,128 @@ class modificar_docto extends Pagina{
             $this->_TEMPLATE->parse('main.mostrar_btn_firmar');
         }
 
+    }
+
+
+    // |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+    // ||||||||||||||||||||||||||||||||||||||||  VISACIONES  |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+    // |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+
+    
+    public function fun_html_posit_comentarios($wf,$tipo){
+
+        $bind = array(":p_tipo"=>$tipo, ":p_wf" =>$wf);
+        $cursor = $this->_ORA->retornaCursor("GDE.GDE_VISACIONES_PKG.fun_lista_visaciones_wf",'function', $bind);
+        $registros =$this->_ORA->FetchAll($cursor);
+        $total = count($registros);
+        $DIS = '';
+        $i=0;
+       
+        //var_dump($registros);exit();
+
+        //$this->_SESION->setVariable('LISTADO_VISACIONES',array());
+        foreach($registros as $data){
+            $i++;
+            $this->_TEMPLATE->assign('DISPLAY',$DIS);
+            $this->_TEMPLATE->assign('NUMERO',$i);
+            $this->_TEMPLATE->assign('NUMERO_MAS',$i+1);
+            $this->_TEMPLATE->assign('NUMERO_MENOS',$i-1);
+            $this->_TEMPLATE->assign('DESDE',$data['VIS_USUARIO']);
+            $this->_TEMPLATE->assign('HACIA',$data['VIS_USUARIO_HACIA']);
+            $this->_TEMPLATE->assign('FECHA_CHAR',$data['VIS_FECHA']);
+            
+            $this->_TEMPLATE->assign('COMENTARIO',nl2br(isset($data['VIS_COMENTARIO']) ? $data['VIS_COMENTARIO'] : 'Sin Comentario'));
+            
+            if($i < $total){
+                $this->_TEMPLATE->parse('main.comentariosVisar.comentario.siguiente');
+            }
+            
+            if($i > 1){
+                $this->_TEMPLATE->parse('main.comentariosVisar.comentario.anterior');
+            }
+            
+            /*
+            if(isset($data['VIS_ADJUNTO'])){
+                $array_listado = $this->_SESION->getVariable('LISTADO_VISACIONES');
+                $array_listado = (is_array($array_listado)) ? $array_listado : array();
+                $TOKEN_VISACION = md5(time().$data['VIS_ID']);
+                //$data['ADJ_BIN']= $data['VIS_ADJUNTO']->load();
+                $array_listado[$TOKEN_VISACION] = $data;					
+                $this->_SESION->setVariable('LISTADO_VISACIONES',$array_listado);
+                $this->_TEMPLATE->assign('TOKEN_VISACION',$TOKEN_VISACION);
+                $this->_TEMPLATE->parse('main.comentariosVisar.comentario.adjunto_comentario');
+            }
+            */
+            
+            
+            $this->_TEMPLATE->parse('main.comentariosVisar.comentario');
+            $DIS = 'none';
+            
+        }
+
+        $this->_TEMPLATE->parse('main.comentariosVisar');
+
+    }
+
+
+    public function fun_listar_visaciones($wf,$tipo){
+
+        $bind = array(":p_tipo"=>$tipo, ":p_wf" =>$wf);
+        try{
+		   $cursor = $this->_ORA->retornaCursor("GDE.GDE_VISACIONES_PKG.fun_lista_visaciones_wf",'function', $bind);
+			if ($cursor) {
+			 	 while($r = $this->_ORA->FetchArray($cursor)){ 
+					$r['VIS_ID']=$r['VIS_ID'];
+                    $r['VIS_USUARIO']=$r['VIS_USUARIO'];
+                    $r['VIS_USUARIO_HACIA']=$r['VIS_USUARIO_HACIA'];
+                    $r['VIS_VB']=$r['VIS_VB'];
+                    $r['VIS_FECHA']=$r['VIS_FECHA'];
+                    $r['VIS_COMENTARIO']=$r['VIS_COMENTARIO']->load();
+                    $r['DOC_VERSION']=$r['DIC_VERSION'];
+                    $r['DOC_DATOS_SENCIBLES']=$r['DOC_DATOS_SENCIBLES'];
+                    $r['doc_usa_plantilla']=$r['doc_usa_plantilla'];
+                    $r['doc_pdf']=$r['doc_pdf'];
+                    $r['doc_cuerpo']=$r['doc_cuerpo'];
+                    $r['doc_ultima_version']=$r['doc_ultima_version'];
+                    $r['doc_fecha']=$r['doc_fecha'];
+                    $r['doc_redactor']=$r['doc_redactor'];
+                    $r['doc_enviado_a']=$r['doc_enviado_a'];
+                    $r['doc_genera_version']=$r['doc_genera_version'];
+                    $r['doc_caso_padre']=$r['doc_caso_padre'];
+
+
+                    $visaciones[]=$r;
+                
+                }			
+			 	 $this->_ORA->FreeStatement($cursor);
+			}
+           
+		}catch (Exception $e){
+            print("hay un error");
+        }
+        return $visaciones;
+    }
+
+    
+    //ml: armamos el html para el posit de los comentarios del certificado
+    public function fun_html_posit_comentarios_old($visaciones){
+
+        //echo"<pre>";var_dump($visaciones); echo"</pre>";exit();
+        
+        $listado = "";
+        if(isset($visaciones) && !empty($visaciones) && is_array($visaciones)){
+            foreach($visaciones as $key => $datos){
+                //$bindNombre = array(':usr' => $resultado2[$key]['VIS_USUARIO']);
+                //$nombreUsuario = $this->_ORA->ejecutaFunc('wfa.wfa_usr.getNombreUsuario',$bindNombre);
+                //$listado .= "<li>".$nombreUsuario.' ('.$resultado2[$key]['VIS_VB'].') '.$resultado2[$key]['VIS_FECHA']."</li>";    
+                $listado .= "<li>".$visaciones[$key]['VIS_COMENTARIO']."</li>";    
+            }
+        }else{
+            $listado .= "<li>NO HAY COMENTARIOS</li>"; 
+        }
+        
+        return $listado;
+        
     }
 
     

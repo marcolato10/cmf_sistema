@@ -331,184 +331,193 @@
 
 <!-- BEGIN: div_cotentCertificado -->
 <div style="clear:both; display:{DISPLAY_div_contentCertificado}" id="div_contentCertificado">
-    <!-- END: div_cotentCertificado -->
-    <div style="clear:both">
-        <form id='form_modificar' name='form_modificar' style="text-align:left" enctype="multipart/form-data">
+    <div class="row">
+        <div class="col-11">
+            <!-- END: div_cotentCertificado -->
+            <div style="clear:both">
+                <form id='form_modificar' name='form_modificar' style="text-align:left" enctype="multipart/form-data">
 
 
-            <!-- BEGIN: paso1 -->
-            <fieldset class="fieldset">
-                <legend class="legend">Destinatario</legend>
-                <div class="sec1Destinatario">
-                    {FILE "Sistema/paginas/plantillas/destinatario.html"}
-                </div>
+                    <!-- BEGIN: paso1 -->
+                    <fieldset class="fieldset">
+                        <legend class="legend">Destinatario</legend>
+                        <div class="sec1Destinatario">
+                            {FILE "Sistema/paginas/plantillas/destinatario.html"}
+                        </div>
 
-                <div class="sec1Destinatario">
-                    <label class="textoPregunta" for="tipo_envio">
+                        <div class="sec1Destinatario">
+                            <label class="textoPregunta" for="tipo_envio">
                             Tipo de envío : 
                         </label>
-                    <div class="errorModificar" id="errorTipoEnvio">(*) Usted debe seleccionar una opción</div>
-                </div>
-                <div class="sec1Destinatario">
-                    {resultado_tipo_envio}
-                </div>
-            </fieldset>
-            <!-- END: paso1 -->
-            <br>
+                            <div class="errorModificar" id="errorTipoEnvio">(*) Usted debe seleccionar una opción</div>
+                        </div>
+                        <div class="sec1Destinatario">
+                            {resultado_tipo_envio}
+                        </div>
+                    </fieldset>
+                    <!-- END: paso1 -->
+                    <br>
 
 
 
-            <!-- BEGIN: existe_privacidad -->
-            <fieldset class="fieldset">
-                <legend class="legend">Privacidad</legend>
-                <div class="sec1Destinatario">
-                    <label class="textoPregunta" for="docContieneDatosSenciblesPersonales">
+                    <!-- BEGIN: existe_privacidad -->
+                    <fieldset class="fieldset">
+                        <legend class="legend">Privacidad</legend>
+                        <div class="sec1Destinatario">
+                            <label class="textoPregunta" for="docContieneDatosSenciblesPersonales">
                             Documento contiene datos sensibles o personales : 
                         </label>
-                    <div class="errorModificar" id="errorDatosSensibles">(*) Usted debe seleccionar una opción</div>
-                </div>
-
-                <div class="sec1Destinatario">
-                    <label class="labelTipo">Si
-                    <input class="inputTipo" type="radio" id="datosensibleSI" name="datosensibleSINO" value="SI" onclick="miDatoSensibleSINO(this.value,'{cadena}');" {r_dato_sensible_si}></label>&nbsp;&nbsp;
-                    <label class="labelTipo">No
-                    <input class="inputTipo" type="radio" id="datosensibleNO" name="datosensibleSINO" value="NO" onclick="miDatoSensibleSINO(this.value,'{cadena}');" {r_dato_sensible_no}></label>&nbsp;&nbsp;
-                </div>
-                <br> {resultado_privacidad}
-            </fieldset>
-            <!-- END: existe_privacidad -->
-
-
-            <br>
-            <fieldset class="fieldset">
-                <legend class="legend">Cuerpo</legend>
-                <!-- BEGIN: usa_plantilla -->
-
-                <div id="div_paraModificar">
-
-                    <div class="sec1Destinatario" id="div_pregunta_usa_plantilla">
-                        <a id="a_modificar_cuerpo" class="button" onclick="fun_modificar_cuerpo(1)">Cancelar Modificación</a>
-                        <br><br>
-                        <label class="textoPregunta" for="DocUsaPlantilla">Usar plantilla :</label>
-                        <div class="errorModificar" id="errorUsaPlantilla">(*) Usted debe seleccionar una opción</div>
-                    </div>
-                    <div class="sec1Destinatario" id="div_opciones_usa_plantilla">
-                        <label class="labelTipo">Si</label>
-                        <input class="inputTipo" type="radio" id="usarPlantillaSI" name="usarPlantillaSINO" value="SI" onclick="datoTipoPlantilla(this.value);">
-                        <label class="labelTipo">No</label>
-                        <input class="inputTipo" type="radio" id="usarPlantillaNO" name="usarPlantillaSINO" value="NO" onclick="datoTipoPlantilla(this.value);">
-                    </div>
-                    <br>
-                    <div class="sec1Destinatario" id="div_plantillas_disponibles">
-                        <label class="labelTipo">¿Que plantilla quiere utilizar?:</label>
-                        <div class="errorModificar" id="errorTipoPlantilla">(*) Usted debe seleccionar una opción</div>
-                        <ul>
-                            <!-- BEGIN: plantillas_disponibles -->
-                            {plantilla_disponible}
-                            <!-- END: plantillas_disponibles -->
-                        </ul>
-                    </div>
-
-                    <diV class='sec1Destinatario' id="divSeleccionaPdf" style="display:none">
-                        <label class='seleccionaPdf' for='destinatario'>Seleccionar PDF</label>
-                        <input type="file" id="archivoInput" name="archivoInput" onchange="return validarExt()" />
-                        <br><br>
-                        <div id="visorArchivo">
-                            <!--Aqui se desplegará el fichero-->
+                            <div class="errorModificar" id="errorDatosSensibles">(*) Usted debe seleccionar una opción</div>
                         </div>
-                    </div>
 
-                    <div class="sec1Destinatario" id="divCuerpo1" style="display:none">
-                        <label class="textoPregunta" for="conCopia">Cuerpo :</label>
-                    </div>
-                    <div class="sec1Destinatario" id="divCuerpo2" style="display:none">
-                        <table width="90%" align="center">
-                            <tr>
-                                <td>
-                                    <textarea id="certificado_divCuerpo" name="certificado_divCuerpo">
+                        <div class="sec1Destinatario">
+                            <label class="labelTipo">Si
+                    <input class="inputTipo" type="radio" id="datosensibleSI" name="datosensibleSINO" value="SI" onclick="miDatoSensibleSINO(this.value,'{cadena}');" {r_dato_sensible_si}></label>&nbsp;&nbsp;
+                            <label class="labelTipo">No
+                    <input class="inputTipo" type="radio" id="datosensibleNO" name="datosensibleSINO" value="NO" onclick="miDatoSensibleSINO(this.value,'{cadena}');" {r_dato_sensible_no}></label>&nbsp;&nbsp;
+                        </div>
+                        <br> {resultado_privacidad}
+                    </fieldset>
+                    <!-- END: existe_privacidad -->
+
+
+                    <br>
+                    <fieldset class="fieldset">
+                        <legend class="legend">Cuerpo</legend>
+                        <!-- BEGIN: usa_plantilla -->
+
+                        <div id="div_paraModificar">
+
+                            <div class="sec1Destinatario" id="div_pregunta_usa_plantilla">
+                                <a id="a_modificar_cuerpo" class="button" onclick="fun_modificar_cuerpo(1)">Cancelar Modificación</a>
+                                <br><br>
+                                <label class="textoPregunta" for="DocUsaPlantilla">Usar plantilla :</label>
+                                <div class="errorModificar" id="errorUsaPlantilla">(*) Usted debe seleccionar una opción</div>
+                            </div>
+                            <div class="sec1Destinatario" id="div_opciones_usa_plantilla">
+                                <label class="labelTipo">Si</label>
+                                <input class="inputTipo" type="radio" id="usarPlantillaSI" name="usarPlantillaSINO" value="SI" onclick="datoTipoPlantilla(this.value);">
+                                <label class="labelTipo">No</label>
+                                <input class="inputTipo" type="radio" id="usarPlantillaNO" name="usarPlantillaSINO" value="NO" onclick="datoTipoPlantilla(this.value);">
+                            </div>
+                            <br>
+                            <div class="sec1Destinatario" id="div_plantillas_disponibles">
+                                <label class="labelTipo">¿Que plantilla quiere utilizar?:</label>
+                                <div class="errorModificar" id="errorTipoPlantilla">(*) Usted debe seleccionar una opción</div>
+                                <ul>
+                                    <!-- BEGIN: plantillas_disponibles -->
+                                    {plantilla_disponible}
+                                    <!-- END: plantillas_disponibles -->
+                                </ul>
+                            </div>
+
+                            <diV class='sec1Destinatario' id="divSeleccionaPdf" style="display:none">
+                                <label class='seleccionaPdf' for='destinatario'>Seleccionar PDF</label>
+                                <input type="file" id="archivoInput" name="archivoInput" onchange="return validarExt()" />
+                                <br><br>
+                                <div id="visorArchivo">
+                                    <!--Aqui se desplegará el fichero-->
+                                </div>
+                            </div>
+
+                            <div class="sec1Destinatario" id="divCuerpo1" style="display:none">
+                                <label class="textoPregunta" for="conCopia">Cuerpo :</label>
+                            </div>
+                            <div class="sec1Destinatario" id="divCuerpo2" style="display:none">
+                                <table width="90%" align="center">
+                                    <tr>
+                                        <td>
+                                            <textarea id="certificado_divCuerpo" name="certificado_divCuerpo">
                                         <!-- BEGIN: cuerpo_certificado -->
                                             {r_cuerpo}
                                         <!-- END: cuerpo_certificado -->
                                         </textarea>
-                                </td>
-                            </tr>
-                        </table>
-                    </div>
-                </div>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
 
-                <diV class='sec1Destinatario' id="div_micuerpo">
-                    <a id="a_modificar_cuerpo" class="button" onclick="fun_modificar_cuerpo(2)">Modificar Cuerpo</a>
-                    <br><br> {mostrar_opcion_cuerpo}
-                </div>
+                        <diV class='sec1Destinatario' id="div_micuerpo">
+                            <a id="a_modificar_cuerpo" class="button" onclick="fun_modificar_cuerpo(2)">Modificar Cuerpo</a>
+                            <br><br> {mostrar_opcion_cuerpo}
+                        </div>
 
-                <!-- END: usa_plantilla -->
+                        <!-- END: usa_plantilla -->
 
-            </fieldset>
+                    </fieldset>
 
-            <br>
-            <fieldset class="fieldset">
-                <legend class="legend">Expediente</legend><br>
+                    <br>
+                    <fieldset class="fieldset">
+                        <legend class="legend">Expediente</legend><br>
 
-                <diV class='sec1Destinatario'>
-                    <!-- BEGIN: padre -->
-                    <input type="hidden" name="padre" id="padre" value="{padre}">
-                    <input type="hidden" name="wf" id="wf" value="{wf}">
-                    <input type="hidden" name="tipo" id="tipo" value="{tipo}">
+                        <diV class='sec1Destinatario'>
+                            <!-- BEGIN: padre -->
+                            <input type="hidden" name="padre" id="padre" value="{padre}">
+                            <input type="hidden" name="wf" id="wf" value="{wf}">
+                            <input type="hidden" name="tipo" id="tipo" value="{tipo}">
 
-                    <a class='alink' href='javascript:void(0)' id='btnVerExpediente' onclick='click_verExpediente(1,{padre});'>Ver Expediente</a>
-                    <!-- END: padre -->
-                </diV>
-                <br>
-                <div class="sec1Destinatario">
-                    <label class="textoPregunta" for="DocContieneDatosSenciblesPersonales">Adjuntos :</label>
-                    <div id="div_adjuntosResolucion">
-                        <!-- BEGIN: div_adjuntosResolucion -->
-                        <ul class="filetree treeview">
-                            <!-- BEGIN: adjunto -->
-                            <li><span class="file"> <a href="index.php?pagina=paginas.redactar&funcion=adjunto&exp={ADJ.ID}&val={ADJ.VAL}" target="_blank"><img src="/biblioteca/images/jquery/treeview/file.gif"/> {ADJ.ADJ_NOMBRE}</a>
+                            <a class='alink' href='javascript:void(0)' id='btnVerExpediente' onclick='click_verExpediente(1,{padre});'>Ver Expediente</a>
+                            <!-- END: padre -->
+                        </diV>
+                        <br>
+                        <div class="sec1Destinatario">
+                            <label class="textoPregunta" for="DocContieneDatosSenciblesPersonales">Adjuntos :</label>
+                            <div id="div_adjuntosResolucion">
+                                <!-- BEGIN: div_adjuntosResolucion -->
+                                <ul class="filetree treeview">
+                                    <!-- BEGIN: adjunto -->
+                                    <li><span class="file"> <a href="index.php?pagina=paginas.redactar&funcion=adjunto&exp={ADJ.ID}&val={ADJ.VAL}" target="_blank"><img src="/biblioteca/images/jquery/treeview/file.gif"/> {ADJ.ADJ_NOMBRE}</a>
                                 <!-- BEGIN: eliminar -->
                                 &nbsp;&nbsp;&nbsp;<span style="cursor:pointer" onClick="click_eliminarAdjunto('{ADJ.ADJ_HASH}')">[<img src="Sistema/img/eliminar-destinatario.png" />Eliminar]
                                 <!-- END: eliminar --></span><br />
-                                </span>
-                            </li>
-                            <!-- END: adjunto -->
-                        </ul>
-                        <!-- END: div_adjuntosResolucion -->
-                    </div>
-                </div>
-            </fieldset>
-            <br>
-            <fieldset class="fieldset">
-                <legend class="legend">Versiones</legend>
-                <div class="sec1Destinatario">
-                    <ul>
-                        <!-- BEGIN: listado_versiones -->
-                        {listado_versiones}
-                        <!-- END: listado_versiones -->
+                                        </span>
+                                    </li>
+                                    <!-- END: adjunto -->
+                                </ul>
+                                <!-- END: div_adjuntosResolucion -->
+                            </div>
+                        </div>
+                    </fieldset>
+                    <br>
+                    <fieldset class="fieldset">
+                        <legend class="legend">Versiones</legend>
+                        <div class="sec1Destinatario">
+                            <ul>
+                                <!-- BEGIN: listado_versiones -->
+                                {listado_versiones}
+                                <!-- END: listado_versiones -->
 
-                    </ul>
-                </div>
-            </fieldset>
-            <br>
-            <fieldset class="fieldset">
-                <div class="secBotonera">
-                    <a class="btn btn-warning btn-mk" href='javascript:void(0)' id='btnFormCerrar' onclick="accionCerrarCertificado();">Cerrar</a> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                    <a class="btn btn-warning btn-mk" href='javascript:void(0)' id='btnFormGrabar' onclick="accionActualizar();">Grabar</a>&nbsp;&nbsp;&nbsp;
-                    <a class="btn btn-warning btn-mk" href='javascript:void(0)' id='btnFormVistaPrevia' onclick="accionBtnFormVistaPrevia();">Vista Previa</a>&nbsp;&nbsp;&nbsp;
-                    <a class="btn btn-warning btn-mk" href='javascript:void(0)' id='btnFormEnviaraAVB' onclick="accionBtnFormEnviaraAVB();">Enviar A VB</a>&nbsp;&nbsp;&nbsp;
+                            </ul>
+                        </div>
+                    </fieldset>
+                    <br>
+                    <fieldset class="fieldset">
+                        <div class="secBotonera">
+                            <a class="btn btn-warning btn-mk" href='javascript:void(0)' id='btnFormCerrar' onclick="accionCerrarCertificado();">Cerrar</a> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            <a class="btn btn-warning btn-mk" href='javascript:void(0)' id='btnFormGrabar' onclick="accionActualizar();">Grabar</a>&nbsp;&nbsp;&nbsp;
+                            <a class="btn btn-warning btn-mk" href='javascript:void(0)' id='btnFormVistaPrevia' onclick="accionBtnFormVistaPrevia();">Vista Previa</a>&nbsp;&nbsp;&nbsp;
+                            <a class="btn btn-warning btn-mk" href='javascript:void(0)' id='btnFormEnviaraAVB' onclick="accionBtnFormEnviaraAVB();">Enviar A VB</a>&nbsp;&nbsp;&nbsp;
 
-                    <!-- BEGIN: mostrar_btn_firmar -->
-                    {mostrar_btn_firmar}&nbsp;&nbsp;&nbsp;
-                    <!-- END: mostrar_btn_firmar -->
+                            <!-- BEGIN: mostrar_btn_firmar -->
+                            {mostrar_btn_firmar}&nbsp;&nbsp;&nbsp;
+                            <!-- END: mostrar_btn_firmar -->
 
-                    <a class="btn btn-warning btn-mk" href='javascript:void(0)' id='btnFormEliminar' onclick="accionBtnFormEliminar();" disabled>Eliminar</a>
-                </div>
-            </fieldset>
+                            <a class="btn btn-warning btn-mk" href='javascript:void(0)' id='btnFormEliminar' onclick="accionBtnFormEliminar();" disabled>Eliminar</a>
+                        </div>
+                    </fieldset>
 
-        </form>
+                </form>
+            </div>
+        </div>
+
+        <!-- INICIO POSIT INFORMATIVO COMENTARIOS -->
+        {FILE "Sistema/paginas/plantillas/comentarios.html"}
+        <!-- FIN POSIT INFORMATIVO COMENTARIOS -->
+
     </div>
 </div>
-</div>
+
 
 
 
