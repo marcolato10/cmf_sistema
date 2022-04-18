@@ -1542,7 +1542,7 @@ public function modificar_certificado($wf,$tipo){
     //ml: enviamos a VB desde pestaña MI UNIDAD
     public function fun_agregar_enviar_vb(){
     
-        //xxxxxxxxxxxxxxx OK
+       
         
         try{
 
@@ -1785,10 +1785,10 @@ public function modificar_certificado($wf,$tipo){
                 $correo_para = $this->_ORA->ejecutaFunc("wfa_usr.getEmailUsuario",$bindPara);  
                 $usuarioCopiaEVB = explode(',',$_POST['p_copiaVB']);
                 $correo_copia = array();
-                if(isset($usuarioCopiaEVB)){
+                if(isset($usuarioCopiaEVB) and $usuarioCopiaEVB[0] != "null"){
                     for ($i=0;$i<count($usuarioCopiaEVB);$i++) { 
                         $bind = array(':usuario' => $usuarioCopiaEVB[$i]);
-                        //$correo_copia[$i] = $this->_ORA->ejecutaFunc("wfa_usr.getEmailUsuario",$bind); //No existe correo para null
+                        $correo_copia[$i] = $this->_ORA->ejecutaFunc("wfa_usr.getEmailUsuario",$bind); 
                     }   
                     $copia_correo = implode(",", $correo_copia); 
                 }else{
@@ -1796,7 +1796,7 @@ public function modificar_certificado($wf,$tipo){
                 }
 
                 //enviamos el correo //esta tirando error email null 
-                //$this->fun_enviar_correo($correo_para,$copia_correo,$p_id,$comentario,$usuario_desde);     
+                $this->fun_enviar_correo($correo_para,$copia_correo,$p_id,$comentario,$usuario_desde);     
 
                 //derivamos a la bandeja de WF [DESCOMENTAR]
                 $this->setAsignar($usuarioPara, $_POST['p_comentarioVB'],$p_id);
@@ -2063,10 +2063,10 @@ public function modificar_certificado($wf,$tipo){
                 $correo_para = $this->_ORA->ejecutaFunc("wfa_usr.getEmailUsuario",$bindPara);  
                 $usuarioCopiaEVB = explode(',',$_POST['p_copiaVBTodos']);
                 $correo_copia = array();
-                if(isset($usuarioCopiaEVB)){
+                if(isset($usuarioCopiaEVB) and $usuarioCopiaEVB[0] != "null"){
                     for ($i=0;$i<count($usuarioCopiaEVB);$i++) { 
                         $bind = array(':usuario' => $usuarioCopiaEVB[$i]);
-                        //$correo_copia[$i] = $this->_ORA->ejecutaFunc("wfa_usr.getEmailUsuario",$bind); 
+                        $correo_copia[$i] = $this->_ORA->ejecutaFunc("wfa_usr.getEmailUsuario",$bind); 
                     }   
                     $copia_correo = implode(",", $correo_copia); 
                 }else{
@@ -2074,7 +2074,7 @@ public function modificar_certificado($wf,$tipo){
                 }
 
                 //enviamos el correo 
-                //$this->fun_enviar_correo($correo_para,$copia_correo,$p_id,$comentario,$usuario_desde);     
+                $this->fun_enviar_correo($correo_para,$copia_correo,$p_id,$comentario,$usuario_desde);     
 
                 //derivamos a la bandeja de WF [DESCOMENTAR]
                 $this->setAsignar($usuarioPara, $_POST['p_comentarioVBTodos'],$p_id);
@@ -2432,10 +2432,10 @@ public function modificar_certificado($wf,$tipo){
             $correo_para = $this->_ORA->ejecutaFunc("wfa_usr.getEmailUsuario",$bindPara);  
             $usuarioCopiaEVB = explode(',',$_POST['p_otraUnidadCopiaVB']);
             $correo_copia = array();
-            if(isset($usuarioCopiaEVB)){
+            if(isset($usuarioCopiaEVB) and $usuarioCopiaEVB[0] != "null"){
                 for ($i=0;$i<count($usuarioCopiaEVB);$i++) { 
                     $bind = array(':usuario' => $usuarioCopiaEVB[$i]);
-                    //$correo_copia[$i] = $this->_ORA->ejecutaFunc("wfa_usr.getEmailUsuario",$bind); 
+                    $correo_copia[$i] = $this->_ORA->ejecutaFunc("wfa_usr.getEmailUsuario",$bind); 
                 }   
                 $copia_correo = implode(",", $correo_copia); 
             }else{
@@ -2443,7 +2443,7 @@ public function modificar_certificado($wf,$tipo){
             }
 
             //enviamos el correo 
-            //$this->fun_enviar_correo($correo_para,$copia_correo,$p_id,$comentario,$usuario_desde);      
+            $this->fun_enviar_correo($correo_para,$copia_correo,$p_id,$comentario,$usuario_desde);      
             
             //derivamos a la bandeja de WF [DESCOMENTAR]
             $this->setAsignar($usuarioPara, $_POST['p_otraUnidadComentarioVB'],$p_id);
