@@ -445,7 +445,7 @@ function accionEnviarVB() {
     //var copiaVB = document.getElementById("copia_vb").value;
     var copiaVB = $("#copia_vb").val();
 
-    alert(copiaVB);
+    //console.log(copiaVB);
 
     var visacionVB = document.getElementById("visacion_vb").value;
     var comentarioVB = CKEDITOR.instances.comentario_vb.getData();
@@ -925,10 +925,11 @@ function accionOtraUnidadEVB() {
         $("#errorOtraUnidadParaVB").css("display", "block");
         errores++;
     }
+    /*
     if (!otraUnidadCopiaVB) {
         $("#errorOtraUnidadCopiaVB").css("display", "block");
         errores++;
-    }
+    }*/
     if (!otraUnidadVisacionVB) {
         $("#errorOtraUnidadVisacionVB").css("display", "block");
         errores++;

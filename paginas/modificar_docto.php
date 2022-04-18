@@ -2989,9 +2989,9 @@ class modificar_docto extends Pagina{
                 
             $bindPara = array(':usuario' => $usuarioPara);                            
             $correo_para = $this->_ORA->ejecutaFunc("wfa_usr.getEmailUsuario",$bindPara);  
-            $usuarioCopiaEVB = explode(',',$_POST['p_copiaVB']);
+            $usuarioCopiaEVB = explode(',',$_POST['p_otraUnidadCopiaVB']);
             $correo_copia = array();
-            /*if(isset($usuarioCopiaEVB)){
+            if(isset($usuarioCopiaEVB) and $usuarioCopiaEVB[0] != "null"){
                 for ($i=0;$i<count($usuarioCopiaEVB);$i++) { 
                     $bind = array(':usuario' => $usuarioCopiaEVB[$i]);
                     $correo_copia[$i] = $this->_ORA->ejecutaFunc("wfa_usr.getEmailUsuario",$bind); 
@@ -2999,10 +2999,10 @@ class modificar_docto extends Pagina{
                 $copia_correo = implode(",", $correo_copia); 
             }else{
                 $copia_correo = null;
-            }*/
+            }
 
             //enviamos el correo 
-            //$this->fun_enviar_correo($correo_para,$copia_correo,$wf,$comentario,$usuario_desde);     
+            $this->fun_enviar_correo($correo_para,$copia_correo,$wf,$comentario,$usuario_desde);     
 
             //derivamos a la bandeja de WF [DESCOMENTAR]
             $this->setAsignar($usuarioPara, $comentario,$wf);
@@ -3013,239 +3013,7 @@ class modificar_docto extends Pagina{
              exit();
  
  
-             if($accion_caso == 'MV'){//modifica version
- 
-                 $version = $certificado_uv[0]['DOC_ULTIMA_VERSION'];
-                 //ACTUALIZAR CERTIFICADO
-                 $this->fun_actualizar_certificado($p_doc_datos_sensibles,$p_gde_pri_id,$wf,$version);
-                 //MODIFICAR ADJUNTOS // EXPEDIENTES
-                 $this->fun_actualizar_adjuntos($wf,$tipo,$version,$mi_usuario); 
-                 //actualizamos los DESTINATARIOS
-                 $this->fun_actualizar_destinatarios($wf,$version,$arrayDestinatarioE,$dataDestinatario);
-                 //actualizamos los COPIA
-                 $this->fun_actualizar_destinatarios($wf,$version,$arrayDestinatarioCE,$dataCopia);
- 
-                 //actualizamos el CUERPO
-                 if($estado == 2){//se modifico el cuerpo
- 
-                         if($_POST['p_usarPlantillaSINO'] != 'undefined'){ //esto se agrego
-                            
-                             $p_doc_usa_plantilla=$_POST['p_usarPlantillaSINO'];
-                             //validamos que venga archivo adjunto
-                             if(isset($_FILES['file']['tmp_name']) and $_POST['p_usarPlantillaSINO'] == 'NO'){
-                                 //print_r("PASO 2.1: el pdf debe ser agregado");
-                                 $blob = $this->_ORA->NewDescriptor(OCI_DTYPE_BLOB);
-                                 $blob->WriteTemporary(file_get_contents($_FILES['file']['tmp_name']),OCI_TEMP_BLOB);
-                                 $RES_REFERENCIA= null;
-                                 $agregarPDF = "OK"; //para saber si debemos agregar el PDF adjunto
-                                 $identifica = 2;//se agrega el blob 
-                             }else{
-                                 //print_r("PASO 2.2: el pdf es null");print("<br>");
-                                 $blob=null;
-                                 $RES_REFERENCIA = $this->_ORA->NewDescriptor(); 
-                                 $RES_REFERENCIA->WriteTemporary($_POST['p_cuerpo'],OCI_TEMP_CLOB);
-                                 $agregarPDF= "NOK";
-                                 $identifica = 1; //hay que eliminar el blob 
-                                 }
-         
-         
-                             if($agregarPDF == 'OK'){
-                                 //print_r("PASO 3.1.2: actualizamos pdf x version parte 2");print("<br>");
-                                 
-                                 $bind =  array(
-                                     ":p_id"=> $wf,
-                                     ":p_doc_pdf" => $blob,
-                                     ":p_version" => $version,
-                                     ":p_identifica" => $identifica
-                                 );
-                                 $this->_ORA->ejecutaProc("GDE.GDE_DOCUMENTO_PKG.PRC_ACTUALIZAR_PDF_XVERSION",$bind); //hay que crear
-                                 $this->_ORA->Commit();
-                                 
-         
-                             }else{
-                                 if($identifica == 1){ //eliminamos el blob para agregar cuerpo   
-                                     $bind =  array(
-                                         ":p_id"=> $wf,
-                                         ":p_version" => $version,
-                                         ":p_identifica" => $identifica,
-                                         ":p_cuerpo" => $RES_REFERENCIA,
-                                         ":p_usa_plantilla" => $p_doc_usa_plantilla 
-                                     );
-                                     $this->_ORA->ejecutaProc("GDE.GDE_DOCUMENTO_PKG.PRC_BORRAR_PDF_XVERSION",$bind); 
-                                     $this->_ORA->Commit();
-                                 }
-                             }
-         
-                         }
-                     } 
- 
- 
- 
-                // echo "<pre>";var_dump("comentario EVB OTRA UNIDAD :".$_POST['p_otraUnidadComentarioVB']);echo "</pre>"; 
- 
-                    //|||||||||||||||| VISACION EVB OTRA UNIDAD 
-                                        
-                $p_vis_id = mt_rand();
-                $p_paraVB= $_POST['p_otraUnidadComentarioVB'];//usuario para enviar vb
-                $p_comentarioVB= $_POST['p_otraUnidadComentarioVB']; //comentario visacion enviar vb
-                $p_visacionVB='SI';
-                $this->fun_agregar_visacion_vb(
-                        $p_vis_id,//OK
-                        $wf,//ok
-                        $version,
-                        $p_paraVB,
-                        $p_comentarioVB,
-                        $p_visacionVB
-                    );    
-
-                //validamos que venga archivo adjunto en envioVB
-                if(isset($_FILES['file3']['tmp_name'])){
-                    $blob3 = $this->_ORA->NewDescriptor(OCI_DTYPE_BLOB);
-                    $blob3->WriteTemporary(file_get_contents($_FILES['file3']['tmp_name']),OCI_TEMP_BLOB);
-                    $bindVisacion =  array(":p_vis_id"=> $p_vis_id,":p_vis_adjunto" => $blob3);
-                    $this->_ORA->ejecutaProc("GDE.GDE_VISACIONES_PKG.PRC_ACTUALIZAR_ADJUNTO",$bindVisacion);
-                    $this->_ORA->Commit();
-                }     
-
-             }
- 
-             if($accion_caso == 'GNV'){//genera version
- 
-                     //echo "<pre>";print_r("PASO 3:: ENTRAMOS A CREAR VERSION");echo "</pre>";
- 
-                     $version = $certificado_uv[0]['DOC_ULTIMA_VERSION']+1;//para que pase a ser una nueva version
-                     
-                     $this->fun_agregar_version($p_doc_datos_sensibles,$p_gde_pri_id,$wf,$tipo,$p_doc_caso_padre,$version);
-         
-                     if($estado == 2){ // se hizo un cambio en el cuerpo
-                         
-                         //agregado hay que revisar //funciona
-                         if(isset($_FILES['file']['tmp_name']) and $_POST['p_usarPlantillaSINO'] == 'NO'){
-                             //print_r("PASO XX: el pdf debe ser agregado");
-                             $blob = $this->_ORA->NewDescriptor(OCI_DTYPE_BLOB);
-                             $blob->WriteTemporary(file_get_contents($_FILES['file']['tmp_name']),OCI_TEMP_BLOB);
-                             $RES_REFERENCIA= null;
-                             $agregarPDF = "OK"; //para saber si debemos agregar el PDF adjunto
-                             $identifica = 2;//se agrega el blob 
-                         }else{
-                             //print_r("PASO xxx: el pdf es null");print("<br>");
-                             $blob=null;
-                             $RES_REFERENCIA = $this->_ORA->NewDescriptor(); 
-                             $RES_REFERENCIA->WriteTemporary($_POST['p_cuerpo'],OCI_TEMP_CLOB);
-                             $agregarPDF= "NOK";
-                             $identifica = 1; //hay que eliminar el blob 
-                         }
-         
-                        
-                         /*ml: Agregamos el  PDF .blob en caso que venga adjunto
-                         observacion: se puede optimizar ya que no me deja enviar data null en el insert del documento por eso 
-                         se agregó por separado */
-                         if($agregarPDF == 'OK'){
-                             
-                             //print_r("PASO yy: existe pdf se agrega a la nueva version");print("<br>");
-                             $bind =  array(
-                                 ":p_id"=> $wf,
-                                 ":p_doc_pdf" => $blob,
-                                 ":p_version" => $version,
-                                 ":p_identifica" => $identifica
-                             );
-                             $this->_ORA->ejecutaProc("GDE.GDE_DOCUMENTO_PKG.PRC_ACTUALIZAR_PDF_XVERSION",$bind); //hay que crear
-                             $this->_ORA->Commit();
-                         }
-                         if($agregarPDF == 'NOK'){
-                             
-                             //print_r("PASO yyy: no existe pdf se agrega cuerpo a la nueva version");print("<br>");
-                             
-                             $bind =  array(
-                                 ":p_id"=> $wf,
-                                 ":p_version" => $version,
-                                 ":p_identifica" => $identifica,
-                                 ":p_cuerpo" => $RES_REFERENCIA,
-                                 ":p_usa_plantilla" => $_POST['p_usarPlantillaSINO'] 
-                                 
-                             );
-                             $this->_ORA->ejecutaProc("GDE.GDE_DOCUMENTO_PKG.PRC_BORRAR_PDF_XVERSION",$bind); 
-                             $this->_ORA->Commit();
-         
-                         }
-                     }else{
-                     
-                     
-                         if(isset($certificado_uv[0]['DOC_PDF'])){ //existe pdf
-                         
-                         
-                             $identifica = 2; //se conserva el blob de la version anterior
-                             $mi_blob = $certificado_uv[0]['DOC_PDF']->load();
-                             $blob = $this->_ORA->NewDescriptor(OCI_DTYPE_BLOB);
-                             $blob->WriteTemporary($mi_blob,OCI_TEMP_BLOB);
-                             $bind =  array(
-                                 ":p_id"=> $wf,
-                                 ":p_doc_pdf" => $blob,
-                                 ":p_version" => $version,
-                                 ":p_identifica" => $identifica
-                             );
-                             $this->_ORA->ejecutaProc("GDE.GDE_DOCUMENTO_PKG.PRC_ACTUALIZAR_PDF_XVERSION",$bind); //hay que crear
-                             $this->_ORA->Commit();     
-                         
-                         
-                         
-                         }else{
-                             
-                             $identifica = 1;
-                             $bind =  array(
-                                 ":p_id"=> $wf,
-                                 ":p_version" => $version,
-                                 ":p_identifica" => $identifica,
-                                 ":p_cuerpo" => $certificado_uv[0]['DOC_CUERPO'],
-                                 ":p_usa_plantilla" => $certificado_uv[0]['DOC_USA_PLANTILLA'] 
-                                 
-                             );
-                             $this->_ORA->ejecutaProc("GDE.GDE_DOCUMENTO_PKG.PRC_BORRAR_PDF_XVERSION",$bind); 
-                             $this->_ORA->Commit();
-                         
-                         }
-                     } 
-         
-                     
-                      //MODIFICAR ADJUNTOS // EXPEDIENTES
-                      $this->fun_actualizar_adjuntos($wf,$tipo,$version,$mi_usuario); 
-                      //actualizamos los DESTINATARIOS
-                      $this->fun_actualizar_destinatarios($wf,$version,$arrayDestinatarioE,$dataDestinatario);
-                      //actualizamos los COPIA
-                      $this->fun_actualizar_destinatarios($wf,$version,$arrayDestinatarioCE,$dataCopia);
-         
- 
-                      //|||||||||||||||| VISACION EVB OTRA UNIDAD 
-                     
-                      $p_vis_id = mt_rand();
-                      $p_paraVB= $_POST['p_otraUnidadComentarioVB'];//usuario para enviar vb
-                      $p_comentarioVB= $_POST['p_otraUnidadComentarioVB']; //comentario visacion enviar vb
-                      $p_visacionVB='SI';
-                      $this->fun_agregar_visacion_vb(
-                              $p_vis_id,//OK
-                              $wf,//ok
-                              $version,
-                              $p_paraVB,
-                              $p_comentarioVB,
-                              $p_visacionVB
-                          );    
-      
-                      //validamos que venga archivo adjunto en envioVB
-                      if(isset($_FILES['file3']['tmp_name'])){
-                          $blob3 = $this->_ORA->NewDescriptor(OCI_DTYPE_BLOB);
-                          $blob3->WriteTemporary(file_get_contents($_FILES['file3']['tmp_name']),OCI_TEMP_BLOB);
-                          $bindVisacion =  array(":p_vis_id"=> $p_vis_id,":p_vis_adjunto" => $blob3);
-                          $this->_ORA->ejecutaProc("GDE.GDE_VISACIONES_PKG.PRC_ACTUALIZAR_ADJUNTO",$bindVisacion);
-                          $this->_ORA->Commit();
-                      }    
-      
- 
-             }
- 
-            
- 
-           
-             return "OK";    
+       
              
         }catch(Exception $e){
             $this->_LOG->error(print_r($e));
@@ -3424,8 +3192,7 @@ class modificar_docto extends Pagina{
             $correo_para = $this->_ORA->ejecutaFunc("wfa_usr.getEmailUsuario",$bindPara);  
             $usuarioCopiaEVB = explode(',',$_POST['p_copiaVB']);
             $correo_copia = array();
-            
-            if(isset($usuarioCopiaEVB) and $usuarioCopiaEVB[0] != "null"){
+            /*if(isset($usuarioCopiaEVB)){
                 for ($i=0;$i<count($usuarioCopiaEVB);$i++) { 
                     $bind = array(':usuario' => $usuarioCopiaEVB[$i]);
                     $correo_copia[$i] = $this->_ORA->ejecutaFunc("wfa_usr.getEmailUsuario",$bind); 
@@ -3433,11 +3200,10 @@ class modificar_docto extends Pagina{
                 $copia_correo = implode(",", $correo_copia); 
             }else{
                 $copia_correo = null;
-            }
+            }*/
 
             //enviamos el correo 
-            $this->fun_enviar_correo($correo_para,$copia_correo,$wf,$comentario,$usuario_desde);   
-
+            //$this->fun_enviar_correo($correo_para,$copia_correo,$wf,$comentario,$usuario_desde);     
 
             //derivamos a la bandeja de WF [DESCOMENTAR]
             $this->setAsignar($usuarioPara, $comentario,$wf);
@@ -3649,7 +3415,6 @@ class modificar_docto extends Pagina{
             $correo_para = $this->_ORA->ejecutaFunc("wfa_usr.getEmailUsuario",$bindPara);  
             $usuarioCopiaEVB = explode(',',$_POST['p_copiaVBTodos']);
             $correo_copia = array();
-            
             if(isset($usuarioCopiaEVB) and $usuarioCopiaEVB[0] != "null"){
                 for ($i=0;$i<count($usuarioCopiaEVB);$i++) { 
                     $bind = array(':usuario' => $usuarioCopiaEVB[$i]);
@@ -3661,9 +3426,7 @@ class modificar_docto extends Pagina{
             }
 
             //enviamos el correo 
-            $this->fun_enviar_correo($correo_para,$copia_correo,$wf,$comentario,$usuario_desde);   
-
-
+            $this->fun_enviar_correo($correo_para,$copia_correo,$wf,$comentario,$usuario_desde);     
 
             //derivamos a la bandeja de WF [DESCOMENTAR]
             $this->setAsignar($usuarioPara, $comentario,$wf);
