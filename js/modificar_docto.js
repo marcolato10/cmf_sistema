@@ -445,6 +445,8 @@ function accionEnviarVB() {
     //var copiaVB = document.getElementById("copia_vb").value;
     var copiaVB = $("#copia_vb").val();
 
+    alert(copiaVB);
+
     var visacionVB = document.getElementById("visacion_vb").value;
     var comentarioVB = CKEDITOR.instances.comentario_vb.getData();
     var archivoVB = $('#archivo_vb').prop("files")[0];
