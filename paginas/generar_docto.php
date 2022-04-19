@@ -2100,12 +2100,17 @@ public function modificar_certificado($wf,$tipo){
     public function setAsignar($usuario, $comentario,$NUMERO_CASO){
             
         try{
-              $bind = array(':caso'=>$NUMERO_CASO, ':usuario' => $usuario);
-              $this->_ORA->ejecutaProc("wfa.wf_rso_pkg.fun_asignar", $bind);
-              $this->_LOG->log("Se asigna el WF: ".$NUMERO_CASO.' con bind '.print_r($bind,true));
+
+            $bind = array(':caso'=>$NUMERO_CASO, ':usuario' => $usuario, ':desde' => $this->_SESION->USUARIO, ':msg' => $comentario );
+            $this->_ORA->ejecutaFunc("wfa.wf_rso_pkg.fun_bitacora", $bind);
+            $this->_LOG->log("Bitacora en el WF: ".$NUMERO_CASO.' con bind '.print_r($bind,true)); 
+            
+            $bind = array(':caso'=>$NUMERO_CASO, ':usuario' => $usuario);
+            $this->_ORA->ejecutaProc("wfa.wf_rso_pkg.fun_asignar", $bind);
+            $this->_LOG->log("Se asigna el WF: ".$NUMERO_CASO.' con bind '.print_r($bind,true));
 
         }catch(Exception $e){
-              $this->_LOG->error(print_r($e));
+            $this->_LOG->error(print_r($e));
         }
     }
 

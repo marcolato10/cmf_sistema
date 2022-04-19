@@ -50,6 +50,11 @@
             modal: true,
             width: '650px'
         });
+        $("#div_eliminar_certificado").dialog({
+            autoOpen: false,
+            modal: true,
+            width: '650px'
+        });
 
 
         $("#div_paraModificar").css("display", "none");
@@ -503,7 +508,7 @@
                             {mostrar_btn_firmar}&nbsp;&nbsp;&nbsp;
                             <!-- END: mostrar_btn_firmar -->
 
-                            <a class="btn btn-warning btn-mk" href='javascript:void(0)' id='btnFormEliminar' onclick="accionBtnFormEliminar();" disabled>Eliminar</a>
+                            <a class="btn btn-warning btn-mk" href='javascript:void(0)' id='btnFormEliminar' onclick="accionBtnFormEliminar();">Eliminar</a>
                         </div>
                     </fieldset>
 
@@ -562,6 +567,27 @@
         </div>
     </fieldset>
     <!-- 	END: div_ver_version -->
+</div>
+
+<div id="div_eliminar_certificado" title="Anular documento" class="ui-widget">
+    <!-- BEGIN: div_eliminar_certificado -->
+
+    <div class="form-group row">
+        <div class="col-sm-12">
+            <label class='seleccionaPdf' for='motivo_eliminar'>Motivo por el cual se anula el documento :</label><br>
+            <textarea name="motivo_eliminar" id="motivo_eliminar" style="height:108px; width: 100%; margin-left: 0px;">{mensaje}</textarea>
+        </div>
+    </div>
+    <div class="form-group row">
+        <div class="col-sm-3">&nbsp;</div>
+        <div class="col-sm-6" style="text-align: center;">
+            <button class="btn btn-warning" type="button" id="BtnCerrar" name="BtnCerrar">Cerrar</button>
+            <button class="btn btn-warning" type="button" id="BtnEliminar" name="BtnEliminar">&nbsp;Eliminar&nbsp;</button> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        </div>
+        <div class="col-sm-3">&nbsp;</div>
+    </div>
+
+    <!-- 	END: div_eliminar_certificado -->
 </div>
 
 

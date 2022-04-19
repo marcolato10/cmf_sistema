@@ -20,6 +20,11 @@ class firmar_certificado extends Pagina{
 
     //ml: realizamos la accion de firmar el certificado
     public function fun_accion_firmar_certificado(){
+        
+        //print_r("PASO :: ESTAMOS EN LA ACCION DE LA FIRMA");
+        //$valor = $this->fun_agregar_hoja_adicional(); 
+        //var_dump($valor);exit();
+
 
         $miFirma            = $_POST['firma'];
         $miPassword         = $_POST['password'];
@@ -238,7 +243,7 @@ class firmar_certificado extends Pagina{
         
         //var_dump("EL NUMERO ES :".$numero);exit();
 
-        $PDF_ARC = $this->_SESION->getVariable('archivo_pdf_adjunto');
+        $PDF_ARC = $this->_SESION->getVariable('archivo_pdf_adjunto'); //binario
         $pdf = new FPDI_R();
 
         $gde_tipdoc_id = 'certificado';
@@ -252,6 +257,14 @@ class firmar_certificado extends Pagina{
         $numeroSGD = $this->fun_firmar_certificado($respuesta);
         return $numeroSGD;
     }
+
+
+
+
+   
+    
+
+
 
     public function pdfVersion($filename){ 
 		$fp = @fopen($filename, 'rb');
@@ -347,19 +360,27 @@ class firmar_certificado extends Pagina{
 
         $adjuntos = $this->_SESION->getVariable("RSO_ADJUNTO");
         
+        //var_dump($documento);exit();
+        //var_dump($adjuntos);exit();
         //$ARCHIVO = tempnam('', 'resol_');
        
         $files[] = $documento;
-        foreach($adjuntos as $adj){
-            //print_r($adj['ID']);print("<br>");
-            if($this->fun_obtener_blob($adj['ID']) != 'NOK'){
-                $miAdjunto = $this->fun_obtener_blob($adj['ID']);
-                $ARCHIVO = tempnam('', 'resol_');
-                file_put_contents($ARCHIVO.".pdf",$miAdjunto);
-                $files[] = $ARCHIVO.".pdf";
+        if($adjuntos != ""){
+            foreach($adjuntos as $adj){
+                //print_r($adj['ID']);print("<br>");
+                if($this->fun_obtener_blob($adj['ID']) != 'NOK'){
+                    $miAdjunto = $this->fun_obtener_blob($adj['ID']);
+                    $ARCHIVO = tempnam('', 'resol_');
+                    file_put_contents($ARCHIVO.".pdf",$miAdjunto);
+                    $files[] = $ARCHIVO.".pdf";
+                }
             }
         }
 
+        //agregamos el adicional
+        $files[] = $this->fun_agregar_hoja_adicional();
+        
+        //echo "<pre>";var_dump($files);echo "</pre>";exit();
         $ARCHIVO_NUEVO = $this->mergePDF($files);
 
         return $ARCHIVO_NUEVO;
@@ -857,7 +878,39 @@ class firmar_certificado extends Pagina{
     } 		
 
 
-   
+    //ml: agregamos ultimo file de la firma 
+    public function fun_agregar_hoja_adicional(){
+        
+        $pdf_fpdi = new FPDI();
+
+		$pageCount = $pdf_fpdi->setSourceFile('Sistema/paginas/plantillas/hojaAdicional.pdf');
+
+        for ($pageNo = 1; $pageNo <= $pageCount; $pageNo++) {
+            $templateId = $pdf_fpdi->importPage($pageNo);
+            $size = $pdf_fpdi->getTemplateSize($templateId);
+
+            if ($size['w'] > $size['h']) {
+                $pdf_fpdi->AddPage('L', array($size['w'], $size['h']));
+            } else {
+                $pdf_fpdi->AddPage('P', array($size['w'], $size['h']));
+            }		
+            $pdf_fpdi->useTemplate($templateId);
+        }    
+        
+        $ruta_adicional = 'Sistema/paginas/plantillas/hojaAdicional.pdf';
+        $adicional_modificado = file_get_contents($ruta_adicional, FILE_USE_INCLUDE_PATH);
+        
+        $ADICIONAL = tempnam('', 'adicional_');//temporal del adicional
+        file_put_contents($ADICIONAL.".pdf",$adicional_modificado);
+        
+        $miAdicional = $ADICIONAL.".pdf";//ruta del temporal adicional
+        
+        //var_dump($archivo_adicional); exit();
+        //var_dump($miAdicional); exit();
+        
+        return $miAdicional;
+
+    }
 
 
 }
@@ -905,7 +958,7 @@ class FPDI_R extends FPDI{
 
             }
 
-            //var_dump($ARCHIVO.".pdf");
+            //var_dump($ARCHIVO.".pdf");exit(); 
             //var_dump($this->setSourceFile($ARCHIVO.".pdf"));
             
             //$miArchivo = pathinfo($ARCHIVO.".pdf");

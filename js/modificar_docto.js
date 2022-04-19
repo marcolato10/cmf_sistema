@@ -193,7 +193,7 @@ function guardarCambiosParaFirmar() {
                     console.log("RESPUESTA : OK");
                     callback_gral("index.php?pagina=paginas.modificar_docto&funcion=fun_mostrar_modal_firmar");
                 } else {
-                    alert("RESPUESTA NOK");
+                    alert("RESPUESTA :: NOK");
                 }
             },
             cache: false,
@@ -1317,4 +1317,13 @@ function fun_eliminarSeleccionadoDestinatarioM(rut, copia) {
         }
     });
     */
+}
+
+
+//ml: iniciamos la accion de eliminar
+function accionBtnFormEliminar() {
+    console.log("INICIAMOS LA ELIMINACION DESDE EL MODIFICAR");
+    callback_gral("index.php?pagina=paginas.modificar_docto&funcion=fun_mostrar_modal_eliminar");
+
+
 }

@@ -1631,6 +1631,7 @@ class modificar_docto extends Pagina{
         //var_dump($dataDestinatarioControl['arrayDestinatarioE']); exit();
         //var_dump($dataDestinatarioControl['arrayCopia']); exit();
         //var_dump($dataCuerpo); exit();
+        //var_dump($dataExpediente);exit();
 
 
         //controlamos CERTIFICADO
@@ -3715,8 +3716,14 @@ class modificar_docto extends Pagina{
     
     //ml: metodo para derivarlo a otra bandeja de WF
     public function setAsignar($usuario, $comentario,$NUMERO_CASO){
+
         
         try{
+                $bind = array(':caso'=>$NUMERO_CASO, ':usuario' => $usuario, ':desde' => $this->_SESION->USUARIO, ':msg' => $comentario );
+                $this->_ORA->ejecutaFunc("wfa.wf_rso_pkg.fun_bitacora", $bind);
+                $this->_LOG->log("Bitacora en el WF: ".$NUMERO_CASO.' con bind '.print_r($bind,true));                   
+
+
                 $bind = array(':caso'=>$NUMERO_CASO, ':usuario' => $usuario);
                 $this->_ORA->ejecutaProc("wfa.wf_rso_pkg.fun_asignar", $bind);
                 $this->_LOG->log("Se asigna el WF: ".$NUMERO_CASO.' con bind '.print_r($bind,true));
@@ -3901,22 +3908,34 @@ class modificar_docto extends Pagina{
         }
 
         
-        /*
-        public function fun_accion_firmar_certificado(){
+     
+         //ml: iniciamos eliminar el certificado
+         public function fun_mostrar_modal_eliminar(){
 
-            $miFirma = $_POST['firma'];
-            $miPassword = $_POST['password'];
-            $cuerpo = $_POST['p_cuerpo'];
-
-            //var_dump($miFirma."//".$miPassword); exit();   
-             
-            var_dump($_FILES);
-            var_dump($_POST);
-
-            exit();
+            $json = array();
+            $MENSAJES = array();
+            $CAMBIA = array();	
+            $OPEN = array();			
             
+            $mensaje_respuesta = 'QUEREMOS ELIMINAR EL CERTIFICADO.';
+           
+            $json['RESULTADO'] = 'OK';			
+            $MENSAJES[] = $mensaje_respuesta;
+
+            
+            
+             $this->_TEMPLATE->assign('mensaje', $mensaje_respuesta);
+             $this->_TEMPLATE->parse('main.div_eliminar_certificado');
+             
+             
+             $CAMBIA['#div_eliminar_certificado'] = $this->_TEMPLATE->text('main.div_eliminar_certificado');
+             $OPEN['#div_eliminar_certificado'] = 'open';
+             $json['MENSAJES'] =  $MENSAJES;
+             $json['CAMBIA'] = $CAMBIA;
+             $json['OPEN'] = $OPEN;
+             return json_encode($json);		
          }
-         */
+
 
 }
 

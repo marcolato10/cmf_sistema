@@ -77,6 +77,10 @@ class vista_previa extends Pagina{
                             system("ghostscript -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -dNOPAUSE -dQUIET -dBATCH -sOutputFile=".$ARCHIVO." ".$ARCHIVO_NAME."");
                             $ARCHIVO_NAME = $ARCHIVO;
                         }
+                        
+                        //var_dump($ARCHIVO_NAME);exit(); //ruta
+                        //var_dump(file_get_contents($ARCHIVO_NAME));exit(); //binario
+
                         $this->_SESION->setVariable('archivo_pdf_adjunto',file_get_contents($ARCHIVO_NAME));
                         //$this->_SESION->setVariable('archivo_pdf_adjunto_md5',md5_file($ARCHIVO_NAME));
                         unlink($ARCHIVO_NAME);
