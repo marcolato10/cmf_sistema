@@ -255,6 +255,8 @@ class firmar_certificado extends Pagina{
     
         //firmamos y obtenemos el numero SGD   
         $numeroSGD = $this->fun_firmar_certificado($respuesta);
+        
+ 
         return $numeroSGD;
     }
 
@@ -581,6 +583,26 @@ class firmar_certificado extends Pagina{
                                 $numeroSGD = $this->grabarSGD($firmado);               
                                 //print_r("EL NUMERO SGD ES :".$numero);            
                                 unlink($archivoParaFirmar);
+
+                                
+                                if($numeroSGD != ""){
+            
+                                    //print_r("ENTRO A LA BITACORA");
+                        
+                                
+                                    $NUMERO_CASO = $this->_SESION->getVariable("WF");
+                                    $comentario = "Se Firmó el Documento";
+                                    $bind = array(':caso'=>$NUMERO_CASO, ':usuario' => $this->_SESION->USUARIO, ':desde' => $this->_SESION->USUARIO, ':msg' => $comentario );
+                                        $this->_ORA->ejecutaFunc("wfa.wf_rso_pkg.fun_bitacora", $bind);
+                                        $this->_LOG->log("Bitacora en el WF: ".$NUMERO_CASO.' con bind '.print_r($bind,true));  
+                                        $this->_ORA->Commit();   
+                                
+                                    
+                                }
+                                
+                                            
+
+
                                 $this->_ORA->Commit();
                                 return $numeroSGD;          
                                 exit();
@@ -879,8 +901,11 @@ class firmar_certificado extends Pagina{
 
 
     //ml: agregamos ultimo file de la firma 
-    public function fun_agregar_hoja_adicional(){
+    public function fun_agregar_hoja_adicional_OLD(){
         
+
+
+
         $pdf_fpdi = new FPDI();
 
 		$pageCount = $pdf_fpdi->setSourceFile('Sistema/paginas/plantillas/hojaAdicional.pdf');
@@ -897,6 +922,16 @@ class firmar_certificado extends Pagina{
             $pdf_fpdi->useTemplate($templateId);
         }    
         
+        $pdf_fpdi->AddFont('Verdana','','verdana.php');
+        $pdf_fpdi->SetFont('Verdana','',10);
+        $bind = array(':p_usuario' => $this->_SESION->USUARIO);
+        $NOMBRE_USUARIO = $this->_ORA->ejecutaFunc('wfa.wfa_usr.getNombreUsuario',$bind);
+
+        $pdf_fpdi->Text(145, 210, utf8_decode($NOMBRE_USUARIO));
+        $pdf_fpdi->Text(145, 218, utf8_decode('Comisión para el Mercado Financiero'));
+        $pdf_fpdi->Text(145, 226, date("Y.m.d"));
+
+
         $ruta_adicional = 'Sistema/paginas/plantillas/hojaAdicional.pdf';
         $adicional_modificado = file_get_contents($ruta_adicional, FILE_USE_INCLUDE_PATH);
         
@@ -910,7 +945,58 @@ class firmar_certificado extends Pagina{
         
         return $miAdicional;
 
+
+
+
+
     }
+
+
+    public function fun_agregar_hoja_adicional(){
+
+        //print_r("AGREGAMOS LA HOJA ADICIONAL");exit();
+
+        $ruta_adicional = 'Sistema/paginas/plantillas/hojaAdicional.pdf';
+        $adicional = file_get_contents($ruta_adicional, FILE_USE_INCLUDE_PATH);
+
+        $ARCHIVO = tempnam('', 'adicional_');
+        file_put_contents($ARCHIVO.".pdf",$adicional);
+
+        $pdf_fpdi = new FPDI();
+        $pageCount = $pdf_fpdi->setSourceFile($ARCHIVO.".pdf");
+
+        for ($pageNo = 1; $pageNo <= $pageCount; $pageNo++) {
+            $templateId = $pdf_fpdi->importPage($pageNo);
+            $size = $pdf_fpdi->getTemplateSize($templateId);
+
+            if ($size['w'] > $size['h']) {
+                $pdf_fpdi->AddPage('L', array($size['w'], $size['h']));
+            } else {
+                $pdf_fpdi->AddPage('P', array($size['w'], $size['h']));
+            }		
+            $pdf_fpdi->useTemplate($templateId);
+        }    
+
+        $pdf_fpdi->AddFont('Verdana','','verdana.php');
+        $pdf_fpdi->SetFont('Verdana','',10);
+        $bind = array(':p_usuario' => $this->_SESION->USUARIO);
+        $NOMBRE_USUARIO = $this->_ORA->ejecutaFunc('wfa.wfa_usr.getNombreUsuario',$bind);
+
+        $pdf_fpdi->Text(145, 210, utf8_decode($NOMBRE_USUARIO));
+        $pdf_fpdi->Text(145, 218, utf8_decode('Comisión para el Mercado Financiero'));
+        $pdf_fpdi->Text(145, 226, date("Y.m.d"));
+
+
+        $pdf_fpdi->Output($ARCHIVO.".pdf" , 'F');
+        
+        $miArchivo = $ARCHIVO.".pdf";
+
+        return $miArchivo;
+
+
+    }
+
+
 
 
 }

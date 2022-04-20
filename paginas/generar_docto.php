@@ -2094,6 +2094,17 @@ public function modificar_certificado($wf,$tipo){
 
     }
 
+    //ml: metodo para agregar bitacoras
+    //obs: se puede adaptar para que sea dinamico el comentario , solo se esta usando para el crear
+    //habria que pasarle como parametro el comentario, para asi usarlo en mas lugares
+    /*public function fun_agregar_bitacora(){
+
+        $comentario = "Se agrega un nuevo certificado";
+        $bind = array(':caso'=>$NUMERO_CASO, ':usuario' => $this->_SESION->USUARIO, ':desde' => $this->_SESION->USUARIO, ':msg' => $comentario );
+        $this->_ORA->ejecutaFunc("wfa.wf_rso_pkg.fun_bitacora", $bind);
+        $this->_LOG->log("Bitacora en el WF: ".$NUMERO_CASO.' con bind '.print_r($bind,true)); 
+
+    }*/
 
 
     //ml: metodo para derivarlo a otra bandeja de WF
@@ -2101,7 +2112,8 @@ public function modificar_certificado($wf,$tipo){
             
         try{
 
-            $bind = array(':caso'=>$NUMERO_CASO, ':usuario' => $usuario, ':desde' => $this->_SESION->USUARIO, ':msg' => $comentario );
+            $comentario = strip_tags($comentario);
+            $bind = array(':caso'=>$NUMERO_CASO, ':usuario' => $this->_SESION->USUARIO, ':desde' => $usuario, ':msg' => $comentario );
             $this->_ORA->ejecutaFunc("wfa.wf_rso_pkg.fun_bitacora", $bind);
             $this->_LOG->log("Bitacora en el WF: ".$NUMERO_CASO.' con bind '.print_r($bind,true)); 
             

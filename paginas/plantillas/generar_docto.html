@@ -260,6 +260,8 @@
                 type: 'post',
                 success: function(html) {
                     if (html == 'OK') {
+
+                        //callback_gral("index.php?pagina=paginas.generar_docto&funcion=fun_agregar_bitacora");
                         callback_gral("index.php?pagina=paginas.generar_docto&funcion=fun_respuesta", {
                             errores: errores,
                             respuesta: html

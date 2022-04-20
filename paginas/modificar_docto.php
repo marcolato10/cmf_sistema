@@ -3719,7 +3719,11 @@ class modificar_docto extends Pagina{
 
         
         try{
-                $bind = array(':caso'=>$NUMERO_CASO, ':usuario' => $usuario, ':desde' => $this->_SESION->USUARIO, ':msg' => $comentario );
+                
+                //$bind = array(':caso'=>$NUMERO_CASO, ':usuario' => $usuario, ':desde' => $this->_SESION->USUARIO, ':msg' => $comentario );
+                
+                $comentario = strip_tags($comentario);
+                $bind = array(':caso'=>$NUMERO_CASO, ':usuario' => $this->_SESION->USUARIO, ':desde' => $usuario, ':msg' => $comentario );
                 $this->_ORA->ejecutaFunc("wfa.wf_rso_pkg.fun_bitacora", $bind);
                 $this->_LOG->log("Bitacora en el WF: ".$NUMERO_CASO.' con bind '.print_r($bind,true));                   
 
