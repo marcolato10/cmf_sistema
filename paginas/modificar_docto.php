@@ -2681,7 +2681,7 @@ class modificar_docto extends Pagina{
          }else if($respuesta == 'OK'){
              $mensaje_respuesta = 'El envío se realizó correctamente.'; 
              $botonera_respuesta = '<div class="secBotonera">
-                                     <a class="alink" href="javascript:void(0)" id="btnFormCerrar" onclick="accionBtnFormCerrar();">Cerrar</a>
+                                     <a class="alink" href="javascript:void(0)" id="btnFormCerrar" onclick="accionBtnCerrarEVB();">Cerrar</a>
                                  </div>';               
          }else{
              $mensaje_respuesta = 'Acción no definida.';
@@ -2722,7 +2722,7 @@ class modificar_docto extends Pagina{
          }else if($respuesta == 'OK'){
              $mensaje_respuesta = 'El certificado se guardó correctamente.'; 
              $botonera_respuesta = '<div class="secBotonera">
-                                     <a class="alink" href="javascript:void(0)" id="btnFormCerrar" onclick="accionBtnFormCerrar();">Cerrar</a>
+                                     <button class="btn btn-warning" type="button" id="btnFormCerrar" name="btnFormCerrar" onclick="accionBtnFormCerrarM();">OK</button>
                                  </div>';               
          }else{
              $mensaje_respuesta = 'Acción no definida.';
@@ -3912,8 +3912,14 @@ class modificar_docto extends Pagina{
         }
 
         
+        
+        //|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+        //||||||||||||||||||||||||||||||||||||||||||||||||| ELIMINAR ||||||||||||||||||||||||||||||||||||||||||||||||
+        //|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+
      
-         //ml: iniciamos eliminar el certificado
+
+         //ml: abrimos el modal para eliminar el certificado
          public function fun_mostrar_modal_eliminar(){
 
             $json = array();
@@ -3921,7 +3927,7 @@ class modificar_docto extends Pagina{
             $CAMBIA = array();	
             $OPEN = array();			
             
-            $mensaje_respuesta = 'QUEREMOS ELIMINAR EL CERTIFICADO.';
+            $mensaje_respuesta = '';
            
             $json['RESULTADO'] = 'OK';			
             $MENSAJES[] = $mensaje_respuesta;
@@ -3940,6 +3946,92 @@ class modificar_docto extends Pagina{
              return json_encode($json);		
          }
 
+         //ml: realizamos la eliminacion del certificado
+         public function fun_eliminar_certificado(){
+
+            $motivo             = $_POST['motivo'];
+            $NUMERO_CASO        = $this->_SESION->getVariable("WF");
+            $comentario         = $motivo;
+            $usuario            = $this->_SESION->USUARIO;
+            
+            //$version            = $this->_SESION->getVariable("VERSION_CERTIFICADO");
+            //$tipo_certificado   = $this->_SESION->getVariable("TIPO_CERTIFICADO");
+            $estado             = "anula";
+            //var_dump($NUMERO_CASO ."//". $comentario ."//".$usuario);
+            //return "OK";
+            //exit();
+            
+            
+            //registrar en la bitacora
+            $bind = array(':caso'=>$NUMERO_CASO, ':usuario' => $this->_SESION->USUARIO, ':desde' => $this->_SESION->USUARIO, ':msg' => $comentario );
+                $this->_ORA->ejecutaFunc("wfa.wf_rso_pkg.fun_bitacora", $bind);
+                $this->_LOG->log("Bitacora en el WF: ".$NUMERO_CASO.' con bind '.print_r($bind,true));  
+               
+            //terminar el caso 
+            $bind = array(
+                ':ITEMKEY' => $NUMERO_CASO,//numero del wf dentro de las comillas
+                ':ACTIVITY' => 'NT_REVISAR_DOCTO',
+                ':LOOKUPCODE' => 'LC_WF_GEN_SINWF',
+                ':ITEMTYPE' => 'WF_GEN'
+    
+            );
+            $this->_ORA->ejecutaFunc('wfa.wf_siac.avanzar',$bind);
+
+            //cambiamos el estado del certificado
+            $this->fun_cambia_estado_certificado($estado);
+
+            $this->_ORA->Commit();   
+
+            return "OK";
+
+         }
+
+
+            //ml: funcion que abre el modal con la respuesta de la eliminacion
+        public function fun_respuesta_eliminar(){
+            
+            $NUMERO_CASO    = $this->_SESION->getVariable("WF");
+            
+            $json = array();
+            $MENSAJES = array();
+            $CAMBIA = array();	
+            $OPEN = array();			
+            
+            $mensaje_respuesta = $NUMERO_CASO;
+           
+            $json['RESULTADO'] = 'OK';			
+            $MENSAJES[] = $mensaje_respuesta;
+
+            
+            
+             $this->_TEMPLATE->assign('mensaje_respuesta_eliminar', $mensaje_respuesta);
+             $this->_TEMPLATE->parse('main.div_respuesta_eliminar');
+             
+             
+             $CAMBIA['#div_respuesta_eliminar'] = $this->_TEMPLATE->text('main.div_respuesta_eliminar');
+             $OPEN['#div_respuesta_eliminar'] = 'open';
+             $json['MENSAJES'] =  $MENSAJES;
+             $json['CAMBIA'] = $CAMBIA;
+             $json['OPEN'] = $OPEN;
+             return json_encode($json);		
+        }
+
+        //ml: metodo para cambiar estado del certificado
+        public function fun_cambia_estado_certificado($estado){
+            
+            $wf                 = $this->_SESION->getVariable("WF");
+            $version            = $this->_SESION->getVariable("VERSION_CERTIFICADO");
+            $tipo_certificado   = $this->_SESION->getVariable("TIPO_CERTIFICADO");
+            
+
+            $bind =  array(
+                ":p_id"=> $wf,
+                ":p_version" => $version,
+                ":p_estado" => $estado
+            );
+            $this->_ORA->ejecutaProc("GDE.GDE_DOCUMENTO_PKG.PRC_CAMBIAR_ESTADO_CERT",$bind); 
+            $this->_ORA->Commit();   
+        }
 
 }
 

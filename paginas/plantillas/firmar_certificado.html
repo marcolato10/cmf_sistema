@@ -1,3 +1,11 @@
+<script type="text/javascript">
+    function accionBtnFormCerrarFirma() {
+        $("#div_respuesta_firma").dialog('close');
+        window.opener.href = "/intranet/aplic/wf/bandejaEntradaV2.php?p_procesos=0";
+        window.close();
+    }
+</script>
+
 <div id="div_firmar_certificado" title="Seleccionar Firma" class="ui-widget">
     <!-- BEGIN: div_firmar_certificado -->
 
@@ -40,6 +48,7 @@
 
 <div id="div_respuesta_firma" title="Alerta" class="ui-widget">
     <!-- BEGIN: div_respuesta_firma -->
-    {mensaje_respuesta_firma}
+    {mensaje_respuesta_firma}{botonera_respuesta}
     <!-- END: div_respuesta_firma -->
+
 </div>

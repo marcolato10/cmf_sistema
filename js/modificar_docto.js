@@ -343,7 +343,22 @@ function cancelar_firmar() {
     $("#div_firmar_certificado").dialog('close');
 }
 
+function cerrar_modal_eliminar() {
+    $("#div_eliminar_certificado").dialog('close');
+}
 
+//ml: cerramos modal de respuesta eliminar y volvemos a grilla 
+function cerrar_modal_eliminarOK() {
+    //cerramos el modal
+    $("#div_respuesta_eliminar").dialog('close');
+
+    //volvemos a la grilla
+    window.opener.href = "/intranet/aplic/wf/bandejaEntradaV2.php?p_procesos=0";
+
+    window.close();
+
+
+}
 
 function accionBtnFormEnviaraAVB() {
     //mostramos modal ENVIAR A VISTO BUENO
@@ -1078,6 +1093,7 @@ function click_verVersion(id, version) {
 
 }
 
+//ml: inicamos la actualizacion de certificado
 function accionActualizar() {
 
     $("#errorTipoEnvio").css("display", "none");
@@ -1322,8 +1338,36 @@ function fun_eliminarSeleccionadoDestinatarioM(rut, copia) {
 
 //ml: iniciamos la accion de eliminar
 function accionBtnFormEliminar() {
-    console.log("INICIAMOS LA ELIMINACION DESDE EL MODIFICAR");
+    //console.log("INICIAMOS LA ELIMINACION DESDE EL MODIFICAR");
     callback_gral("index.php?pagina=paginas.modificar_docto&funcion=fun_mostrar_modal_eliminar");
 
+
+}
+
+//ml: elimina certificado 
+function eliminarCertificado() {
+    console.log("PASO :: ELIMINAR CERTIFICADO");
+    //var motivo = document.getElementsByClassName("motivo_eliminar");
+    var motivo = document.getElementById("motivo_eliminar").value;
+    //console.log("MOTIVO :: " + motivo);
+
+    $.ajax({
+        data: {
+            motivo: motivo
+        },
+        url: 'index.php?pagina=paginas.modificar_docto&funcion=fun_eliminar_certificado',
+        type: 'post',
+        success: function(html) {
+            if (html == 'OK') {
+                $("#div_eliminar_certificado").dialog('close');
+                console.log("ENVIAMOS LA RESPUESTA DE LA ELIMINACION ..");
+                callback_gral("index.php?pagina=paginas.modificar_docto&funcion=fun_respuesta_eliminar");
+
+
+            } else {
+                alert("ERROR: al intentar eliminar el caso");
+            }
+        }
+    });
 
 }

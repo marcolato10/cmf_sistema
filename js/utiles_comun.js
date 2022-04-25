@@ -168,6 +168,26 @@ function accionCerrarCertificado() {
     }
 }
 
+
+//usado en el grabar del crear
 function accionBtnFormCerrar() {
+
+    $("#div_respuesta").dialog('close');
+    window.opener.href = "/intranet/aplic/wf/bandejaEntradaV2.php?p_procesos=0";
     window.close();
+}
+
+//cerrar el grabar modificacion 
+function accionBtnFormCerrarM() {
+
+    $("#div_respuesta").dialog('close');
+
+}
+
+function accionBtnCerrarEVB() {
+
+    $("#div_respuesta").dialog('close');
+    window.opener.href = "/intranet/aplic/wf/bandejaEntradaV2.php?p_procesos=0";
+    window.close();
+
 }

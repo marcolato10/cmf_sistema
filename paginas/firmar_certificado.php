@@ -652,6 +652,9 @@ class firmar_certificado extends Pagina{
         
         $numero_sgd = $_POST['numero_sgd'];
         $mensaje_respuesta_firma = 'El documento fue firmado con éxito y se adjuntó al expediente con el numero SGD : '.$numero_sgd.' .';
+        $botonera_respuesta = '<div class="secBotonera">
+        <button class="btn btn-warning" type="button" id="btnFormCerrar" name="btnFormCerrar" onclick="accionBtnFormCerrarFirma();">OK</button></div>';               
+        
        
         $json['RESULTADO'] = 'OK';			
         $MENSAJES[] = $mensaje_respuesta_firma;
@@ -659,8 +662,12 @@ class firmar_certificado extends Pagina{
         //$this->_TEMPLATE->assign('mensaje_respuesta',$mensaje_respuesta);
         //$this->_TEMPLATE->parse('main.div_respuesta_firma');
          
-         
+        //cambiamos el estado del certificado
+        $estado = "firma";
+        $this->fun_cambia_estado_certificado($estado);
+
         $this->_TEMPLATE->assign('mensaje_respuesta_firma',$mensaje_respuesta_firma);
+        $this->_TEMPLATE->assign('botonera_respuesta',$botonera_respuesta);      
         $this->_TEMPLATE->parse('div_respuesta_firma');
         
 
@@ -761,11 +768,32 @@ class firmar_certificado extends Pagina{
     }
 
 
-   
+   //||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+   //|||||||||||||||||||||||||| COMUN UTILIZADO |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+   //||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
 
 
-    //|||||||||||||||||||||||||||||||  EXPEDIENTE |||||||||||||||||||||||||||||||
+     //ml: metodo para cambiar estado del certificado
+     public function fun_cambia_estado_certificado($estado){
+            
+        $wf                 = $this->_SESION->getVariable("WF");
+        $version            = $this->_SESION->getVariable("VERSION_CERTIFICADO");
+        $tipo_certificado   = $this->_SESION->getVariable("TIPO_CERTIFICADO");
+        
 
+        $bind =  array(
+            ":p_id"=> $wf,
+            ":p_version" => $version,
+            ":p_estado" => $estado
+        );
+        $this->_ORA->ejecutaProc("GDE.GDE_DOCUMENTO_PKG.PRC_CAMBIAR_ESTADO_CERT",$bind); 
+        $this->_ORA->Commit();   
+    }
+
+
+    //||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+    //|||||||||||||||||||||||||||||||  EXPEDIENTE ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+    //||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
 
     public function getExpedienteDocumento($id){
 			

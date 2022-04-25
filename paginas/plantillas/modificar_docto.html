@@ -55,6 +55,11 @@
             modal: true,
             width: '650px'
         });
+        $("#div_respuesta_eliminar").dialog({
+            autoOpen: false,
+            modal: true,
+            width: '650px'
+        });
 
 
         $("#div_paraModificar").css("display", "none");
@@ -581,13 +586,27 @@
     <div class="form-group row">
         <div class="col-sm-3">&nbsp;</div>
         <div class="col-sm-6" style="text-align: center;">
-            <button class="btn btn-warning" type="button" id="BtnCerrar" name="BtnCerrar">Cerrar</button>
-            <button class="btn btn-warning" type="button" id="BtnEliminar" name="BtnEliminar">&nbsp;Eliminar&nbsp;</button> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <button class="btn btn-warning" type="button" id="BtnCerrar" name="BtnCerrar" onclick="cerrar_modal_eliminar()">Cerrar</button>
+            <button class="btn btn-warning" type="button" id="BtnEliminar" name="BtnEliminar" onclick="eliminarCertificado()">&nbsp;Eliminar&nbsp;</button> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
         </div>
         <div class="col-sm-3">&nbsp;</div>
     </div>
 
     <!-- 	END: div_eliminar_certificado -->
+</div>
+
+<div id="div_respuesta_eliminar" title="Anular documento" class="ui-widget">
+    <!-- BEGIN: div_respuesta_eliminar -->
+
+    <div class="form-group row">
+        <div class="col-sm-12">
+            <label class='seleccionaPdf' for='respuesta_eliminar'>El caso {mensaje_respuesta_eliminar} fue elimindo.</label><br>
+        </div>
+        <div class="col-sm-6" style="text-align: center;">
+            <button class="btn btn-warning" type="button" id="BtnEliminarOK" name="BtnEliminarOK" onclick="cerrar_modal_eliminarOK()">OK</button>
+        </div>
+    </div>
+    <!-- 	END: div_respuesta_eliminar -->
 </div>
 
 
