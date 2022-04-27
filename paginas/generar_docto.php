@@ -1157,7 +1157,8 @@ public function modificar_certificado($wf,$tipo){
                         ":p_gde_docu_doc_version" => $gde_documento_doc_version
                     );
                     
-                    $this->_ORA->ejecutaProc("GDE.GDE_TIPO_DOCUMENTO_PKG.PRC_AGREGAR_ADJUNTO",$bindAdjunto);
+                    //$this->_ORA->ejecutaProc("GDE.GDE_TIPO_DOCUMENTO_PKG.PRC_AGREGAR_ADJUNTO",$bindAdjunto);
+                    $this->_ORA->ejecutaProc("GDE.GDE_ADJUNTOS_PKG.PRC_AGREGAR_ADJUNTO",$bindAdjunto);
                     $this->_ORA->Commit();
                 }
             }
@@ -1670,8 +1671,9 @@ public function modificar_certificado($wf,$tipo){
                 //$p_visacionVB= $_POST['p_visacionVB'];
                 $p_visacionVB='SI';
                 
-                $p_vis_id = mt_rand();//validar como agregar este campo (id tabla visaciones)
-                $this->fun_agregar_visacion_vb($p_vis_id,$p_id,$p_doc_version,$p_paraVB,$p_comentario,$p_visacionVB);        
+                //$p_vis_id = mt_rand();//validar como agregar este campo (id tabla visaciones)
+                $p_vis_id = 0;
+                $p_vis_id = $this->fun_agregar_visacion_vb($p_vis_id,$p_id,$p_doc_version,$p_paraVB,$p_comentario,$p_visacionVB);        
             
                 //validamos que venga archivo adjunto en envioVB
                 if(isset($_FILES['file2']['tmp_name'])){
@@ -1761,7 +1763,8 @@ public function modificar_certificado($wf,$tipo){
                             ":p_gde_docu_doc_version" => $gde_documento_doc_version
                         );
                         
-                        $this->_ORA->ejecutaProc("GDE.GDE_TIPO_DOCUMENTO_PKG.PRC_AGREGAR_ADJUNTO",$bindAdjunto);
+                        //$this->_ORA->ejecutaProc("GDE.GDE_TIPO_DOCUMENTO_PKG.PRC_AGREGAR_ADJUNTO",$bindAdjunto);
+                        $this->_ORA->ejecutaProc("GDE.GDE_ADJUNTOS_PKG.PRC_AGREGAR_ADJUNTO",$bindAdjunto);
                         //$this->_ORA->Commit();//estaba comentado
                     }
                 }
@@ -1934,8 +1937,9 @@ public function modificar_certificado($wf,$tipo){
             //$p_visacionVB= $_POST['p_visacionVB'];
             $p_visacionVB='SI';
             
-            $p_vis_id = mt_rand();//validar como agregar este campo (id tabla visaciones)
-            $this->fun_agregar_visacion_vb($p_vis_id,$p_id,$p_doc_version,$p_paraVB,$p_comentario,$p_visacionVB);        
+            //$p_vis_id = mt_rand();//validar como agregar este campo (id tabla visaciones)
+            $p_vis_id = 0;
+            $p_vis_id = $this->fun_agregar_visacion_vb($p_vis_id,$p_id,$p_doc_version,$p_paraVB,$p_comentario,$p_visacionVB);        
         
             //validamos que venga archivo adjunto en envioVB
             if(isset($_FILES['file4']['tmp_name'])){
@@ -2043,7 +2047,8 @@ public function modificar_certificado($wf,$tipo){
                             ":p_gde_docu_doc_version" => $gde_documento_doc_version
                         );
                         
-                        $this->_ORA->ejecutaProc("GDE.GDE_TIPO_DOCUMENTO_PKG.PRC_AGREGAR_ADJUNTO",$bindAdjunto);
+                        //$this->_ORA->ejecutaProc("GDE.GDE_TIPO_DOCUMENTO_PKG.PRC_AGREGAR_ADJUNTO",$bindAdjunto);
+                        $this->_ORA->ejecutaProc("GDE.GDE_ADJUNTOS_PKG.PRC_AGREGAR_ADJUNTO",$bindAdjunto);
                         //$this->_ORA->Commit();
                     }
                 }
@@ -2127,6 +2132,8 @@ public function modificar_certificado($wf,$tipo){
     }
 
 
+
+
     //ml: agregamos la visacion del enviar vb
     public function fun_agregar_visacion_vb($p_vis_id,$p_id,$p_doc_version,$p_paraVB,$p_comentarioVB,$p_visacionVB){
 
@@ -2154,8 +2161,11 @@ public function modificar_certificado($wf,$tipo){
         ":p_vis_vb"=>$p_visacionVB,
         ":p_vis_comentario"=>$RES_REFERENCIA
         );
-        $this->_ORA->ejecutaProc("GDE.GDE_VISACIONES_PKG.PRC_AGREGAR_VISACION",$bind);
+        
+        //$this->_ORA->ejecutaProc("GDE.GDE_VISACIONES_PKG.FUN_AGREGAR_VISACION",$bind);
+        $result = $this->_ORA->ejecutaFunc("GDE.GDE_VISACIONES_PKG.FUN_AGREGAR_VISACION", $bind);
         $this->_ORA->Commit();
+
 
         
         /*
@@ -2168,6 +2178,9 @@ public function modificar_certificado($wf,$tipo){
             var_dump('le dio NOK');
         }    
         */
+
+        //retornamos el id de la visacion creada
+        return $result;
     }
 
     //cargamos el combo de los PARA en el formulario de OTRA UNIDAD    
@@ -2321,9 +2334,9 @@ public function modificar_certificado($wf,$tipo){
             //var_dump($_FILES['file3']['tmp_name']);        
             //validamos que venga archivo adjunto en envioVB
             
-            $p_visacionVB='SI';
-            $p_comentario= $_POST['p_otraUnidadComentarioVB']; //comentario visacion enviar vb
-            $p_paraVB= $_POST['p_otraUnidadParaVB'];//usuario para enviar vb
+            $p_visacionVB   = 'SI';
+            $p_comentario   = $_POST['p_otraUnidadComentarioVB']; //comentario visacion enviar vb
+            $p_paraVB       = $_POST['p_otraUnidadParaVB'];//usuario para enviar vb
             //$p_visacionVB= $_POST['p_otraUnidadVisacionVB'];
             //$p_copiaVB =  $_POST['p_otraUnidadCopiaVB'];
            
@@ -2333,8 +2346,9 @@ public function modificar_certificado($wf,$tipo){
             //echo "<pre>";var_dump($agregarPDF3);echo "</pre>";
             
         
-            $p_vis_id = mt_rand();//validar como agregar este campo (id tabla visaciones)
-            $respVisacion = $this->fun_agregar_visacion_vb($p_vis_id,$p_id,$p_doc_version,$p_paraVB,$p_comentario,$p_visacionVB);
+            //$p_vis_id = mt_rand();//validar como agregar este campo (id tabla visaciones)
+            $p_vis_id = 0;
+            $p_vis_id = $this->fun_agregar_visacion_vb($p_vis_id,$p_id,$p_doc_version,$p_paraVB,$p_comentario,$p_visacionVB);
             
             //validamos que venga archivo adjunto en envioVB
             if(isset($_FILES['file3']['tmp_name'])){
@@ -2428,7 +2442,8 @@ public function modificar_certificado($wf,$tipo){
                         ":p_gde_docu_doc_version" => $gde_documento_doc_version
                     );
                     
-                    $this->_ORA->ejecutaProc("GDE.GDE_TIPO_DOCUMENTO_PKG.PRC_AGREGAR_ADJUNTO",$bindAdjunto);
+                    //$this->_ORA->ejecutaProc("GDE.GDE_TIPO_DOCUMENTO_PKG.PRC_AGREGAR_ADJUNTO",$bindAdjunto);
+                    $this->_ORA->ejecutaProc("GDE.GDE_ADJUNTOS_PKG.PRC_AGREGAR_ADJUNTO",$bindAdjunto);
                     //$this->_ORA->Commit();
                 }
             }
