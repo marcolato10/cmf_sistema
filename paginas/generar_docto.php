@@ -980,6 +980,7 @@ public function modificar_certificado($wf,$tipo){
             $arrayCorreo                = explode("_,", substr($_POST["p_arrayCorreo"], 0, -1)); 
             $arrayMiNombreDes           = explode("_,", substr($_POST["p_arrayMiNombreDes"], 0, -1)); 
            
+            $arrayMiMedioEnvio          = explode("_,", substr($_POST["p_arrayMiMedioEnvio"], 0, -1)); 
 
             //echo "<pre>"; var_dump($arrayMiNombreDes); echo "</pre>";exit();
 
@@ -991,7 +992,8 @@ public function modificar_certificado($wf,$tipo){
                 'correo' => $arrayCorreo,
                 'tipo' => $arrayMiTipo,
                 'con_copia' => 'NO',
-                'nombre' =>  $arrayMiNombreDes
+                'nombre' =>  $arrayMiNombreDes,
+                'medio_envio' => $arrayMiMedioEnvio 
             );
 
 
@@ -1002,6 +1004,8 @@ public function modificar_certificado($wf,$tipo){
             $arrayCopiaDireccion= explode("_,", substr($_POST["p_arrayCopiaDireccion"], 0, -1)); 
             $arrayCopiaCorreo= explode("_,", substr($_POST["p_arrayCopiaCorreo"], 0, -1)); 
             $arrayMiNombreDesCopia = explode("_,", substr($_POST["p_arrayMiNombreDesCopia"], 0, -1)); 
+            $arrayMiMedioEnvioCopia = explode("_,", substr($_POST["p_arrayMiMedioEnvioCopia"], 0, -1)); 
+
 
             $dataCopia = array (
                 'destinatario' => $arrayCopia ,
@@ -1010,7 +1014,8 @@ public function modificar_certificado($wf,$tipo){
                 'correo' => $arrayCopiaCorreo,
                 'tipo' => $arrayMiTipoCopia,
                 'con_copia' => 'SI',
-                'nombre' => $arrayMiNombreDesCopia
+                'nombre' => $arrayMiNombreDesCopia,
+                'medio_envio' => $arrayMiMedioEnvioCopia
             );
 
 
@@ -1087,11 +1092,11 @@ public function modificar_certificado($wf,$tipo){
             //se agrega destinatario siempre y cuando exista destinatario por agregar 
             if($_POST["p_arrayDestinatario"] != ""){
                 //llamar la funcion agregar destinatario
-                $this->fun_agregar_destinatario($arrayDestinatario,$arrayCargoDestinatario,$p_id,$p_doc_version,$arrayDireccion,$arrayCorreo,$p_medio_envio,$arrayMiTipo,$arrayMiNombreDes);
+                $this->fun_agregar_destinatario($arrayDestinatario,$arrayCargoDestinatario,$p_id,$p_doc_version,$arrayDireccion,$arrayCorreo,$arrayMiMedioEnvio,$arrayMiTipo,$arrayMiNombreDes);
                 
                 if($_POST["p_arrayCopia"] != ""){
                 //llamar la funcion agregar copia
-                $this->fun_agregar_copia($arrayCopia,$arrayCargoCopia,$p_id,$p_doc_version,$arrayCopiaDireccion,$arrayCopiaCorreo,$p_medio_envio,$arrayMiTipoCopia,$arrayMiNombreDesCopia);
+                $this->fun_agregar_copia($arrayCopia,$arrayCargoCopia,$p_id,$p_doc_version,$arrayCopiaDireccion,$arrayCopiaCorreo,$arrayMiMedioEnvioCopia,$arrayMiTipoCopia,$arrayMiNombreDesCopia);
                 }
             } 
             //||||||||||
@@ -1253,7 +1258,7 @@ public function modificar_certificado($wf,$tipo){
 
 
         //agregar distribucion (destinatario)
-        public function fun_agregar_destinatario($arrayDestinatario,$arrayCargoDestinatario,$p_id,$p_doc_version,$arrayDireccion,$arrayCorreo,$p_medio_envio,$arrayMiTipo,$arrayMiNombreDes){
+        public function fun_agregar_destinatario($arrayDestinatario,$arrayCargoDestinatario,$p_id,$p_doc_version,$arrayDireccion,$arrayCorreo,$arrayMedioEnvio,$arrayMiTipo,$arrayMiNombreDes){
 
             //||||||||||||| AGREGAMOS LA DISTRIBUCION |||||||||||||||||||||||
             if((count($arrayDestinatario)===count($arrayCargoDestinatario)) and count($arrayCargoDestinatario)>0){
@@ -1278,7 +1283,8 @@ public function modificar_certificado($wf,$tipo){
                         ":p_dis_con_copia"=>'NO',
                         ":p_dis_direccion"=>$arrayDireccion[$x],
                         ":p_dis_correo"=>$correoDestinatario,
-                        ":p_dis_medio_envio"=>$p_medio_envio,
+                        //":p_dis_medio_envio"=>$p_medio_envio,
+                        ":p_dis_medio_envio"=>$arrayMedioEnvio[$x],
                         ":p_dis_dv"=>$this->fun_digito_verificador($arrayDestinatario[$x]),
                         ":p_dis_tipo_entidad"=>$arrayMiTipo[$x],
                         ":p_dis_nombre"=>$arrayMiNombreDes[$x]
@@ -1290,7 +1296,7 @@ public function modificar_certificado($wf,$tipo){
         }
     
         //agregar distribucion (copia destinatario)
-        public function fun_agregar_copia($arrayCopia,$arrayCargoCopia,$p_id,$p_doc_version,$arrayCopiaDireccion,$arrayCopiaCorreo,$p_medio_envio,$arrayMiTipoCopia,$arrayMiNombreDesCopia){
+        public function fun_agregar_copia($arrayCopia,$arrayCargoCopia,$p_id,$p_doc_version,$arrayCopiaDireccion,$arrayCopiaCorreo,$arrayMiMedioEnvioCopia,$arrayMiTipoCopia,$arrayMiNombreDesCopia){
     
             //||||||||||||| AGREGAMOS LA DISTRIBUCION con COPIA |||||||||||||||||||||||
             if((count($arrayCopia)===count($arrayCargoCopia)) and count($arrayCargoCopia) > 0){
@@ -1310,7 +1316,8 @@ public function modificar_certificado($wf,$tipo){
                     ":p_dis_con_copia"=>"SI",
                     ":p_dis_direccion"=>$arrayCopiaDireccion[$y],
                     ":p_dis_correo"=>$correoCopia,
-                    ":p_dis_medio_envio"=>$p_medio_envio,
+                    //":p_dis_medio_envio"=>$p_medio_envio,
+                    ":p_dis_medio_envio"=>$arrayMiMedioEnvioCopia[$y],
                     ":p_dis_dv"=>$this->fun_digito_verificador($arrayCopia[$y]),
                     ":p_dis_tipo_entidad"=>$arrayMiTipoCopia[$y],
                     ":p_dis_nombre"=>$arrayMiNombreDesCopia[$y]
@@ -1565,18 +1572,22 @@ public function modificar_certificado($wf,$tipo){
 
 
 
-                $arrayMiTipo = explode("_,", substr($_POST["p_arrayMiTipo"], 0, -1));
-                $arrayMiTipoCopia = explode("_,", substr($_POST["p_arrayMiTipoCopia"], 0, -1)); 
-                $arrayCopia= explode("_,", substr($_POST["p_arrayCopia"], 0, -1)); 
-                $arrayDestinatario= explode("_,", substr($_POST["p_arrayDestinatario"], 0, -1)); 
-                $arrayCargoCopia= explode("_,", substr($_POST["p_arrayCargoCopia"], 0, -1)); 
-                $arrayCargoDestinatario= explode("_,", substr($_POST["p_arrayCargoDestinatario"], 0, -1)); 
-                $arrayCopiaDireccion= explode("_,", substr($_POST["p_arrayCopiaDireccion"], 0, -1)); 
-                $arrayCopiaCorreo= explode("_,", substr($_POST["p_arrayCopiaCorreo"], 0, -1)); 
-                $arrayDireccion= explode("_,", substr($_POST["p_arrayDireccion"], 0, -1)); 
-                $arrayCorreo= explode("_,", substr($_POST["p_arrayCorreo"], 0, -1)); 
-                $arrayMiNombreDes = explode("_,", substr($_POST["p_arrayMiNombreDes"], 0, -1)); 
-                $arrayMiNombreDesCopia = explode("_,", substr($_POST["p_arrayMiNombreDesCopia"], 0, -1));
+                $arrayMiTipo                = explode("_,", substr($_POST["p_arrayMiTipo"], 0, -1));
+                $arrayMiTipoCopia           = explode("_,", substr($_POST["p_arrayMiTipoCopia"], 0, -1)); 
+                $arrayCopia                 = explode("_,", substr($_POST["p_arrayCopia"], 0, -1)); 
+                $arrayDestinatario          = explode("_,", substr($_POST["p_arrayDestinatario"], 0, -1)); 
+                $arrayCargoCopia            = explode("_,", substr($_POST["p_arrayCargoCopia"], 0, -1)); 
+                $arrayCargoDestinatario     = explode("_,", substr($_POST["p_arrayCargoDestinatario"], 0, -1)); 
+                $arrayCopiaDireccion        = explode("_,", substr($_POST["p_arrayCopiaDireccion"], 0, -1)); 
+                $arrayCopiaCorreo           = explode("_,", substr($_POST["p_arrayCopiaCorreo"], 0, -1)); 
+                $arrayDireccion             = explode("_,", substr($_POST["p_arrayDireccion"], 0, -1)); 
+                $arrayCorreo                = explode("_,", substr($_POST["p_arrayCorreo"], 0, -1)); 
+                $arrayMiNombreDes           = explode("_,", substr($_POST["p_arrayMiNombreDes"], 0, -1)); 
+                $arrayMiNombreDesCopia      = explode("_,", substr($_POST["p_arrayMiNombreDesCopia"], 0, -1));
+
+                $arrayMiMedioEnvio          = explode("_,", substr($_POST["p_arrayMiMedioEnvio"], 0, -1)); 
+                $arrayMiMedioEnvioCopia     = explode("_,", substr($_POST["p_arrayMiMedioEnvioCopia"], 0, -1)); 
+
 
                 $p_medio_envio = 'SEIL';
                 //$p_id =$this->_ORA->ejecutaFunc("utl_frm_html.seq_get",array(':caso_seq'=>'CASO_SEQ'));
@@ -1691,10 +1702,10 @@ public function modificar_certificado($wf,$tipo){
                 //se agrega destinatario siempre y cuando exista destinatario por agregar 
                 if($_POST["p_arrayDestinatario"] != ""){
                     //llamar la funcion agregar destinatario
-                    $this->fun_agregar_destinatario($arrayDestinatario,$arrayCargoDestinatario,$p_id,$p_doc_version,$arrayDireccion,$arrayCorreo,$p_medio_envio,$arrayMiTipo,$arrayMiNombreDes);
+                    $this->fun_agregar_destinatario($arrayDestinatario,$arrayCargoDestinatario,$p_id,$p_doc_version,$arrayDireccion,$arrayCorreo,$arrayMiMedioEnvio,$arrayMiTipo,$arrayMiNombreDes);
                     if($_POST["p_arrayCopia"] != ""){
                     //llamar la funcion agregar copia
-                    $this->fun_agregar_copia($arrayCopia,$arrayCargoCopia,$p_id,$p_doc_version,$arrayCopiaDireccion,$arrayCopiaCorreo,$p_medio_envio,$arrayMiTipoCopia,$arrayMiNombreDesCopia);
+                    $this->fun_agregar_copia($arrayCopia,$arrayCargoCopia,$p_id,$p_doc_version,$arrayCopiaDireccion,$arrayCopiaCorreo,$arrayMiMedioEnvioCopia,$arrayMiTipoCopia,$arrayMiNombreDesCopia);
                     }
                 } 
                 //||||||||||
@@ -1816,19 +1827,12 @@ public function modificar_certificado($wf,$tipo){
 
     }
 
-    public function fun_enviarvb_todas_PRUEBAS(){
-
-        $arrayMiNombreDes       = explode("_,", substr($_POST["p_arrayMiNombreDes"], 0, -1)); 
-        $arrayMiNombreDesCopia  = explode("_,", substr($_POST["p_arrayMiNombreDesCopia"], 0, -1));
-        
-        echo "<pre>";var_dump($arrayMiNombreDes);echo "</pre>";exit();
-        echo "<pre>";var_dump($arrayMiNombreDesCopia);echo "</pre>";
-
-    }
 
 
     //ml: enviamos a VB desde pestaña TODAS
     public function fun_enviarvb_todas(){
+
+      
 
         try{
 
@@ -1863,6 +1867,10 @@ public function modificar_certificado($wf,$tipo){
             $arrayMiNombreDes       = explode("_,", substr($_POST["p_arrayMiNombreDes"], 0, -1)); 
             $arrayMiNombreDesCopia  = explode("_,", substr($_POST["p_arrayMiNombreDesCopia"], 0, -1)); 
             
+            $arrayMiMedioEnvio          = explode("_,", substr($_POST["p_arrayMiMedioEnvio"], 0, -1)); 
+            $arrayMiMedioEnvioCopia     = explode("_,", substr($_POST["p_arrayMiMedioEnvioCopia"], 0, -1));
+
+
             //$p_id =$this->_ORA->ejecutaFunc("utl_frm_html.seq_get",array(':caso_seq'=>'CASO_SEQ'));
             $p_id                   = $_POST['p_miccertificado'];
             $p_medio_envio          = 'SEIL';
@@ -1966,7 +1974,7 @@ public function modificar_certificado($wf,$tipo){
                         $p_doc_version,
                         $arrayDireccion,
                         $arrayCorreo,
-                        $p_medio_envio,
+                        $arrayMiMedioEnvio,
                         $arrayMiTipo,
                         $arrayMiNombreDes);
                     
@@ -1979,7 +1987,7 @@ public function modificar_certificado($wf,$tipo){
                         $p_doc_version,
                         $arrayCopiaDireccion,
                         $arrayCopiaCorreo,
-                        $p_medio_envio,
+                        $arrayMiMedioEnvioCopia,
                         $arrayMiTipoCopia,
                         $arrayMiNombreDesCopia);
                     }
@@ -2238,7 +2246,7 @@ public function modificar_certificado($wf,$tipo){
     //ml: enviar a VB para la pestaña OTRA UNIDAD
     public function fun_agregar_otraunidad_evb(){
 
-       
+     
         try{
 
         
@@ -2273,6 +2281,10 @@ public function modificar_certificado($wf,$tipo){
             $p_id                       = $_POST['p_miccertificado'];
             $arrayMiNombreDes           = explode("_,", substr($_POST["p_arrayMiNombreDes"], 0, -1));   
             $arrayMiNombreDesCopia      = explode("_,", substr($_POST["p_arrayMiNombreDesCopia"], 0, -1));
+
+
+            $arrayMiMedioEnvio          = explode("_,", substr($_POST["p_arrayMiMedioEnvio"], 0, -1)); 
+            $arrayMiMedioEnvioCopia     = explode("_,", substr($_POST["p_arrayMiMedioEnvioCopia"], 0, -1)); 
 
             //parametros adjuntos
             $gde_documento_doc_version  = 0; //sera 0 en caso que es 1era vez 
@@ -2371,12 +2383,12 @@ public function modificar_certificado($wf,$tipo){
                     $p_doc_version,
                     $arrayDireccion,
                     $arrayCorreo,
-                    $p_medio_envio,
+                    $arrayMiMedioEnvio,
                     $arrayMiTipo,
                     $arrayMiNombreDes);
                 if($_POST["p_arrayCopia"] != ""){
                 //llamar la funcion agregar copia
-                $this->fun_agregar_copia($arrayCopia,$arrayCargoCopia,$p_id,$p_doc_version,$arrayCopiaDireccion,$arrayCopiaCorreo,$p_medio_envio,$arrayMiTipoCopia,$arrayMiNombreDesCopia);
+                $this->fun_agregar_copia($arrayCopia,$arrayCargoCopia,$p_id,$p_doc_version,$arrayCopiaDireccion,$arrayCopiaCorreo,$arrayMiMedioEnvioCopia,$arrayMiTipoCopia,$arrayMiNombreDesCopia);
                 }
             } 
             //||||||||||

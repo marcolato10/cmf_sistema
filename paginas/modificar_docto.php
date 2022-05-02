@@ -39,9 +39,10 @@ class modificar_docto extends Pagina{
     }
     public function main(){
 
-       
-
         //echo "<pre>";var_dump($this->_SESION->getVariable('DESTINATARIO'));echo "</pre>";exit();
+        //echo date("Y"); exit();    
+
+
         $wf  = $_GET['wf']; 
         $tipo   = $_GET['tipo'];
         $this->WF_CERTIFICADO  = $_GET['wf']; 
@@ -72,7 +73,10 @@ class modificar_docto extends Pagina{
         $this->_SESION->setVariable('ESTADO_EXPEDIENTE', 1);
         
 
-
+        //mostrar titulo de formulario
+        $titulo_formulario = "<h1>Modificar Certificado (WF : ".$wf.")</h1>";
+        $this->_TEMPLATE->assign('titulo_formulario',$titulo_formulario);
+        $this->_TEMPLATE->parse('main.titulo_formulario');
 
         //ocultamos el div de la vista previa    
         $this->_TEMPLATE->assign('DISPLAY_div_vistaPrevia','none');
@@ -1518,7 +1522,8 @@ class modificar_docto extends Pagina{
         $arrayCorreo                = explode("_,", substr($_POST["p_arrayCorreo"], 0, -1));
         $arrayMiTipo                = explode("_,", substr($_POST["p_arrayMiTipo"], 0, -1)); 
         $arrayMiNombreDes           = explode("_,", substr($_POST["p_arrayMiNombreDes"], 0, -1)); 
-        
+       
+        $arrayMiMedioEnvio          = explode("_,", substr($_POST["p_arrayMiMedioEnvio"], 0, -1)); 
 
        
         $dataDestinatario = array (
@@ -1528,10 +1533,14 @@ class modificar_docto extends Pagina{
                 'correo' => $arrayCorreo,
                 'tipo' => $arrayMiTipo,
                 'con_copia' => 'NO',
-                'nombre' =>  $arrayMiNombreDes
+                'nombre' =>  $arrayMiNombreDes,
+                'medio_envio' => $arrayMiMedioEnvio 
         );
 
         
+
+        
+
 
         //data destinatario copia
         $arrayCopia             = explode("_,", substr($_POST["p_arrayCopia"], 0, -1)); 
@@ -1541,6 +1550,8 @@ class modificar_docto extends Pagina{
         $arrayMiTipoCopia       = explode("_,", substr($_POST["p_arrayMiTipoCopia"], 0, -1)); 
         $arrayMiNombreDesCopia  = explode("_,", substr($_POST["p_arrayMiNombreDesCopia"], 0, -1)); 
 
+        $arrayMiMedioEnvioCopia = explode("_,", substr($_POST["p_arrayMiMedioEnvioCopia"], 0, -1)); 
+
         $dataCopia = array (
             'destinatario' => $arrayCopia ,
             'cargo' => $arrayCargoCopia ,
@@ -1548,7 +1559,8 @@ class modificar_docto extends Pagina{
             'correo' => $arrayCopiaCorreo,
             'tipo' => $arrayMiTipoCopia,
             'con_copia' => 'SI',
-            'nombre' => $arrayMiNombreDesCopia
+            'nombre' => $arrayMiNombreDesCopia,
+            'medio_envio' => $arrayMiMedioEnvioCopia
         );
 
         
@@ -1628,6 +1640,7 @@ class modificar_docto extends Pagina{
         );  
 
 
+        //echo "<pre>";var_dump($dataDestinatarioControl['arrayDestinatario']);echo "</pre>"; exit();
         //var_dump($dataDestinatarioControl['arrayDestinatarioE']); exit();
         //var_dump($dataDestinatarioControl['arrayCopia']); exit();
         //var_dump($dataCuerpo); exit();
@@ -1846,7 +1859,8 @@ class modificar_docto extends Pagina{
         }
 
         //echo "<pre>";var_dump($dataCopia);echo"</pre>";exit();
-        
+        //echo "<pre>";var_dump($dataDestinatario);echo"</pre>";exit();
+
         switch ($estadoDestinatario) {
             case 1: 
                 //NO SE HIZO CAMBIOS EN LOS DESTINATARIOS
@@ -2201,7 +2215,7 @@ class modificar_docto extends Pagina{
         //print_r(count($dataDestinatario['destinatario']));                    
         //echo "<pre>";var_dump($dataDestinatario);echo "</pre>";exit();                               
 
-        $p_medio_envio = 'SEIL'; //hay que validar este valor
+        //$p_medio_envio = 'SEIL'; //hay que validar este valor
         foreach($dataDestinatario['destinatario'] as $key => $rut){
             if (in_array($rut, $arrayDestinatarioE)){
                 //print_r("PASO 3.1 :  tenemos que eliminar");print("<br>");   
@@ -2221,13 +2235,13 @@ class modificar_docto extends Pagina{
                 //3.- en ambos caso hay que tener en cuenta el tipo de entidad 
 
                 
-                $tipo_entidad = $dataDestinatario['tipo'][$key];
-                $cargo = $dataDestinatario['cargo'][$key];
-                $direccion = $dataDestinatario['direccion'][$key];
-                $correo = $dataDestinatario['correo'][$key];
-                $con_copia = $dataDestinatario['con_copia'];
-                $nombre = $dataDestinatario['nombre'][$key];
-                
+                $tipo_entidad   = $dataDestinatario['tipo'][$key];
+                $cargo          = $dataDestinatario['cargo'][$key];
+                $direccion      = $dataDestinatario['direccion'][$key];
+                $correo         = $dataDestinatario['correo'][$key];
+                $con_copia      = $dataDestinatario['con_copia'];
+                $nombre         = $dataDestinatario['nombre'][$key];
+                $p_medio_envio  = $dataDestinatario['medio_envio'][$key];
         
                 //print_r($nombre."//".$rut."//".$wf."//".$version."//".$tipo_entidad."//".$cargo."//".$direccion."//".$correo."//".$con_copia."//".$nombre);print("<br>");
                 
@@ -2837,6 +2851,9 @@ class modificar_docto extends Pagina{
              $arrayMiTipo                = explode("_,", substr($_POST["p_arrayMiTipo"], 0, -1)); 
              $arrayMiNombreDes           = explode("_,", substr($_POST["p_arrayMiNombreDes"], 0, -1)); 
              
+             $arrayMiMedioEnvio          = explode("_,", substr($_POST["p_arrayMiMedioEnvio"], 0, -1)); 
+            
+
              $dataDestinatario = array (
                      'destinatario' => $arrayDestinatario ,
                      'cargo' => $arrayCargoDestinatario ,
@@ -2844,17 +2861,19 @@ class modificar_docto extends Pagina{
                      'correo' => $arrayCorreo,
                      'tipo' => $arrayMiTipo,
                      'con_copia' => 'NO',
-                     'nombre' =>  $arrayMiNombreDes
+                     'nombre' =>  $arrayMiNombreDes,
+                     'medio_envio' => $arrayMiMedioEnvio
              );
  
              //data destinatario copia
-             $arrayCopia= explode("_,", substr($_POST["p_arrayCopia"], 0, -1)); 
-             $arrayCargoCopia= explode("_,", substr($_POST["p_arrayCargoCopia"], 0, -1)); 
-             $arrayCopiaDireccion= explode("_,", substr($_POST["p_arrayCopiaDireccion"], 0, -1)); 
-             $arrayCopiaCorreo= explode("_,", substr($_POST["p_arrayCopiaCorreo"], 0, -1)); 
-             $arrayMiTipoCopia = explode("_,", substr($_POST["p_arrayMiTipoCopia"], 0, -1)); 
-             $arrayMiNombreDesCopia = explode("_,", substr($_POST["p_arrayMiNombreDesCopia"], 0, -1)); 
- 
+             $arrayCopia                = explode("_,", substr($_POST["p_arrayCopia"], 0, -1)); 
+             $arrayCargoCopia           = explode("_,", substr($_POST["p_arrayCargoCopia"], 0, -1)); 
+             $arrayCopiaDireccion       = explode("_,", substr($_POST["p_arrayCopiaDireccion"], 0, -1)); 
+             $arrayCopiaCorreo          = explode("_,", substr($_POST["p_arrayCopiaCorreo"], 0, -1)); 
+             $arrayMiTipoCopia          = explode("_,", substr($_POST["p_arrayMiTipoCopia"], 0, -1)); 
+             $arrayMiNombreDesCopia     = explode("_,", substr($_POST["p_arrayMiNombreDesCopia"], 0, -1)); 
+             $arrayMiMedioEnvioCopia    = explode("_,", substr($_POST["p_arrayMiMedioEnvioCopia"], 0, -1));
+
              $dataCopia = array (
                  'destinatario' => $arrayCopia ,
                  'cargo' => $arrayCargoCopia ,
@@ -2862,7 +2881,8 @@ class modificar_docto extends Pagina{
                  'correo' => $arrayCopiaCorreo,
                  'tipo' => $arrayMiTipoCopia,
                  'con_copia' => 'SI',
-                 'nombre' => $arrayMiNombreDesCopia
+                 'nombre' => $arrayMiNombreDesCopia,
+                 'medio_envio' => $arrayMiMedioEnvioCopia
              );
  
              //data destinatario a eliminar
@@ -3245,6 +3265,10 @@ class modificar_docto extends Pagina{
             $arrayMiTipo                = explode("_,", substr($_POST["p_arrayMiTipo"], 0, -1)); 
             $arrayMiNombreDes           = explode("_,", substr($_POST["p_arrayMiNombreDes"], 0, -1)); 
             
+
+            $arrayMiMedioEnvio          = explode("_,", substr($_POST["p_arrayMiMedioEnvio"], 0, -1)); 
+            
+
             $dataDestinatario = array (
                     'destinatario' => $arrayDestinatario ,
                     'cargo' => $arrayCargoDestinatario ,
@@ -3252,7 +3276,8 @@ class modificar_docto extends Pagina{
                     'correo' => $arrayCorreo,
                     'tipo' => $arrayMiTipo,
                     'con_copia' => 'NO',
-                    'nombre' =>  $arrayMiNombreDes
+                    'nombre' => $arrayMiNombreDes,
+                    'metodo_envio' => $arrayMiMedioEnvio
             );
 
             //data destinatario copia
@@ -3262,6 +3287,7 @@ class modificar_docto extends Pagina{
             $arrayCopiaCorreo= explode("_,", substr($_POST["p_arrayCopiaCorreo"], 0, -1)); 
             $arrayMiTipoCopia = explode("_,", substr($_POST["p_arrayMiTipoCopia"], 0, -1)); 
             $arrayMiNombreDesCopia = explode("_,", substr($_POST["p_arrayMiNombreDesCopia"], 0, -1)); 
+            $arrayMiMedioEnvioCopia     = explode("_,", substr($_POST["p_arrayMiMedioEnvioCopia"], 0, -1));
 
             $dataCopia = array (
                 'destinatario' => $arrayCopia ,
@@ -3270,7 +3296,8 @@ class modificar_docto extends Pagina{
                 'correo' => $arrayCopiaCorreo,
                 'tipo' => $arrayMiTipoCopia,
                 'con_copia' => 'SI',
-                'nombre' => $arrayMiNombreDesCopia
+                'nombre' => $arrayMiNombreDesCopia,
+                'metodo_envio' => $arrayMiMedioEnvio
             );
 
             
@@ -3476,6 +3503,9 @@ class modificar_docto extends Pagina{
             $arrayCorreo                = explode("_,", substr($_POST["p_arrayCorreo"], 0, -1));
             $arrayMiTipo                = explode("_,", substr($_POST["p_arrayMiTipo"], 0, -1)); 
             $arrayMiNombreDes           = explode("_,", substr($_POST["p_arrayMiNombreDes"], 0, -1)); 
+            $arrayMiMedioEnvio          = explode("_,", substr($_POST["p_arrayMiMedioEnvio"], 0, -1)); 
+            
+
             
             $dataDestinatario = array (
                     'destinatario' => $arrayDestinatario ,
@@ -3484,16 +3514,18 @@ class modificar_docto extends Pagina{
                     'correo' => $arrayCorreo,
                     'tipo' => $arrayMiTipo,
                     'con_copia' => 'NO',
-                    'nombre' =>  $arrayMiNombreDes
+                    'nombre' =>  $arrayMiNombreDes,
+                    'medio_envio' =>  $arrayMiMedioEnvio  
             );
 
             //data destinatario copia
-            $arrayCopia= explode("_,", substr($_POST["p_arrayCopia"], 0, -1)); 
-            $arrayCargoCopia= explode("_,", substr($_POST["p_arrayCargoCopia"], 0, -1)); 
-            $arrayCopiaDireccion= explode("_,", substr($_POST["p_arrayCopiaDireccion"], 0, -1)); 
-            $arrayCopiaCorreo= explode("_,", substr($_POST["p_arrayCopiaCorreo"], 0, -1)); 
-            $arrayMiTipoCopia = explode("_,", substr($_POST["p_arrayMiTipoCopia"], 0, -1)); 
-            $arrayMiNombreDesCopia = explode("_,", substr($_POST["p_arrayMiNombreDesCopia"], 0, -1)); 
+            $arrayCopia             = explode("_,", substr($_POST["p_arrayCopia"], 0, -1)); 
+            $arrayCargoCopia        = explode("_,", substr($_POST["p_arrayCargoCopia"], 0, -1)); 
+            $arrayCopiaDireccion    = explode("_,", substr($_POST["p_arrayCopiaDireccion"], 0, -1)); 
+            $arrayCopiaCorreo       = explode("_,", substr($_POST["p_arrayCopiaCorreo"], 0, -1)); 
+            $arrayMiTipoCopia       = explode("_,", substr($_POST["p_arrayMiTipoCopia"], 0, -1)); 
+            $arrayMiNombreDesCopia  = explode("_,", substr($_POST["p_arrayMiNombreDesCopia"], 0, -1)); 
+            $arrayMiMedioEnvioCopia = explode("_,", substr($_POST["p_arrayMiMedioEnvioCopia"], 0, -1));
 
             $dataCopia = array (
                 'destinatario' => $arrayCopia ,
@@ -3502,7 +3534,8 @@ class modificar_docto extends Pagina{
                 'correo' => $arrayCopiaCorreo,
                 'tipo' => $arrayMiTipoCopia,
                 'con_copia' => 'SI',
-                'nombre' => $arrayMiNombreDesCopia
+                'nombre' => $arrayMiNombreDesCopia,
+                'medio_envio' => $arrayMiMedioEnvioCopia
             );
 
             

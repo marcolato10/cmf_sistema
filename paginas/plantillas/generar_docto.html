@@ -145,6 +145,7 @@
         let arrayCargoDestinatario = [];
         let arrayMiTipo = [];
         var arrayMiNombreDes = [];
+        var arrayMiMedioEnvio = [];
 
         for (var i = 0; i < rutDestinatario.length; i++) {
             arrayDestinatario[i] = rutDestinatario[i].value + '_';
@@ -153,7 +154,7 @@
             arrayCorreo[i] = $("#miCorreo_" + rutDestinatario[i].value).val() + '_';
             arrayMiTipo[i] = $("#miTipo_" + rutDestinatario[i].value).val() + '_';
             arrayMiNombreDes[i] = $("#miNombreDes_" + rutDestinatario[i].value).val() + '_';
-
+            arrayMiMedioEnvio[i] = $("#miMedioEnvio_" + rutDestinatario[i].value).val() + '_';
             //alert(arrayMiNombreDes[i]);
         }
 
@@ -167,6 +168,7 @@
         let arrayCargoCopia = [];
         let arrayMiTipoCopia = [];
         var arrayMiNombreDesCopia = [];
+        var arrayMiMedioEnvioCopia = [];
 
         for (var x = 0; x < rutCopia.length; x++) {
             arrayCopia[x] = rutCopia[x].value + '_';
@@ -175,6 +177,7 @@
             arrayCopiaCorreo[x] = $("#miCopiaCorreo_" + rutCopia[x].value).val() + '_';
             arrayMiTipoCopia[x] = $("#miTipoCopia_" + rutCopia[x].value).val() + '_';
             arrayMiNombreDesCopia[x] = $("#miNombreDesCopia_" + rutCopia[x].value).val() + '_';
+            arrayMiMedioEnvioCopia[x] = $("#miMedioEnvioCopia_" + rutCopia[x].value).val() + '_';
 
         }
 
@@ -206,17 +209,19 @@
         formData.append("p_arrayDestinatario", arrayDestinatario);
 
         formData.append("p_arrayMiNombreDes", arrayMiNombreDes);
-        formData.append("p_arrayMiNombreDesCopia", arrayMiNombreDesCopia);
-
-        formData.append("p_arrayCargoCopia", arrayCargoCopia);
         formData.append("p_arrayCargoDestinatario", arrayCargoDestinatario);
-        formData.append("p_arrayCopiaDireccion", arrayCopiaDireccion);
-        formData.append("p_arrayCopiaCorreo", arrayCopiaCorreo);
         formData.append("p_arrayDireccion", arrayDireccion);
         formData.append("p_arrayCorreo", arrayCorreo);
         formData.append("p_arrayMiTipo", arrayMiTipo);
-        formData.append("p_arrayMiTipoCopia", arrayMiTipoCopia);
+        formData.append("p_arrayMiMedioEnvio", arrayMiMedioEnvio);
 
+
+        formData.append("p_arrayMiNombreDesCopia", arrayMiNombreDesCopia);
+        formData.append("p_arrayCargoCopia", arrayCargoCopia);
+        formData.append("p_arrayCopiaDireccion", arrayCopiaDireccion);
+        formData.append("p_arrayCopiaCorreo", arrayCopiaCorreo);
+        formData.append("p_arrayMiTipoCopia", arrayMiTipoCopia);
+        formData.append("p_arrayMiMedioEnvioCopia", arrayMiMedioEnvioCopia);
 
         //validamos tipos de envios
         if (!tipo_envio) {

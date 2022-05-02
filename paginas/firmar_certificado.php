@@ -343,7 +343,7 @@ class firmar_certificado extends Pagina{
     
     }
 
-
+    //ml: obtenemos el numero de folio segun el el tipo de certificado
     public function fun_obtener_numero(){
 
         $tipo_certificado = $this->_SESION->getVariable('TIPO_CERTIFICADO');
@@ -595,13 +595,15 @@ class firmar_certificado extends Pagina{
                                     $bind = array(':caso'=>$NUMERO_CASO, ':usuario' => $this->_SESION->USUARIO, ':desde' => $this->_SESION->USUARIO, ':msg' => $comentario );
                                         $this->_ORA->ejecutaFunc("wfa.wf_rso_pkg.fun_bitacora", $bind);
                                         $this->_LOG->log("Bitacora en el WF: ".$NUMERO_CASO.' con bind '.print_r($bind,true));  
-                                        $this->_ORA->Commit();   
-                                
+                                        //$this->_ORA->Commit();   
                                     
+                                    
+                                    //poblamos quien firma el certificado
+                                    $this->fun_agregar_quien_firma($numeroSGD);
                                 }
                                 
                                             
-
+                               
 
                                 $this->_ORA->Commit();
                                 return $numeroSGD;          
@@ -680,8 +682,6 @@ class firmar_certificado extends Pagina{
 
     }
 
-  
-
     function mergePDF($files){
         try{
 
@@ -699,8 +699,6 @@ class firmar_certificado extends Pagina{
         }
     }
 
- 
-    
     /////HALEYM
     public function grabarSGD($contenido) {    
         
@@ -758,6 +756,7 @@ class firmar_certificado extends Pagina{
         $ver = "<a href='#' onclick='javascript:window.open(\"".$urlDocto."\");'><img src='Sistema/img/doc.png' width='24px' height='24px'></a>";
         return $ver;
     }
+
     //HALEYM
     public function clearNombreArchivo($nombreArchivo) {
         $nueva_cadena = strtr(utf8_decode($nombreArchivo), array("á" => "a", 'é' => 'e', 'í' => 'i', 'ó' => 'o', 'ú' => 'u', 'Á' => 'A', 'É' => 'E', 'Í' => 'I', 'Ó' => 'O', 'Ú' => 'U', 'ñ' => 'n', 'Ñ' => 'N'));
@@ -788,6 +787,32 @@ class firmar_certificado extends Pagina{
         );
         $this->_ORA->ejecutaProc("GDE.GDE_DOCUMENTO_PKG.PRC_CAMBIAR_ESTADO_CERT",$bind); 
         $this->_ORA->Commit();   
+    }
+
+    //ml: agregamos quien firma el certificado // poblamos GDE_DOCUMENTO con los campos obtenidos de la firma 
+    public function fun_agregar_quien_firma($numero_sgd){
+
+        $wf                 = $this->_SESION->getVariable("WF");
+        $version            = $this->_SESION->getVariable("VERSION_CERTIFICADO");
+        $numero_folio       = $this->fun_obtener_numero();  
+        $usuario_firma      = $this->_SESION->USUARIO;
+        $doc_ano            = date("Y");
+        
+        
+        //var_dump($wf."///".$version."///".$numero_folio."///".$usuario_firma."///".$numero_sgd);exit();
+
+        
+        $bind =  array(
+            ":p_id" => $wf,
+            ":p_version" => $version,
+            ":p_doc_folio" => $numero_folio,
+            ":p_doc_sgd" => $numero_sgd,
+            ":p_doc_usuario_firma" => $usuario_firma,
+            ":p_doc_ano" => $doc_ano
+        );    
+        $this->_ORA->ejecutaProc("GDE.GDE_DOCUMENTO_PKG.PRC_AGREGAR_FIRMANTE",$bind); 
+        $this->_ORA->Commit();     
+
     }
 
 

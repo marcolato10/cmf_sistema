@@ -416,6 +416,7 @@ function accionEnviarVB() {
     var arrayCargoDestinatario = [];
     var arrayMiTipo = [];
     var arrayMiNombreDes = [];
+    var arrayMiMedioEnvio = [];
 
     for (var i = 0; i < rutDestinatario.length; i++) {
         arrayDestinatario[i] = rutDestinatario[i].value + '_';
@@ -424,9 +425,10 @@ function accionEnviarVB() {
         arrayCorreo[i] = $("#miCorreo_" + rutDestinatario[i].value).val() + '_';
         arrayMiTipo[i] = $("#miTipo_" + rutDestinatario[i].value).val() + '_';
         arrayMiNombreDes[i] = $("#miNombreDes_" + rutDestinatario[i].value).val() + '_';
+        arrayMiMedioEnvio[i] = $("#miMedioEnvio_" + rutDestinatario[i].value).val() + '_';
 
-        console.log("destinatario:" + arrayDestinatario[i]);
-        console.log("rut destinatario: " + rutDestinatario[i].value);
+        //console.log("destinatario:" + arrayDestinatario[i]);
+        //console.log("rut destinatario: " + rutDestinatario[i].value);
         //console.log("cargo D: " + arrayCargoDestinatario[i]);
     }
 
@@ -441,6 +443,7 @@ function accionEnviarVB() {
     var arrayCargoCopia = [];
     var arrayMiTipoCopia = [];
     var arrayMiNombreDesCopia = [];
+    var arrayMiMedioEnvioCopia = [];
 
     for (var x = 0; x < rutCopia.length; x++) {
         arrayCopia[x] = rutCopia[x].value + '_';
@@ -449,6 +452,8 @@ function accionEnviarVB() {
         arrayCopiaCorreo[x] = $("#miCopiaCorreo_" + rutCopia[x].value).val() + '_';
         arrayMiTipoCopia[x] = $("#miTipoCopia_" + rutCopia[x].value).val() + '_';
         arrayMiNombreDesCopia[x] = $("#miNombreDesCopia_" + rutCopia[x].value).val() + '_';
+        arrayMiMedioEnvioCopia[x] = $("#miMedioEnvioCopia_" + rutCopia[x].value).val() + '_';
+
         //console.log("rut copia: " + rutCopia[x].value);
         //console.log("Cargo CC: " + arrayCargoCopia[x]);
     }
@@ -549,6 +554,9 @@ function accionEnviarVB() {
     formData.append("p_comentarioVB", comentarioVB);
 
 
+    formData.append("p_arrayMiMedioEnvio", arrayMiMedioEnvio);
+    formData.append("p_arrayMiMedioEnvioCopia", arrayMiMedioEnvioCopia);
+
     //validamos si existen errores 
     if (errores > 0) {
         console.log("ERRORES : Usted tiene " + errores + " errores.");
@@ -622,6 +630,7 @@ function accionEVB_Todos() {
     var arrayCargoDestinatario = [];
     var arrayMiTipo = [];
     var arrayMiNombreDes = [];
+    var arrayMiMedioEnvio = [];
 
     for (var i = 0; i < rutDestinatario.length; i++) {
         arrayDestinatario[i] = rutDestinatario[i].value + '_';
@@ -630,11 +639,12 @@ function accionEVB_Todos() {
         arrayCorreo[i] = $("#miCorreo_" + rutDestinatario[i].value).val() + '_';
         arrayMiTipo[i] = $("#miTipo_" + rutDestinatario[i].value).val() + '_';
         arrayMiNombreDes[i] = $("#miNombreDes_" + rutDestinatario[i].value).val() + '_';
+        arrayMiMedioEnvio[i] = $("#miMedioEnvio_" + rutDestinatario[i].value).val() + '_';
 
-        console.log("rut destinatario: " + rutDestinatario[i].value);
+        //console.log("rut destinatario: " + rutDestinatario[i].value);
         //console.log("cargo D: " + arrayCargoDestinatario[i]);
-        console.log("DIRECCION :: " + arrayDireccion[i].value);
-        console.log("NOMBRE DESTINATARIO :: " + arrayMiNombreDes[i].value);
+        //console.log("DIRECCION :: " + arrayDireccion[i].value);
+        //console.log("NOMBRE DESTINATARIO :: " + arrayMiNombreDes[i].value);
     }
 
 
@@ -647,6 +657,7 @@ function accionEVB_Todos() {
     var arrayCargoCopia = [];
     var arrayMiTipoCopia = [];
     var arrayMiNombreDesCopia = [];
+    var arrayMiMedioEnvioCopia = [];
 
     for (var x = 0; x < rutCopia.length; x++) {
         arrayCopia[x] = rutCopia[x].value + '_';
@@ -655,6 +666,8 @@ function accionEVB_Todos() {
         arrayCopiaCorreo[x] = $("#miCopiaCorreo_" + rutCopia[x].value).val() + '_';
         arrayMiTipoCopia[x] = $("#miTipoCopia_" + rutCopia[x].value).val() + '_';
         arrayMiNombreDesCopia[x] = $("#miNombreDesCopia_" + rutCopia[x].value).val() + '_';
+        arrayMiMedioEnvioCopia[x] = $("#miMedioEnvioCopia_" + rutCopia[x].value).val() + '_';
+
         //console.log("rut copia: " + rutCopia[x].value);
         //console.log("Cargo CC: " + arrayCargoCopia[x]);
     }
@@ -711,6 +724,8 @@ function accionEVB_Todos() {
     formData.append("p_visacionVBTodos", VisacionVBTodos);
     formData.append("p_comentarioVBTodos", ComentarioVBTodos);
 
+    formData.append("p_arrayMiMedioEnvio", arrayMiMedioEnvio);
+    formData.append("p_arrayMiMedioEnvioCopia", arrayMiMedioEnvioCopia);
 
     //console.log(otraUnidadParaVB + "//" + otraUnidadCopiaVB + "//" + otraUnidadVisacionVB + "//" + otraUnidadComentarioVB);
 
@@ -858,6 +873,8 @@ function accionOtraUnidadEVB() {
     var arrayCargoDestinatario = [];
     var arrayMiTipo = [];
     var arrayMiNombreDes = [];
+    var arrayMiMedioEnvio = [];
+
 
     for (var i = 0; i < rutDestinatario.length; i++) {
         arrayDestinatario[i] = rutDestinatario[i].value + '_';
@@ -866,9 +883,10 @@ function accionOtraUnidadEVB() {
         arrayCorreo[i] = $("#miCorreo_" + rutDestinatario[i].value).val() + '_';
         arrayMiTipo[i] = $("#miTipo_" + rutDestinatario[i].value).val() + '_';
         arrayMiNombreDes[i] = $("#miNombreDes_" + rutDestinatario[i].value).val() + '_';
+        arrayMiMedioEnvio[i] = $("#miMedioEnvio_" + rutDestinatario[i].value).val() + '_';
 
-        console.log("destinatario:" + arrayDestinatario[i]);
-        console.log("rut destinatario: " + rutDestinatario[i].value);
+        //console.log("destinatario:" + arrayDestinatario[i]);
+        //console.log("rut destinatario: " + rutDestinatario[i].value);
         //console.log("cargo D: " + arrayCargoDestinatario[i]);
     }
 
@@ -883,6 +901,7 @@ function accionOtraUnidadEVB() {
     var arrayCargoCopia = [];
     var arrayMiTipoCopia = [];
     var arrayMiNombreDesCopia = [];
+    var arrayMiMedioEnvioCopia = [];
 
     for (var x = 0; x < rutCopia.length; x++) {
         arrayCopia[x] = rutCopia[x].value + '_';
@@ -891,6 +910,8 @@ function accionOtraUnidadEVB() {
         arrayCopiaCorreo[x] = $("#miCopiaCorreo_" + rutCopia[x].value).val() + '_';
         arrayMiTipoCopia[x] = $("#miTipoCopia_" + rutCopia[x].value).val() + '_';
         arrayMiNombreDesCopia[x] = $("#miNombreDesCopia_" + rutCopia[x].value).val() + '_';
+        arrayMiMedioEnvioCopia[x] = $("#miMedioEnvioCopia_" + rutCopia[x].value).val() + '_';
+
         //console.log("rut copia: " + rutCopia[x].value);
         //console.log("Cargo CC: " + arrayCargoCopia[x]);
     }
@@ -994,6 +1015,9 @@ function accionOtraUnidadEVB() {
     formData.append("p_otraUnidadVisacionVB", otraUnidadVisacionVB);
     formData.append("p_otraUnidadComentarioVB", otraUnidadComentarioVB);
 
+
+    formData.append("p_arrayMiMedioEnvio", arrayMiMedioEnvio);
+    formData.append("p_arrayMiMedioEnvioCopia", arrayMiMedioEnvioCopia);
 
     //validamos si existen errores 
     if (errores > 0) {
@@ -1143,6 +1167,8 @@ function accionActualizar() {
     var arrayCargoDestinatario = [];
     var arrayMiTipo = [];
     var arrayMiNombreDes = [];
+    var arrayMiMedioEnvio = [];
+
 
     for (var i = 0; i < rutDestinatario.length; i++) {
         arrayDestinatario[i] = rutDestinatario[i].value + '_';
@@ -1151,10 +1177,11 @@ function accionActualizar() {
         arrayCorreo[i] = $("#miCorreo_" + rutDestinatario[i].value).val() + '_';
         arrayMiTipo[i] = $("#miTipo_" + rutDestinatario[i].value).val() + '_';
         arrayMiNombreDes[i] = $("#miNombreDes_" + rutDestinatario[i].value).val() + '_';
+        arrayMiMedioEnvio[i] = $("#miMedioEnvio_" + rutDestinatario[i].value).val() + '_';
 
-        console.log("destinatario:" + arrayDestinatario[i]);
-        console.log("rut destinatario: " + rutDestinatario[i].value);
-        console.log("correoooo : " + arrayCorreo[i]);
+        //console.log("destinatario:" + arrayDestinatario[i]);
+        //console.log("rut destinatario: " + rutDestinatario[i].value);
+        //console.log("correoooo : " + arrayCorreo[i]);
     }
 
 
@@ -1168,6 +1195,7 @@ function accionActualizar() {
     var arrayCargoCopia = [];
     var arrayMiTipoCopia = [];
     var arrayMiNombreDesCopia = [];
+    var arrayMiMedioEnvioCopia = [];
 
     for (var x = 0; x < rutCopia.length; x++) {
         arrayCopia[x] = rutCopia[x].value + '_';
@@ -1176,6 +1204,8 @@ function accionActualizar() {
         arrayCopiaCorreo[x] = $("#miCopiaCorreo_" + rutCopia[x].value).val() + '_';
         arrayMiTipoCopia[x] = $("#miTipoCopia_" + rutCopia[x].value).val() + '_';
         arrayMiNombreDesCopia[x] = $("#miNombreDesCopia_" + rutCopia[x].value).val() + '_';
+        arrayMiMedioEnvioCopia[x] = $("#miMedioEnvioCopia_" + rutCopia[x].value).val() + '_';
+
         //console.log("rut copia: " + rutCopia[x].value);
         //console.log("Cargo CC: " + arrayCargoCopia[x]);
     }
@@ -1232,6 +1262,7 @@ function accionActualizar() {
     formData.append("p_arrayCorreo", arrayCorreo);
     formData.append("p_arrayMiTipo", arrayMiTipo);
     formData.append("p_arrayMiNombreDes", arrayMiNombreDes);
+    formData.append("p_arrayMiMedioEnvio", arrayMiMedioEnvio);
 
 
     //data destinatario copia
@@ -1241,7 +1272,7 @@ function accionActualizar() {
     formData.append("p_arrayMiTipoCopia", arrayMiTipoCopia);
     formData.append("p_arrayCopiaDireccion", arrayCopiaDireccion);
     formData.append("p_arrayMiNombreDesCopia", arrayMiNombreDesCopia);
-
+    formData.append("p_arrayMiMedioEnvioCopia", arrayMiMedioEnvioCopia);
 
     //data destinatario a eliminar
     formData.append("p_arrayDestinatarioE", arrayDestinatarioE);

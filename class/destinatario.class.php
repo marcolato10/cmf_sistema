@@ -229,8 +229,15 @@
 		
 			
 			
-			
+		//usado en el autocompletado	
 		public function agregarSeleccionadoDestinatario(){
+			
+			//echo "<pre>";var_dump("INICIO");echo "</pre>";
+			//echo "<pre>";var_dump($_POST['medio_envio']);echo "</pre>";
+			//echo "<pre>";var_dump("FIN");echo "</pre>";
+			
+			
+
 			$json = array();
 			$json['RESULTADO'] = 'OK';			
 			$MENSAJES = array();
@@ -257,6 +264,9 @@
 				$arreglo_rut['DES_CARGO'] = $arreglo_piezas[2];
 				$arreglo_rut['DES_TIPO_ENT'] = $_POST['hidden_tipoEntidad'];
 				$arreglo_rut['DES_CON_COPIA'] = ((int)$_POST['hidden_tipoDistribucion'] === 1) ? 'N' : 'S';
+
+				$arreglo_rut['MEDIO_ENVIO'] = $_POST['medio_envio'];
+
 				if(isset($arreglo_piezas[3]) && strlen($arreglo_piezas[3]) > 5){
 					$arreglo_rut['CORREO'] = $arreglo_piezas[3];
 				}
@@ -291,8 +301,10 @@
 		public function seteaHtml($distribucion){
 			
 			$lista_distribucion = ($this->_SESION->getVariable('DESTINATARIO')) ? $this->_SESION->getVariable('DESTINATARIO') : array();
-			//print_r($lista_distribucion);
 			
+			
+			//echo "<pre>";print_r($lista_distribucion);echo "</pre>";exit();
+
 			
 			$lista_completa = array();
 			foreach($lista_distribucion as $tipos_entidades){
@@ -335,6 +347,11 @@
 						$this->_TEMPLATE->parse('main.paso1.div_listaDistribucion_copia.fiscalizado_lista.direccion');
 					}
 					
+
+					if(isset($fiscalizado['MEDIO_ENVIO']) && strlen(trim($fiscalizado['MEDIO_ENVIO']))){
+						$this->_TEMPLATE->parse('main.paso1.div_listaDistribucion_copia.fiscalizado_lista.medio_envio');
+					}
+
 					//ML: cambie CORREO POR DES_CORREO
 					if(isset($fiscalizado['DES_CORREO']) && strlen(trim($fiscalizado['DES_CORREO']))){
 						$this->_TEMPLATE->parse('main.paso1.div_listaDistribucion_copia.fiscalizado_lista.email');
@@ -351,6 +368,9 @@
 					$this->_TEMPLATE->parse('main.paso1.div_listaDistribucion_copia.fiscalizado_lista.es_copia');
 					//print_r($this->_SESION->getVariable('DESTINATARIO'));
 					$this->_TEMPLATE->parse('main.paso1.div_listaDistribucion_copia.fiscalizado_lista');
+
+					
+
 				}
 				
 				
@@ -373,6 +393,11 @@
 						$this->_TEMPLATE->parse('main.paso1.div_listaDistribucion.fiscalizado_lista.email');
 					}
 					*/
+					
+					if(isset($fiscalizado['MEDIO_ENVIO']) && strlen(trim($fiscalizado['MEDIO_ENVIO']))){
+						$this->_TEMPLATE->parse('main.paso1.div_listaDistribucion.fiscalizado_lista.medio_envio');
+					}
+
 					if(isset($fiscalizado['DES_CORREO']) && strlen(trim($fiscalizado['DES_CORREO']))){
 						$this->_TEMPLATE->parse('main.paso1.div_listaDistribucion.fiscalizado_lista.email');
 					}
@@ -382,7 +407,9 @@
 					}else{
 						$this->_TEMPLATE->parse('main.paso1.div_listaDistribucion.fiscalizado_lista.editar_destinatario');
 					}
+					
 					$this->_TEMPLATE->parse('main.paso1.div_listaDistribucion.fiscalizado_lista');
+
 				}										
 			}
 			
@@ -500,9 +527,6 @@
 		
 		public function agregarFiscalizadoParaOtro(){
 			
-			
-
-			
 			$json = array();
 			$json['RESULTADO'] = 'OK';			
 			$MENSAJES = array();
@@ -552,6 +576,9 @@
 			$arreglo_rut['DES_TIPO_ENT'] = 'PUPUB';			
 			$arreglo_rut['DES_CON_COPIA'] = ((int)$_POST['hidden_distribucion'] === 1) ? 'N' : 'S';
 			$arreglo_rut['RAND'] = $rand;
+
+			$arreglo_rut['MEDIO_ENVIO'] = $_POST['medio_envio'];
+
 			$MENSAJES[] = 'Arreglo a incorporar es: '.print_r($arreglo_rut,true);
 			$arreglo_tipo_entidad[$rut] = $arreglo_rut;
 												

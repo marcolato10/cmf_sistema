@@ -34,11 +34,14 @@
             minLength: 3,
             select: function(event, ui) {
                 /*$("#input_clasificacionBuscada").val(ui.item.id);*/
+                var medio_envio = 'SEIL';
                 var cadena = ui.item.id;
                 var arreglo = cadena.split("]SEPARA[");
                 var hid = "hidden_";
                 var distribucion = $("#div_buscarFiscalizado").find('#input_tipoDistribucion').val();
-                var valores = "checkbox_fiscalizado[]=" + arreglo[0] + "&hidden_" + arreglo[0] + "=" + encodeURIComponent(arreglo[1]) + "&hidden_tipoDistribucion=" + distribucion + "&hidden_tipoEntidad=" + arreglo[2];
+                var valores = "checkbox_fiscalizado[]=" + arreglo[0] + "&hidden_" + arreglo[0] + "=" + encodeURIComponent(arreglo[1]) + "&hidden_tipoDistribucion=" + distribucion + "&hidden_tipoEntidad=" + arreglo[2] + "&medio_envio=" + medio_envio;
+
+                alert("PASO :: LO AGREGUE DESDE EL AUTOCOMPLETADO");
 
                 //alert(arreglo.serialize())
                 callback_gral("index.php?pagina=paginas.generar_docto&funcion=fun_agregarSeleccionadoDestinatario",
@@ -116,6 +119,8 @@
 
     function fun_enviarOtro(distribucion) {
 
+        alert("PASO :: LO AGREGUE DESDE EL OTRO");
+
         fun_limpiarFormularioOtroLabel();
         var errorOtro = false;
         if ($.trim($("#input_otroNombre").val()) == "") {
@@ -185,6 +190,7 @@
             opcion = 2; //cambiamos el estado para saber que se hizo un cambio en destinatarios
             callback_gral("index.php?pagina=paginas.modificar_docto&funcion=fun_cambia_estado_destinatario&estado=" + opcion);
 
+            var medio_envio = 'EMAIL';
             $("#form_agregarOtro").find("#hidden_distribucion").val(distribucion);
             callback_gral("index.php?pagina=paginas.generar_docto&funcion=fun_agregarFiscalizadoParaOtro",
                 $("#form_agregarOtro").serialize(), {
@@ -407,7 +413,9 @@
                         <span style="font-weight:100;font-size:10px;" id=""> {FISCALIZADO.DES_NOMBRE}</span><span id="span_usuarioSeil"></span> <br>
                         <input type="hidden" class="miNombreDes" name="miNombreDes[]" id="miNombreDes_{FISCALIZADO.DES_RUT}" value="{FISCALIZADO.DES_NOMBRE}">
 
-
+                        <!-- BEGIN: medio_envio -->
+                        <input type="hidden" class="miMedioEnvio" name="miMedioEnvio[]" id="miMedioEnvio_{FISCALIZADO.DES_RUT}" value="{FISCALIZADO.MEDIO_ENVIO}">
+                        <!-- END: medio_envio -->
 
                         <!-- BEGIN: direccion --><img width="18px" id="" alt="" src="Sistema/img/sobre.png"> <span style="font-weight:100;font-size:9px;" id="">{FISCALIZADO.DES_DIRECCION}</span><br />
                         <input type="hidden" class="miDireccion" name="miDireccion[]" id="miDireccion_{FISCALIZADO.DES_RUT}" value="{FISCALIZADO.DES_DIRECCION}">
@@ -493,6 +501,11 @@
                         <span style="font-weight:100;font-size:10px;" id="">{FISCALIZADO.DES_NOMBRE}</span><span id="span_usuarioSeil"></span> <br>
                         <input type="hidden" class="miNombreDesCopia" name="miNombreDesCopia[]" id="miNombreDesCopia_{FISCALIZADO.DES_RUT}" value="{FISCALIZADO.DES_NOMBRE}">
 
+                        <!-- BEGIN: medio_envio -->
+                        <input type="hidden" class="miMedioEnvioCopia" name="miMedioEnvioCopia[]" id="miMedioEnvioCopia_{FISCALIZADO.DES_RUT}" value="{FISCALIZADO.MEDIO_ENVIO}">
+                        <!-- END: medio_envio -->
+
+
                         <!-- BEGIN: direccion --><img width="18px" id="" alt="" src="Sistema/img/sobre.png"> <span style="font-weight:100;font-size:9px;" id="">{FISCALIZADO.DES_DIRECCION}</span><br />
                         <input type="hidden" class="miCopiaDireccion" name="miCopiaDireccion[]" id="miCopiaDireccion_{FISCALIZADO.DES_RUT}" value="{FISCALIZADO.DES_DIRECCION}">
                         <!-- END: direccion -->
@@ -559,6 +572,8 @@
 
         function fun_agregarSeleccionadoDestinatario() {
 
+            alert("PASO :: LO AGREGUE DESDE EL LISTADO");
+
             //console.log("agregamos los destinatarios selelccionados");
             $.each($("[name='checkbox_fiscalizado[]']:checked"), function(key, value) {
                 //muestra los hidden de los datos del destinatario seleccionado en la vista
@@ -568,7 +583,10 @@
             opcion = 2; //cambiamos el estado para saber que se hizo un cambio en destinatarios
             callback_gral("index.php?pagina=paginas.modificar_docto&funcion=fun_cambia_estado_destinatario&estado=" + opcion);
 
-            callback_gral("index.php?pagina=paginas.generar_docto&funcion=fun_agregarSeleccionadoDestinatario", $("#form_fiscalizadosTodos").serialize());
+
+
+            callback_gral("index.php?pagina=paginas.generar_docto&funcion=fun_agregarSeleccionadoDestinatario",
+                $("#form_fiscalizadosTodos").serialize());
 
         }
     </script>
@@ -589,6 +607,7 @@
 
                     <form id="form_fiscalizadosTodos" name="form_fiscalizadosTodos">
 
+                        <input type="hidden" id="medio_envio" name="medio_envio" value="SEIL" />
                         <input type="hidden" id="hidden_tipoDistribucion" name="hidden_tipoDistribucion" value="{DISTRIBUCION}" />
                         <input type="hidden" id="hidden_tipoEntidad" name="hidden_tipoEntidad" value="{DES_TIPO_ENT}" />
                         <table width="96%" border="0" cellspacing="0" cellpadding="1" id="">
@@ -633,6 +652,7 @@
         <div align="center">
             <input type="hidden" value="" id="hidden_distribucion" name="hidden_distribucion" />
             <input type="hidden" value="" id="hidden_copia" name="hidden_copia" />
+            <input type="hidden" value="EMAIL" id="medio_envio" name="medio_envio" />
 
             <br />
             <div class="form-group row">
