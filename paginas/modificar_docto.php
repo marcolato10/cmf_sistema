@@ -39,8 +39,7 @@ class modificar_docto extends Pagina{
     }
     public function main(){
 
-        //echo "<pre>";var_dump($this->_SESION->getVariable('DESTINATARIO'));echo "</pre>";exit();
-        //echo date("Y"); exit();    
+   
 
 
         $wf  = $_GET['wf']; 
@@ -95,6 +94,9 @@ class modificar_docto extends Pagina{
         $this->modificar_certificado($wf,$tipo);
 
     }
+
+
+
 
     public function modificar_certificado($wf,$tipo){
 
@@ -4065,6 +4067,127 @@ class modificar_docto extends Pagina{
             $this->_ORA->ejecutaProc("GDE.GDE_DOCUMENTO_PKG.PRC_CAMBIAR_ESTADO_CERT",$bind); 
             $this->_ORA->Commit();   
         }
+
+
+
+   //|||||||||||||||||||||||||||||||||||||||||||||  medio de envio
+   
+   //validamos medio de envio electronico
+   public function fun_validar_medio_electronico(){
+
+    
+    
+    $wf                 = $this->_SESION->getVariable("WF");
+    $version            = $this->_SESION->getVariable("VERSION_CERTIFICADO");
+    $tipo_certificado   = $this->_SESION->getVariable("TIPO_CERTIFICADO");
+ 
+    //var_dump($wf."///".$version);exit();
+
+    
+
+    //PASO 1 :: obtenemos todos los destinatarios del certificado
+    $bind = array(":p_doc_id"=>$wf, ":p_doc_version" =>$version);
+    $cursor = $this->_ORA->retornaCursor("GDE.GDE_DISTRIBUCION_PKG.fun_listar_distribucion_xme",'function', $bind);
+    $registros =$this->_ORA->FetchAll($cursor);
+
+    $errores = 0;
+
+    
+
+    foreach($registros as $dest){
+        
+        if($dest['DIS_MEDIO_ENVIO'] == 'SEIL'){
+            $rut = $dest['DIS_RUT']; 
+            $bind = array(':rut' => $rut,':aplic' => 'PUFED');				
+            $cursor = $this->_ORA->retornaCursor('web_usuarios_seil.get_usuarios_busqueda_aplic','function',$bind);			
+            $data = $this->_ORA->FetchAll($cursor);
+            //echo "<pre>";var_dump(count($data));echo "</pre>";
+            if(count($data) == 0){
+                $errores++;
+            }
+        }
+    }
+    
+    if($errores > 0){
+        //var_dump("HAY ERRORES");
+        return 'NOK';//no paso la validacion , no se puede firmar
+    }else{
+        //var_dump("NO HAY ERRORES");
+        return 'OK';//se puede firmar 
+    }
+    
+   }
+
+  //validamos medio de envio manual
+   public function fun_validar_medio_manual(){
+
+    $wf                 = $this->_SESION->getVariable("WF");
+    $version            = $this->_SESION->getVariable("VERSION_CERTIFICADO");
+    $tipo_certificado   = $this->_SESION->getVariable("TIPO_CERTIFICADO");
+
+    $bind = array(":p_doc_id"=>$wf, ":p_doc_version" =>$version);
+    $cursor = $this->_ORA->retornaCursor("GDE.GDE_DISTRIBUCION_PKG.fun_listar_distribucion_xme",'function', $bind);
+    $registros =$this->_ORA->FetchAll($cursor);
+
+    //var_dump($wf."///".$version."///".$medio_envio);
+    //var_dump($registros);exit();
+
+    $errores = 0;
+    foreach($registros as $dest){
+        if($dest['DIS_DIRECCION'] == 'undefine' or $dest['DIS_DIRECCION'] == null){
+            $errores++;
+            //var_dump("hay errores");
+        }   
+    }
+
+    
+    if($errores > 0){
+        return 'NOK';//no paso la validacion , no se puede firmar
+    }else{
+        return 'OK';//se puede firmar 
+    }
+
+   }
+
+
+
+   //ml: mostramos el modal de error para medio de envio 
+   public function fun_respuesta_mde(){
+
+    $json = array();
+    $MENSAJES = array();
+    $CAMBIA = array();	
+    $OPEN = array();			
+    
+   
+   if($_POST['medio_envio'] == 'manual'){
+        $mensaje_respuesta = 'Se ha detectado que tiene seleccionado envio XXX (manual), sin embargo, el destinatario XXX no tiene dirección postal, seleccione algún tipo envio distinto o modifique el destinatario.';
+   }else if($_POST['medio_envio'] == 'electronico'){
+        $mensaje_respuesta = 'Se ha detectado que tiene seleccionado envio electrónico, sin embargo, el destinatario XXX no tiene configurado usuarios SEIL que permitan su lectura, seleccione algún envio distinto de electrónico o borre el destinatario e incorpórelo como “Otro” ingresando el correo electrónico.';
+   }else{
+        $mensaje_respuesta = '';
+   }
+
+
+    $json['RESULTADO'] = 'OK'; //con el OK permite abrir el modal		 	
+    $MENSAJES[] = $mensaje_respuesta;
+
+    
+    
+     $this->_TEMPLATE->assign('mensaje_medio_envio', $mensaje_respuesta);
+     $this->_TEMPLATE->parse('main.div_respuesta_mde');
+     
+     
+     $CAMBIA['#div_respuesta_mde'] = $this->_TEMPLATE->text('main.div_respuesta_mde');
+     $OPEN['#div_respuesta_mde'] = 'open';
+     $json['MENSAJES'] =  $MENSAJES;
+     $json['CAMBIA'] = $CAMBIA;
+     $json['OPEN'] = $OPEN;
+
+     return json_encode($json);		
+
+   }
+
 
 }
 

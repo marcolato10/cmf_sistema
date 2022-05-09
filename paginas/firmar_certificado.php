@@ -3,7 +3,9 @@
 error_reporting(E_ERROR | E_WARNING | E_PARSE);
 ini_set("display_errors", 1); 
 
+  
 
+require_once("class/correo.class.php");
 require_once('class/crearDocumento.class.php');
 require_once('class/mostrarDocumento.class.php');
 
@@ -21,9 +23,7 @@ class firmar_certificado extends Pagina{
     //ml: realizamos la accion de firmar el certificado
     public function fun_accion_firmar_certificado(){
         
-        //print_r("PASO :: ESTAMOS EN LA ACCION DE LA FIRMA");
-        //$valor = $this->fun_agregar_hoja_adicional(); 
-        //var_dump($valor);exit();
+        
 
 
         $miFirma            = $_POST['firma'];
@@ -117,6 +117,9 @@ class firmar_certificado extends Pagina{
 
     }
 
+  
+
+
     //listamos el certificado por la version
     public function fun_listar_certificado_xversion($wf,$version){
 
@@ -156,6 +159,7 @@ class firmar_certificado extends Pagina{
     //ml: realizar firma con cuerpo 
     public function fun_firmar_con_cuerpo(){
 
+        $medio_envio = $_POST['medio_envio'];
         $numero = $this->fun_obtener_numero();
         $fecha = date('d/m/Y');
         //var_dump("EL NUMERO ES :".$numero);exit();
@@ -231,13 +235,17 @@ class firmar_certificado extends Pagina{
         $respuesta = $pdf->generarPDF($PDF_ARC,$TITULO_DOCUMENTO,$X_DOCUMENTO,$Y_DOCUMENTO,$fecha,$numero);
         
         //firmamos y obtenemos el numero SGD  
-        $numeroSGD = $this->fun_firmar_certificado($respuesta);
+        $numeroSGD = $this->fun_firmar_certificado($respuesta,$medio_envio);
         return $numeroSGD;            
     }
 
     //ml: realizar firma con adjunto
     public function fun_firmar_con_adjunto(){
 
+
+        //return "OK";exit();
+
+        $medio_envio = $_POST['medio_envio'];
         $numero = $this->fun_obtener_numero();
         $fecha = date('d/m/Y');
         
@@ -254,7 +262,7 @@ class firmar_certificado extends Pagina{
         $respuesta = $pdf->generarPDF($PDF_ARC,$TITULO_DOCUMENTO,$X_DOCUMENTO,$Y_DOCUMENTO,$fecha,$numero);
     
         //firmamos y obtenemos el numero SGD   
-        $numeroSGD = $this->fun_firmar_certificado($respuesta);
+        $numeroSGD = $this->fun_firmar_certificado($respuesta,$medio_envio);
         
  
         return $numeroSGD;
@@ -411,8 +419,8 @@ class firmar_certificado extends Pagina{
     }
 
 
-    //ml:metodo que realiza el proceso de firma del certificado
-    public function fun_firmar_certificado($mi_certificado){
+    //ml: metodo que realiza el proceso de firma del certificado
+    public function fun_firmar_certificado($mi_certificado,$medio_envio){
 
         define("ASINCRONO", "ASIN");
         define("SINCRONO", "SINC");
@@ -428,7 +436,7 @@ class firmar_certificado extends Pagina{
         $TIPO_FIRMA_POST        = $this->_SESION->getVariable('MI_FIRMA');
     
         //var_dump( $tipo_certificado ."//".$TIPO_DOCUMENTO_FIRMAR."//".$CLAVE_LDAP."//".$TIPO_FIRMA_POST);
-        //var_dump($documento);   
+        //var_dump($documento);  exit();
         //var_dump(file_get_contents($documento, FILE_USE_INCLUDE_PATH)); 
         //exit();
         //echo "SE FIRMA CORRECTAMENTE EL CERTIFICADO";
@@ -580,16 +588,18 @@ class firmar_certificado extends Pagina{
                                 
                                 //echo "El documento fué firmado con éxito y se adjuntó al expediente.";
                                 
+
+
+
+                                //||||||||||||||||||||||||||||||||||||||||||||||||||  descometar despues de las prueba
                                 $numeroSGD = $this->grabarSGD($firmado);               
-                                //print_r("EL NUMERO SGD ES :".$numero);            
+                                         
                                 unlink($archivoParaFirmar);
 
-                                
+                              
                                 if($numeroSGD != ""){
             
                                     //print_r("ENTRO A LA BITACORA");
-                        
-                                
                                     $NUMERO_CASO = $this->_SESION->getVariable("WF");
                                     $comentario = "Se Firmó el Documento";
                                     $bind = array(':caso'=>$NUMERO_CASO, ':usuario' => $this->_SESION->USUARIO, ':desde' => $this->_SESION->USUARIO, ':msg' => $comentario );
@@ -600,11 +610,11 @@ class firmar_certificado extends Pagina{
                                     
                                     //poblamos quien firma el certificado
                                     $this->fun_agregar_quien_firma($numeroSGD);
+                                    
+                                    //AQUI DEBERIA NOTIFICAR LOS ENVIOS |||||||||||||||||mlatorre
+                                    $this->fun_notificar_envios($medio_envio,$documento); 
                                 }
                                 
-                                            
-                               
-
                                 $this->_ORA->Commit();
                                 return $numeroSGD;          
                                 exit();
@@ -641,6 +651,159 @@ class firmar_certificado extends Pagina{
             print_r("PASO 1 :: NO ES SINCRONO");
             print_r( $tipo_certificado ."//".$TIPO_DOCUMENTO_FIRMAR."//".$CLAVE_LDAP."//".$TIPO_FIRMA_POST);
         }        
+    }
+
+    //ml: aqui notificamos los envios a los dstinatarios correspondiente
+    public function fun_notificar_envios($medio_envio,$ruta_certificado){
+
+        //var_dump($medio_envio);
+
+        $wf         = $this->_SESION->getVariable("WF");
+        $version    = $this->_SESION->getVariable("VERSION_CERTIFICADO");
+        //$tipo_certificado   = $this->_SESION->getVariable("TIPO_CERTIFICADO");
+        $bind       = array(":p_doc_id"=>$wf, ":p_doc_version" =>$version);
+        $cursor     = $this->_ORA->retornaCursor("GDE.GDE_DISTRIBUCION_PKG.fun_listar_distribucion_xme",'function', $bind);
+        $registros  = $this->_ORA->FetchAll($cursor);
+
+        if($medio_envio != 'noen'){
+            if($medio_envio == 'elect'){//medio envio electronico
+                foreach($registros as $dest){
+                    if($dest['DIS_MEDIO_ENVIO'] == 'SEIL'){
+
+                        //1.- [ok] Hay agregar los destinatarios a la tabla GDE_CONTROL_SEIL 
+                        //2.- Enviar correo de notificación a los usuarios indicando del envio del correo.
+                        
+                        $bind2 =  array(
+                            ":p_doc_id"=> $wf,
+                            ":p_doc_version"=>$version,
+                            ":p_dis_secuencia"=> $dest['DIS_SECUENCIA']
+                        );    
+                        $this->_ORA->ejecutaProc("GDE.GDE_CONTROL_SEIL_PKG.PRC_AGREGAR_CONTROL_SEIL",$bind2);
+
+                        //FALTA AQUI :: falta el envio del correo de notificacion
+                            
+
+                    }else if($dest['DIS_MEDIO_ENVIO'] == 'EMAIL'){
+                        
+                        //despachar el certificado vía correo electrónico a el/los correos que se encuentran configurados, estos se deben enviar mediante la clase que retorna un ID de correo, este se debe actualizar en la tabla GDE_DISTRIBUCION.DIS_ID_CORREO.
+                          
+                        
+                        //AQUI VOY :: FUNCIONA PERO NO RETORNA ID
+                        $id_correo = $this->fun_enviar_correo_notificacion($dest['DIS_CORREO'],$ruta_certificado);
+                        
+
+                        //DESCOMENTAR CUANDO SOLUCIONE EL TEMA DEL ID DEL CORREO    
+                        //echo "<pre>";var_dump($id_correo);echo "</pre>";    
+                        //$this->fun_agregar_correo_envio($id_correo,$dest['DIS_SECUENCIA']);
+
+                        
+                    }
+                }
+            }else{//medio envio manual
+
+                //Se debe derivar el caso a oficina de partes para que pueda despachar el 
+                //documento (acá se debe generar un Módulo de despacho en wf)
+                $this->fun_derivar_oficina_parte();
+
+                //FALTA AQUI:: falta el envio del correo de notificacion
+
+            }
+        }
+
+        $this->_ORA->Commit();
+       
+    }
+
+    //ml: derivamos a la oficina de partes
+    public function fun_derivar_oficina_parte(){
+        
+        try{  
+            $bindOP = array(':p_rol' => 'OFPARTES');
+            $cursorOP = $this->_ORA->retornaCursor('DOC2.doc_roles_documento_pkg.fun_usuarios_roles','function',$bindOP);
+            $registrosOP  = $this->_ORA->FetchAll($cursorOP);
+
+            $usuarios = array();
+            foreach($registrosOP as $rop){
+                $usuarios[] = $rop['EP_USUARIO'];
+            }
+            
+            //derivamos a oficina de partes
+            $this->fun_asignarVarios($usuarios); 
+            
+            //falta construir el modulo de wf     
+
+        }catch(Exception $e){
+            $this->_LOG->error(print_r($e));
+    }
+    }
+
+    
+    //ml: asignamos todos los usuarios a la oficina de parte
+    public function fun_asignarVarios($usuarios){ //usuarios es un arreglo con los usuarios.
+        
+        $wf = $this->_SESION->getVariable("WF");
+        
+        try{                                       
+            $usuarios_coll = $this->_ORA->NewCollection("VALUE_ARRAY");
+            
+            foreach ($usuarios as $usr){
+                $usuarios_coll->append($usr);
+            }
+
+                $bind = array(':caso'=>$wf, ':usuario' => $usuarios_coll);
+                $this->_ORA->ejecutaProc("wfa.wf_rso_pkg.fun_asignarVarios", $bind);
+                $this->_LOG->log("Se fun_asignarVarios el WF: ".$wf.' con bind '.print_r($bind,true));
+        }catch(Exception $e){
+                $this->_LOG->error(print_r($e));
+        }
+    }
+
+
+    //ml: enviamos correo de notificacion con certificado adjunto ||| REVISAR NO FUNCIONA
+    public function fun_enviar_correo_notificacion($email_destino,$ruta_pdf){
+
+        
+        $correo = new Correo();
+
+        $correo->ORA = $this->_ORA;
+        $correo->DESDE = 'noresponder@svs.cl';
+        $correo->DESDE_NOMBRE = 'Comisión para el Mercado Financiero';                                                                    
+
+        $correo->ASUNTO = 'PRUEBA Envio documento XXXXX'; //XXXXX => CER:xxx    
+
+        $correo->TEXTO = 'Estimado (a) xxxxxxx
+        Con fecha xxxxxx, esta Comisión hace envío del documento adjunto XXXXXX
+        Atentamente, Comisión para el Mercado Financiero.';
+
+        $correo->APLIC = 'PUGDE';
+        $correo->ADJUNTO = true;        
+        $correo->setPara($email_destino);
+        $correo->setCopiaOculta('culloa@svs.cl');
+        //$correo->setAdjunto($ruta_pdf,'{SGD}.pdf');
+        $ID = $correo->enviar();
+        
+        return $ID; 
+
+        
+
+
+    }
+
+    //ml: agregamos el id del correo enviado en la firma a los destinatarios
+    public function fun_agregar_correo_envio($id_correo,$secuencia){
+
+        $wf         = $this->_SESION->getVariable("WF");
+        $version    = $this->_SESION->getVariable("VERSION_CERTIFICADO");
+
+        $bind =  array(
+            ":p_dis_id_correo" => $id_correo,
+            ":p_version" => $version,
+            ":p_doc_id" => $wf,
+            ":p_secuencia" => $secuencia
+        );
+        
+        $this->_ORA->ejecutaProc("GDE.GDE_DISTRIBUCION_PKG.PRC_ACTUALIZAR_CORREO",$bind);
+        $this->_ORA->Commit();
     }
 
 

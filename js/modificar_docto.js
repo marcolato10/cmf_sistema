@@ -18,6 +18,12 @@ $(document).ready(function() {
         width: '650px'
     });
 
+    $("#div_respuesta_mde").dialog({
+        autoOpen: false,
+        modal: true,
+        width: '650px'
+    });
+
 });
 
 //guarda los cambios para poder firmar
@@ -42,7 +48,7 @@ function guardarCambiosParaFirmar() {
     var tipoPlantilla = $('input:radio[name=tipoPlantilla]:checked').val();
     var tipo_envio = $('input:radio[name=tipo_envio]:checked').val();
 
-    console.log("usa plantilla ?: " + usarPlantillaSINO);
+    //console.log("usa plantilla ?: " + usarPlantillaSINO);
 
 
     //destinatarios a eliminar
@@ -69,6 +75,7 @@ function guardarCambiosParaFirmar() {
     var arrayCargoDestinatario = [];
     var arrayMiTipo = [];
     var arrayMiNombreDes = [];
+    var arrayMiMedioEnvio = [];
 
     for (var i = 0; i < rutDestinatario.length; i++) {
         arrayDestinatario[i] = rutDestinatario[i].value + '_';
@@ -77,10 +84,11 @@ function guardarCambiosParaFirmar() {
         arrayCorreo[i] = $("#miCorreo_" + rutDestinatario[i].value).val() + '_';
         arrayMiTipo[i] = $("#miTipo_" + rutDestinatario[i].value).val() + '_';
         arrayMiNombreDes[i] = $("#miNombreDes_" + rutDestinatario[i].value).val() + '_';
+        arrayMiMedioEnvio[i] = $("#miMedioEnvio_" + rutDestinatario[i].value).val() + '_';
 
-        console.log("destinatario:" + arrayDestinatario[i]);
-        console.log("rut destinatario: " + rutDestinatario[i].value);
-        console.log("correoooo : " + arrayCorreo[i]);
+        //console.log("destinatario:" + arrayDestinatario[i]);
+        //console.log("rut destinatario: " + rutDestinatario[i].value);
+        //console.log("correoooo : " + arrayCorreo[i]);
     }
 
 
@@ -94,6 +102,7 @@ function guardarCambiosParaFirmar() {
     var arrayCargoCopia = [];
     var arrayMiTipoCopia = [];
     var arrayMiNombreDesCopia = [];
+    var arrayMiMedioEnvioCopia = [];
 
     for (var x = 0; x < rutCopia.length; x++) {
         arrayCopia[x] = rutCopia[x].value + '_';
@@ -102,6 +111,8 @@ function guardarCambiosParaFirmar() {
         arrayCopiaCorreo[x] = $("#miCopiaCorreo_" + rutCopia[x].value).val() + '_';
         arrayMiTipoCopia[x] = $("#miTipoCopia_" + rutCopia[x].value).val() + '_';
         arrayMiNombreDesCopia[x] = $("#miNombreDesCopia_" + rutCopia[x].value).val() + '_';
+        arrayMiMedioEnvioCopia[x] = $("#miMedioEnvioCopia_" + rutCopia[x].value).val() + '_';
+
         //console.log("rut copia: " + rutCopia[x].value);
         //console.log("Cargo CC: " + arrayCargoCopia[x]);
     }
@@ -173,7 +184,8 @@ function guardarCambiosParaFirmar() {
     formData.append("p_arrayDestinatarioE", arrayDestinatarioE);
     formData.append("p_arrayDestinatarioCE", arrayDestinatarioCE);
 
-
+    formData.append("p_arrayMiMedioEnvio", arrayMiMedioEnvio);
+    formData.append("p_arrayMiMedioEnvioCopia", arrayMiMedioEnvioCopia);
 
     //accion modificar 
     if (errores > 0) {
@@ -208,9 +220,8 @@ function guardarCambiosParaFirmar() {
 
 
 
-
 //ml: INICIAMOS ACCION DE FIRMAR DESDE EL FORMULARIO DE MODIFICAR CERTIFICADO
-function accionInicioFirmar() {
+function accionFirmarCertificado() {
     console.log("INICIAMOS ACCION DE FIRMAR DESDE EL FORMULARIO DE MODIFICAR CERTIFICADO");
 
     $.ajax({
@@ -241,13 +252,11 @@ function accionInicioFirmar() {
     });
 
 
-
-
 }
 
-//ml:firmamos el certificado
-function accionFirmarCertificado() {
-    console.log("Accionamos la Firma del certificado");
+//ml:quiero firmar el certificado desde el modal
+function quieroFirmarCertificado() {
+    alert("Accionamos la Firma del certificado");
     var miPassword = document.getElementById('password_equipo').value;
     var miFirma = document.getElementById('tipo_firma').value;
 
@@ -267,16 +276,15 @@ function accionFirmarCertificado() {
         url: 'index.php?pagina=paginas.firmar_certificado&funcion=fun_accion_firmar_certificado',
         type: 'post',
         success: function(html) {
-
             console.log("IDENTIFICAMOS CERTIFICADO :: " + html);
-
-            //callback_gral("index.php?pagina=paginas.firmar_certificado&funcion=prueba");
             if (html == 'OK') {
+                console.log("QUEREMOS FIRMAR CON CUERPO");
                 fun_firmar_con_cuerpo();
             } else if (html == 'OK1') {
+                console.log("QUEREMOS FIRMAR CON ADJUNTO");
                 fun_firmar_con_adjunto();
             } else {
-                alert("ERROR: PROBLEMAS AL TRATAR DE GENERAR LA FIRMA EN EL CERTIFICADO.");
+                alert("ERROR 001: PROBLEMAS AL TRATAR DE GENERAR LA FIRMA EN EL CERTIFICADO.");
             }
         },
         cache: false,
@@ -294,10 +302,16 @@ function accionFirmarCertificado() {
 
 }
 
+
+//firmar certificado en caso que sea desde el cuerpo
 function fun_firmar_con_cuerpo() {
-    //callback_gral("index.php?pagina=paginas.firmar_certificado&funcion=fun_firmar_con_cuerpo");
+
+    var tipo_envio = $('input:radio[name=tipo_envio]:checked').val();
 
     $.ajax({
+        data: {
+            medio_envio: tipo_envio
+        },
         url: 'index.php?pagina=paginas.firmar_certificado&funcion=fun_firmar_con_cuerpo',
         type: 'post',
         success: function(html) {
@@ -315,11 +329,17 @@ function fun_firmar_con_cuerpo() {
 
 }
 
-
+//firmar certificado en caso que sea desde un adjunto
 function fun_firmar_con_adjunto() {
-    //callback_gral("index.php?pagina=paginas.firmar_certificado&funcion=fun_firmar_con_adjunto");
+
+    console.log("PASO :: ESTAMOS EN fun_firmar_con_adjunto");
+
+    var tipo_envio = $('input:radio[name=tipo_envio]:checked').val();
 
     $.ajax({
+        data: {
+            medio_envio: tipo_envio
+        },
         url: 'index.php?pagina=paginas.firmar_certificado&funcion=fun_firmar_con_adjunto',
         type: 'post',
         success: function(html) {
@@ -339,26 +359,17 @@ function fun_firmar_con_adjunto() {
 
 }
 
+
+//
+
+
+
 function cancelar_firmar() {
     $("#div_firmar_certificado").dialog('close');
 }
 
-function cerrar_modal_eliminar() {
-    $("#div_eliminar_certificado").dialog('close');
-}
-
-//ml: cerramos modal de respuesta eliminar y volvemos a grilla 
-function cerrar_modal_eliminarOK() {
-    //cerramos el modal
-    $("#div_respuesta_eliminar").dialog('close');
-
-    //volvemos a la grilla
-    window.opener.href = "/intranet/aplic/wf/bandejaEntradaV2.php?p_procesos=0";
-
-    window.close();
 
 
-}
 
 function accionBtnFormEnviaraAVB() {
     //mostramos modal ENVIAR A VISTO BUENO
@@ -1400,5 +1411,459 @@ function eliminarCertificado() {
             }
         }
     });
+
+}
+
+
+
+//||||||||||||||||||||||||||||||||||||||||||||||||||||||||| MEDIO DE ENVIO 
+
+//iniciamos la firma del certificado
+function accionInicioFirmar() {
+
+    var tipo_envio = $('input:radio[name=tipo_envio]:checked').val();
+    if (tipo_envio == 'noen') { //para medio de envio NO SE ENVIA
+        //console.log("USTED SELECCIONO LA OPCION NO SE ENVIA como medio de envio, por lo tanto solo se firma");
+        accionFirmarCertificado(); //firmamos certificado sin envio  
+    } else {
+        //validamos medio de envio antes de firmar certificado 
+        //console.log("IDENTIFICAMOS EL OTRO MEDIO DE ENVIO, distinto a NO SE ENVIA");
+        identificarOtroMedioEnvio(tipo_envio);
+
+    }
+}
+
+//ml: funcion para validar metodo de envio al firmar
+function identificarOtroMedioEnvio(tipo_envio) {
+
+    //console.log("IDENTIFICAMOS EL OTRO MEDIO DE ENVIO");
+    if (tipo_envio == 'elect') {
+        //console.log("USTED SELECCIONO LA OPCION MEDIO DE ENVIO ELECTRONICO");
+        medioEnvioElectronico();
+    } else {
+        //console.log("USTED SELECCIONO LA OPCION MEDIO DE ENVIO MANUAL");
+        medioEnvioManual();
+    }
+}
+
+
+//iniciamos la validacion para el medio de envio manual
+function medioEnvioManual() {
+    console.log("INICIAMOS VALIDACION MEDIO DE ENVIO MANUAL");
+
+    $.ajax({
+        url: 'index.php?pagina=paginas.modificar_docto&funcion=fun_verificar_exiten_cambios',
+        type: 'post',
+        success: function(html) {
+
+            errores = validarErroresFormulario();
+            if (errores > 0) {
+                callback_gral("index.php?pagina=paginas.modificar_docto&funcion=fun_respuesta", {
+                    errores: errores,
+                    respuesta: 'NOK'
+                });
+            } else {
+
+                //alert(html);
+                if (html == 'SI') {
+                    //console.log("PASO 2 :: EXISTEN CAMBIOS, se procede a guardar los cambios");
+                    var opcion = confirm("Usted tiene cambios pendientes , ¿Desea guardar los cambios?");
+                    if (opcion == true) {
+                        /*
+                          1.- Aqui hay que guardar los nuevos cambios [OK]
+                          2.- Hay que validar el tipo de envio electronico [OK]
+                          3.- Hay que firmar [OK]
+                    
+                         */
+
+                        formData = obtenerDataParaFirmar();
+                        inicioGuardarCambiosRealizados(formData, 'manual'); //guardamos los cambios y chequeamos medio de envio
+
+                    } else {
+                        /*
+                          1. -No se toman en cuenta los cambios
+                          2.- Hay que validar el tipo de envio electronico 
+                          3.- Hay que firmar
+                         */
+
+                        //console.log("PASO 3 :: no se toma en cuenta los cambios , se valida envio electronico y se procede a firmar");
+                        chequearMedioManual();
+                    }
+
+                } else {
+                    /*  
+                        1.- Hay que validar el tipo de envio electronico 
+                        2.- Hay que firmar
+                        */
+                    //console.log("PASO 2 :: NO EXISTEN CAMBIOS , se valida envio electronico , se firma");
+                    chequearMedioManual();
+                }
+
+            }
+
+
+        }
+    });
+
+
+}
+
+
+
+//iniciamos la validacion para el medio de envio electronico
+function medioEnvioElectronico() {
+    //console.log("PASO 1 :: INICIAMOS VALIDACION MEDIO DE ENVIO ELECTRONICO");
+    //validamos si hay cambios 
+    $.ajax({
+        url: 'index.php?pagina=paginas.modificar_docto&funcion=fun_verificar_exiten_cambios',
+        type: 'post',
+        success: function(html) {
+
+            errores = validarErroresFormulario();
+            if (errores > 0) {
+                callback_gral("index.php?pagina=paginas.modificar_docto&funcion=fun_respuesta", {
+                    errores: errores,
+                    respuesta: 'NOK'
+                });
+            } else {
+
+                //alert(html);
+                if (html == 'SI') {
+                    //console.log("PASO 2 :: EXISTEN CAMBIOS, se procede a guardar los cambios");
+                    var opcion = confirm("Usted tiene cambios pendientes , ¿Desea guardar los cambios?");
+                    if (opcion == true) {
+                        /*
+                          1.- Aqui hay que guardar los nuevos cambios [OK]
+                          2.- Hay que validar el tipo de envio electronico [OK]
+                          3.- Hay que firmar [OK]
+                    
+                         */
+
+                        formData = obtenerDataParaFirmar();
+                        inicioGuardarCambiosRealizados(formData, 'electronico'); //guardamos los cambios y chequeamos medio de envio
+
+                    } else {
+                        /*
+                          1. -No se toman en cuenta los cambios
+                          2.- Hay que validar el tipo de envio electronico 
+                          3.- Hay que firmar
+                         */
+
+                        //console.log("PASO 3 :: no se toma en cuenta los cambios , se valida envio electronico y se procede a firmar");
+                        chequearMedioElectronico();
+                    }
+
+                } else {
+                    /*  
+                        1.- Hay que validar el tipo de envio electronico 
+                        2.- Hay que firmar
+                        */
+                    //console.log("PASO 2 :: NO EXISTEN CAMBIOS , se valida envio electronico , se firma");
+                    chequearMedioElectronico();
+                }
+
+            }
+
+
+        }
+    });
+
+
+}
+
+//guardamos los cambios y validamos medio electronico
+function inicioGuardarCambiosRealizados(formData, medioEnvio) {
+
+    $.ajax({
+        data: formData,
+        url: 'index.php?pagina=paginas.modificar_docto&funcion=fun_modificar_certificado',
+        type: 'post',
+        success: function(html) {
+            console.log("RESPUESTA ACCION ACTUALIZAR: " + html);
+            if (html == 'OK') {
+
+                console.log("PASO :: Se guardaron los cambios ahora hay que validar medio electronico");
+                if (medioEnvio == 'electronico') {
+                    chequearMedioElectronico();
+                } else if (medioEnvio == 'manual') {
+                    chequearMedioManual();
+                } else {
+                    alert("ERROR: EL MEDIO DE ENVIO NO EXISTE.");
+                }
+
+
+            } else {
+                alert("ERROR: Al intentar guardar los nuevos cambios.");
+            }
+        },
+        cache: false,
+        contentType: false,
+        processData: false
+    });
+
+
+}
+
+
+function chequearMedioManual() {
+
+    //alert("AQUI CHEQUEAMOS EL MEDIO DE ENVIO MANUAL");
+
+    $.ajax({
+        url: 'index.php?pagina=paginas.modificar_docto&funcion=fun_validar_medio_manual',
+        type: 'post',
+        success: function(html) {
+
+            if (html == 'OK') {
+                //aqui procedemos a firmar , mostramos el modal para firmar
+                //console.log("SE VALIDARON LOS CAMBIOS SE PROCEDE A FIRMAR");
+                callback_gral("index.php?pagina=paginas.modificar_docto&funcion=fun_mostrar_modal_firmar");
+            } else {
+
+                //console.log("ERROR :: No puede firmar, no paso la validacion para el medio de envio manual.");
+                callback_gral("index.php?pagina=paginas.modificar_docto&funcion=fun_respuesta_mde", {
+                    medio_envio: 'manual'
+                });
+            }
+        }
+    });
+
+}
+
+
+
+//chequeamos medio electronico para poder firmar
+function chequearMedioElectronico() {
+
+    //realizamos la validacion medio de envio electronico
+    $.ajax({
+        url: 'index.php?pagina=paginas.modificar_docto&funcion=fun_validar_medio_electronico',
+        type: 'post',
+        success: function(html) {
+
+            if (html == 'OK') {
+                //alert("SE VALIDARON LOS CAMBIOS SE PROCEDE A FIRMAR");
+                //aqui procedemos a firmar , mostramos el modal para firmar
+                callback_gral("index.php?pagina=paginas.modificar_docto&funcion=fun_mostrar_modal_firmar");
+            } else {
+                callback_gral("index.php?pagina=paginas.modificar_docto&funcion=fun_respuesta_mde", {
+                    medio_envio: 'electronico'
+                });
+            }
+        }
+    });
+
+}
+
+
+
+// no se esta ocupando aun
+//obtener data para firmar
+function obtenerDataParaFirmar() {
+
+    var dato_archivo = $('#archivoInput').prop("files")[0];
+    var dato3 = CKEDITOR.instances.certificado_divCuerpo.getData();
+
+
+
+    var datosensibleSINO = $('input:radio[name=datosensibleSINO]:checked').val();
+    var privacidadTipo = $('input:radio[name=privacidadTipo]:checked').val();
+    var padre = $("#padre").val();
+    var wf = $("#wf").val();
+    var tipo = $("#tipo").val();
+    var usarPlantillaSINO = $('input:radio[name=usarPlantillaSINO]:checked').val();
+    var tipoPlantilla = $('input:radio[name=tipoPlantilla]:checked').val();
+    var tipo_envio = $('input:radio[name=tipo_envio]:checked').val();
+
+    //console.log("usa plantilla ?: " + usarPlantillaSINO);
+
+
+    //destinatarios a eliminar
+    var rutDestinatarioE = document.getElementsByClassName("miDestinatarioE"),
+        arrayDestinatarioE = [];
+    for (var x = 0; x < rutDestinatarioE.length; x++) {
+        arrayDestinatarioE[x] = rutDestinatarioE[x].value + '_';
+        console.log("Usted quiere eliminar este Destinatario: " + arrayDestinatarioE[x]);
+    }
+    //destinatario copia a eliminar
+    var rutDestinatarioCE = document.getElementsByClassName("miDestinatarioCE"),
+        arrayDestinatarioCE = [];
+    for (var x = 0; x < rutDestinatarioCE.length; x++) {
+        arrayDestinatarioCE[x] = rutDestinatarioCE[x].value + '_';
+        console.log("Usted quiere eliminar este Destinatario Copia: " + arrayDestinatarioCE[x]);
+    }
+
+
+
+    var arrayCorreo = [];
+    var arrayDireccion = [];
+    var rutDestinatario = document.getElementsByClassName("miDestinatario"),
+        arrayDestinatario = [];
+    var arrayCargoDestinatario = [];
+    var arrayMiTipo = [];
+    var arrayMiNombreDes = [];
+    var arrayMiMedioEnvio = [];
+
+    for (var i = 0; i < rutDestinatario.length; i++) {
+        arrayDestinatario[i] = rutDestinatario[i].value + '_';
+        arrayCargoDestinatario[i] = $("#input_cargoFiscalizadoLista_" + rutDestinatario[i].value).val() + '_';
+        arrayDireccion[i] = $("#miDireccion_" + rutDestinatario[i].value).val() + '_';
+        arrayCorreo[i] = $("#miCorreo_" + rutDestinatario[i].value).val() + '_';
+        arrayMiTipo[i] = $("#miTipo_" + rutDestinatario[i].value).val() + '_';
+        arrayMiNombreDes[i] = $("#miNombreDes_" + rutDestinatario[i].value).val() + '_';
+        arrayMiMedioEnvio[i] = $("#miMedioEnvio_" + rutDestinatario[i].value).val() + '_';
+
+        //console.log("destinatario:" + arrayDestinatario[i]);
+        //console.log("rut destinatario: " + rutDestinatario[i].value);
+        //console.log("correoooo : " + arrayCorreo[i]);
+    }
+
+
+
+    var miCopiaCorreo = document.getElementsByClassName("miCopiaCorreo"),
+        arrayCopiaCorreo = [];
+    var direccionCopia = document.getElementsByClassName("miCopiaDireccion"),
+        arrayCopiaDireccion = [];
+    var rutCopia = document.getElementsByClassName("miCopia"),
+        arrayCopia = [];
+    var arrayCargoCopia = [];
+    var arrayMiTipoCopia = [];
+    var arrayMiNombreDesCopia = [];
+    var arrayMiMedioEnvioCopia = [];
+
+    for (var x = 0; x < rutCopia.length; x++) {
+        arrayCopia[x] = rutCopia[x].value + '_';
+        arrayCargoCopia[x] = $("#input_cargoFiscalizadoLista_" + rutCopia[x].value).val() + '_';
+        arrayCopiaDireccion[x] = $("#miCopiaDireccion_" + rutCopia[x].value).val() + '_';
+        arrayCopiaCorreo[x] = $("#miCopiaCorreo_" + rutCopia[x].value).val() + '_';
+        arrayMiTipoCopia[x] = $("#miTipoCopia_" + rutCopia[x].value).val() + '_';
+        arrayMiNombreDesCopia[x] = $("#miNombreDesCopia_" + rutCopia[x].value).val() + '_';
+        arrayMiMedioEnvioCopia[x] = $("#miMedioEnvioCopia_" + rutCopia[x].value).val() + '_';
+
+        //console.log("rut copia: " + rutCopia[x].value);
+        //console.log("Cargo CC: " + arrayCargoCopia[x]);
+    }
+
+
+
+    var formData = new FormData();
+
+    formData.append("file", dato_archivo);
+    formData.append("p_cuerpo", dato3);
+    formData.append("p_usarPlantillaSINO", usarPlantillaSINO);
+
+    formData.append("p_datosensibleSINO", datosensibleSINO);
+    formData.append("p_privacidadTipo", privacidadTipo);
+    formData.append("p_padre", padre);
+    formData.append("p_wf", wf);
+    formData.append("p_tipo", tipo);
+
+    formData.append("p_tipo_envio", tipo_envio);
+
+    //data destinatario
+    formData.append("p_arrayDestinatario", arrayDestinatario);
+    formData.append("p_arrayCargoDestinatario", arrayCargoDestinatario);
+    formData.append("p_arrayDireccion", arrayDireccion);
+    formData.append("p_arrayCorreo", arrayCorreo);
+    formData.append("p_arrayMiTipo", arrayMiTipo);
+    formData.append("p_arrayMiNombreDes", arrayMiNombreDes);
+
+
+    //data destinatario copia
+    formData.append("p_arrayCopia", arrayCopia);
+    formData.append("p_arrayCargoCopia", arrayCargoCopia);
+    formData.append("p_arrayCopiaCorreo", arrayCopiaCorreo);
+    formData.append("p_arrayMiTipoCopia", arrayMiTipoCopia);
+    formData.append("p_arrayCopiaDireccion", arrayCopiaDireccion);
+    formData.append("p_arrayMiNombreDesCopia", arrayMiNombreDesCopia);
+
+
+    //data destinatario a eliminar
+    formData.append("p_arrayDestinatarioE", arrayDestinatarioE);
+    formData.append("p_arrayDestinatarioCE", arrayDestinatarioCE);
+
+    formData.append("p_arrayMiMedioEnvio", arrayMiMedioEnvio);
+    formData.append("p_arrayMiMedioEnvioCopia", arrayMiMedioEnvioCopia);
+
+
+
+    return formData;
+
+
+
+}
+
+
+// no se esta ocupando aun
+//verificamos si existen errores
+function validarErroresFormulario() {
+
+    $("#errorTipoEnvio").css("display", "none");
+    $("#errorPrivacidad").css("display", "none");
+    $("#errorDatosSensibles").css("display", "none");
+
+
+    var errores = 0;
+    var datosensibleSINO = $('input:radio[name=datosensibleSINO]:checked').val();
+    var privacidadTipo = $('input:radio[name=privacidadTipo]:checked').val();
+    var tipo_envio = $('input:radio[name=tipo_envio]:checked').val();
+
+
+    //validamos tipos de envios
+    if (!tipo_envio) {
+        $("#errorTipoEnvio").css("display", "block");
+        errores++;
+    }
+    //validamos datos sensibles
+    if (!datosensibleSINO) {
+        //console.log("NO definido //" + datosensibleSINO + "//" + privacidadTipo);
+        $("#errorDatosSensibles").css("display", "block");
+        errores++;
+    }
+    //validamos  seleccion de tipo privacidad    
+    if (!privacidadTipo) {
+        //console.log("NO definido //" + datosensibleSINO + "//" + privacidadTipo);
+        $("#errorPrivacidad").css("display", "block");
+        errores++;
+    }
+
+
+    return errores;
+
+}
+
+
+
+
+
+
+
+
+
+// ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+// ||||||||||||||||||||||||||||||||||  MODAL VARIOS |||||||||||||||||||||||||||||||||||||||
+// ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+
+
+function cerrar_modal_eliminar() {
+    $("#div_eliminar_certificado").dialog('close');
+}
+
+//ml: cerramos modal de respuesta eliminar y volvemos a grilla 
+function cerrar_modal_eliminarOK() {
+    //cerramos el modal
+    $("#div_respuesta_eliminar").dialog('close');
+
+    //volvemos a la grilla
+    window.opener.href = "/intranet/aplic/wf/bandejaEntradaV2.php?p_procesos=0";
+    window.close();
+
+
+}
+
+//ml: cerramos modal de respuesta eliminar y volvemos a grilla 
+function cerrar_modal_MensajeErrorMedioEnvio() {
+    //cerramos el modal
+    $("#div_respuesta_mde").dialog('close');
 
 }

@@ -62,6 +62,7 @@
         });
 
 
+
         $("#div_paraModificar").css("display", "none");
         //$("#div_pregunta_usa_plantilla").css("display", "none");
         //$("#div_opciones_usa_plantilla").css("display", "none");
@@ -109,7 +110,7 @@
 
     function fun_modificar_cuerpo_old(opcion) {
 
-        console.log("aaa la opcion es :" + opcion);
+        //console.log("aaa la opcion es :" + opcion);
         //$('input[id=usarPlantillaNO]').attr('checked', true);
         $("input[name=usarPlantillaSINO][value='NO']").prop("checked", true);
 
@@ -608,7 +609,21 @@
             <button class="btn btn-warning" type="button" id="BtnEliminarOK" name="BtnEliminarOK" onclick="cerrar_modal_eliminarOK()">OK</button>
         </div>
     </div>
-    <!-- 	END: div_respuesta_eliminar -->
+    <!-- END: div_respuesta_eliminar -->
+</div>
+
+<div id="div_respuesta_mde" title="Atención" class="ui-widget">
+    <!-- BEGIN: div_respuesta_mde -->
+
+    <div class="form-group row">
+        <div class="col-sm-12">
+            <label class='seleccionaPdf' for='MensajeErrorMedioEnvio'>{mensaje_medio_envio}</label><br>
+        </div>
+        <div class="col-sm-6" style="text-align: center;">
+            <button class="btn btn-warning" type="button" id="BtnCerrarMensajeMDE" name="BtnCerrarMensajeMDE" onclick="cerrar_modal_MensajeErrorMedioEnvio()">OK</button>
+        </div>
+    </div>
+    <!-- END: div_respuesta_mde -->
 </div>
 
 
