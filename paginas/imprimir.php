@@ -3,7 +3,7 @@
 error_reporting(E_ERROR | E_WARNING | E_PARSE);
 ini_set("display_errors", 1); 
 
-
+require 'class/mostrarDocumento.class.php';
 
 class imprimir extends Pagina{
 
@@ -13,13 +13,19 @@ class imprimir extends Pagina{
 
     public function main(){	
 
-        //var_dump($_POST);exit();
+        //var_dump($_GET['caso']);exit();
 
+        $verDocumento = new verDocumento();
+        //echo $verDocumento->getUrl('2022051463510');
+        //exit();
 
-        $wf = 459229;
+        $wf = $_GET['caso'];
         $tipo = 'certificado';
+        $url_certificado = $verDocumento->getUrl($wf);
         $certificado_uv = $this->fun_listar_ultima_version($wf,$tipo);
         $version = $certificado_uv[0]['DOC_VERSION'];
+
+        
 
         //echo "<pre>";var_dump($certificado_uv);echo "</pre>";
         //$this->ULTIMA_VERSION = $certificado_uv[0]['DOC_VERSION'];
@@ -30,7 +36,7 @@ class imprimir extends Pagina{
                                     <td>'.$certificado_uv[0]['GDE_TIPOS_DOCUMENTO_TIPDOC_ID'].'</td>
                                     <td>'.$certificado_uv[0]['DOC_SGD'].'</td>
                                     <td>'.$certificado_uv[0]['DOC_FOLIO'].'</td>
-                                    <td>Ver Documento</td>
+                                    <td><a href="'.$url_certificado.'" target="_blank">Ver Documento</a></td>
                                 </tr>'; 
      
 
@@ -135,6 +141,52 @@ class imprimir extends Pagina{
                 }    
                 
         return $resCertificado;
+    }
+
+
+     //ml: obtenemos el tipo de documento
+     public function fun_get_tipo_documento($gde_tipdoc_id){
+        
+        $bindTipo =  array(
+            ":p_tipo_doc_id" => $gde_tipdoc_id 
+        );
+        $cursor = $this->_ORA->retornaCursor("GDE.GDE_TIPO_DOCUMENTO_PKG.FUN_TIPO_DOCUMENTO_GET",'function', $bindTipo);
+        if ($cursor) {
+            while($tipo = $this->_ORA->FetchArray($cursor)){ 
+                
+                $tipo['TIPDOC_ID']=$tipo['TIPDOC_ID'];
+                $tipo['TIPDOC_GRABA_SDG']=$tipo['TIPDOC_GRABA_SDG'];
+                $tipo['TIPDOC_USA_PLANTILLA']=$tipo['TIPDOC_USA_PLANTILLA'];
+                $tipo['TIPDOC_SUBE_PDF']=$tipo['TIPDOC_SUBE_PDF'];
+                $tipo['TIPDOC_TIPO_DOCTO_SGD']=$tipo['TIPDOC_TIPO_DOCTO_SGD'];
+                $tipo['TIPDOC_SELECCIONA_PRIV']=$tipo['TIPDOC_SELECCIONA_PRIV'];
+                $tipo['TIPDOC_TIENE_ADJ']=$tipo['TIPDOC_TIENE_ADJ'];
+                $tipo['TIPDOC_TIENE_DEST']=$tipo['TIPDOC_TIENE_DEST'];
+                $tipo['TIPDOC_CIERRA_CASO']=$tipo['TIPDOC_CIERRA_CASO'];
+                $tipo['TIPDOC_AVANZA_ROL']=$tipo['TIPDOC_AVANZA_ROL'];
+                $tipo['TIPDOC_CIERRA_PADRE']=$tipo['TIPDOC_CIERRA_PADRE'];
+                $tipo['TIPDOC_TIENE_NUMERACION']=$tipo['TIPDOC_TIENE_NUMERACION'];
+                $tipo['TIPDOC_TIENE_FECHA']=$tipo['TIPDOC_TIENE_FECHA'];
+                $tipo['TIPDOC_FUNCION_NUMERACION']=$tipo['TIPDOC_FUNCION_NUMERACION'];
+                $tipo['TIPDOC_TIENE_FECHA']=$tipo['TIPDOC_TIENE_FECHA'];
+                $tipo['TPDOC_TIENE_VALIDADOR']=$tipo['TPDOC_TIENE_VALIDADOR'];
+                $tipo['TIPDOC_POSICION_X_NUM']=$tipo['TIPDOC_POSICION_X_NUM'];
+                $tipo['TIPDOC_POSICION_Y_NUM']=$tipo['TIPDOC_POSICION_Y_NUM'];
+                $tipo['TIPDOC_TITULO']=$tipo['TIPDOC_TITULO'];
+                $tipo['TIPDOC_LABEL_NUMERO']=$tipo['TIPDOC_LABEL_NUMERO'];
+                $tipo['TIPDOC_NUM_PROC']=$tipo['TIPDOC_NUM_PROC'];
+                $tipo['TIPDOC_TIENE_ENV']=$tipo['TIPDOC_TIENE_ENV'];
+                $tipo['TIPDOC_APFIRMA']=$tipo['TIPDOC_APFIRMA'];
+    
+    
+              $res_tipo[]=$tipo;
+    
+            }			
+            $this->_ORA->FreeStatement($cursor);
+        }  
+        
+        return $res_tipo;
+    
     }
 
 

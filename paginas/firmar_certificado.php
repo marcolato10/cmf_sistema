@@ -591,15 +591,9 @@ class firmar_certificado extends Pagina{
                                 
                                 //echo "El documento fué firmado con éxito y se adjuntó al expediente.";
                                 
-
-
-
-                                //||||||||||||||||||||||||||||||||||||||||||||||||||  descometar despues de las prueba
+                                
                                 $numeroSGD = $this->grabarSGD($firmado);               
-                                         
-                                unlink($archivoParaFirmar);
-
-                              
+                                
                                 if($numeroSGD != ""){
             
                                     //print_r("ENTRO A LA BITACORA");
@@ -615,9 +609,10 @@ class firmar_certificado extends Pagina{
                                     $this->fun_agregar_quien_firma($numeroSGD);
                                     
                                     //AQUI DEBERIA NOTIFICAR LOS ENVIOS |||||||||||||||||mlatorre
-                                    $this->fun_notificar_envios($medio_envio,$documento); 
+                                    $this->fun_notificar_envios($medio_envio,$documento,$numeroSGD); 
                                 }
                                 
+                                unlink($archivoParaFirmar);
                                 $this->_ORA->Commit();
                                 return $numeroSGD;          
                                 exit();
@@ -657,7 +652,7 @@ class firmar_certificado extends Pagina{
     }
 
     //ml: aqui notificamos los envios a los dstinatarios correspondiente
-    public function fun_notificar_envios($medio_envio,$ruta_certificado){
+    public function fun_notificar_envios($medio_envio,$ruta_certificado,$numeroSGD){
 
         //var_dump($medio_envio);
 
@@ -692,12 +687,12 @@ class firmar_certificado extends Pagina{
                           
                         
                         //AQUI VOY :: FUNCIONA PERO NO RETORNA ID
-                        $id_correo = $this->fun_enviar_correo_notificacion($dest['DIS_CORREO'],$ruta_certificado,$dest['DIS_NOMBRE']);
+                        $id_correo = $this->fun_enviar_correo_notificacion($dest['DIS_CORREO'],$ruta_certificado,$dest['DIS_NOMBRE'],$numeroSGD);
                         
 
                         //DESCOMENTAR CUANDO SOLUCIONE EL TEMA DEL ID DEL CORREO    
                         //echo "<pre>";var_dump($id_correo);echo "</pre>";    
-                        //$this->fun_agregar_correo_envio($id_correo,$dest['DIS_SECUENCIA']);
+                        $this->fun_agregar_correo_envio($id_correo,$dest['DIS_SECUENCIA']);
 
                         
                     }
@@ -763,11 +758,16 @@ class firmar_certificado extends Pagina{
 
 
     //ml: enviamos correo de notificacion con certificado adjunto ||| REVISAR NO FUNCIONA
-    public function fun_enviar_correo_notificacion($email_destino,$ruta_pdf,$destinatario){
+    public function fun_enviar_correo_notificacion($email_destino,$ruta_pdf,$destinatario,$numeroSGD){
 
         $numero_cer = $this->_SESION->getVariable("NUMERO_CER");   
         $fecha_cer = $this->_SESION->getVariable("FECHA_CER");    
         $correo = new Correo();
+
+        $tipo_certificado = $this->_SESION->getVariable('TIPO_CERTIFICADO');
+        $resultado_tipo = $this->fun_get_tipo_documento($tipo_certificado);
+        $label_certificado = $resultado_tipo[0]['TIPDOC_LABEL_NUMERO'];
+
 
         $correo->ORA = $this->_ORA;
         $correo->DESDE = 'noresponder@svs.cl';
@@ -775,17 +775,19 @@ class firmar_certificado extends Pagina{
 
         $correo->ASUNTO = 'PRUEBA Envio documento '.$numero_cer; //XXXXX => CER:xxx    
         $correo->TEXTO = 'Estimado (a) '.$destinatario.'
-        Con fecha '.$fecha_cer.', esta Comisión hace envío del documento adjunto XXXXXX
+        Con fecha '.$fecha_cer.', esta Comisión hace envío del documento adjunto '.$label_certificado.' '.$numero_cer.'
         Atentamente, Comisión para el Mercado Financiero.';
 
         $correo->APLIC = 'PUGDE';
         $correo->ADJUNTO = true;        
         $correo->setPara($email_destino);
         $correo->setCopiaOculta('culloa@svs.cl');
-        //$correo->setAdjunto($ruta_pdf,'{SGD}.pdf');
-        $ID = $correo->enviar();
+        $correo->setAdjunto($ruta_pdf,$numeroSGD.'.pdf');
+        $correo->enviar();
         
-        return $ID; 
+        //var_dump();exit();
+
+        return $correo->ID_CORREO; 
 
         
 
