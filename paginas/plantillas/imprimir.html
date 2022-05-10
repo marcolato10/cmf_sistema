@@ -9,7 +9,7 @@
             <fieldset class="fieldset">
                 <legend class="legend">Forma de despacho : Carta certificada, Electrónica </legend>
                 <div class="sec1Destinatario">
-                    <table class="table">
+                    <table class="table" border="1">
                         <thead>
                             <tr>
                                 <th scope="col">Fecha</th>
@@ -20,13 +20,9 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <th scope="row">1</th>
-                                <td>Mark</td>
-                                <td>Otto</td>
-                                <td>@mdo</td>
-                                <td>Ver Documento</td>
-                            </tr>
+                            <!-- BEGIN: table_certificado -->
+                            {listar_certificado}
+                            <!-- END: table_certificado -->
                         </tbody>
                     </table>
                 </div>
@@ -37,7 +33,7 @@
             <fieldset class="fieldset">
                 <legend class="legend">Destinatario</legend>
                 <div class="sec1Destinatario">
-                    <table class="table">
+                    <table class="table" border="1">
                         <thead>
                             <tr>
                                 <th scope="col">Destinatario</th>
@@ -46,11 +42,9 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td>xxxxx</td>
-                                <td>xxxxx</td>
-                                <td>xxxxx</td>
-                            </tr>
+                            <!-- BEGIN: table_destinatarios -->
+                            {lista_destinatarios}
+                            <!-- END: table_destinatarios -->
                         </tbody>
                     </table>
                 </div>
@@ -61,7 +55,7 @@
             <div class="form-group row">
                 <div class="col-sm-3">&nbsp;</div>
                 <div class="col-sm-6" style="text-align: center;">
-                    <button class="btn btn-warning" type="button" id="BtnImprimir" name="BtnImprimir">&nbsp;Firmar&nbsp;</button> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    <button class="btn btn-warning" type="button" id="BtnImprimir" name="BtnImprimir">&nbsp;Imprimir Etiqueta&nbsp;</button> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                     <button class="btn btn-warning" type="button" id="BtnCancelarImprimir" name="BtnCancelarImprimir">Cancelar</button></div>
                 <div class="col-sm-3">&nbsp;</div>
             </div>
