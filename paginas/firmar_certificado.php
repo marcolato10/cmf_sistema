@@ -162,6 +162,7 @@ class firmar_certificado extends Pagina{
         $medio_envio = $_POST['medio_envio'];
         $numero = $this->fun_obtener_numero();
         $fecha = date('d/m/Y');
+        $this->_SESION->setVariable('FECHA_CER',$fecha);
         //var_dump("EL NUMERO ES :".$numero);exit();
 
         $RUTA = dirname (__FILE__)."/../img/logocmf.png";
@@ -248,7 +249,7 @@ class firmar_certificado extends Pagina{
         $medio_envio = $_POST['medio_envio'];
         $numero = $this->fun_obtener_numero();
         $fecha = date('d/m/Y');
-        
+        $this->_SESION->setVariable('FECHA_CER',$fecha);
         //var_dump("EL NUMERO ES :".$numero);exit();
 
         $PDF_ARC = $this->_SESION->getVariable('archivo_pdf_adjunto'); //binario
@@ -353,7 +354,8 @@ class firmar_certificado extends Pagina{
 
     //ml: obtenemos el numero de folio segun el el tipo de certificado
     public function fun_obtener_numero(){
-
+        $numero = 0;
+        $this->_SESION->setVariable("NUMERO_CER",$numero);
         $tipo_certificado = $this->_SESION->getVariable('TIPO_CERTIFICADO');
 
         $bind =  array(
@@ -361,6 +363,7 @@ class firmar_certificado extends Pagina{
         );
         
         $numero = $this->_ORA->ejecutaFunc("GDE.GDE_NROS_PKG.fun_getNroDocumento",$bind);	
+        $this->_SESION->setVariable("NUMERO_CER",$numero);
         return $numero;
     }
 
@@ -689,7 +692,7 @@ class firmar_certificado extends Pagina{
                           
                         
                         //AQUI VOY :: FUNCIONA PERO NO RETORNA ID
-                        $id_correo = $this->fun_enviar_correo_notificacion($dest['DIS_CORREO'],$ruta_certificado);
+                        $id_correo = $this->fun_enviar_correo_notificacion($dest['DIS_CORREO'],$ruta_certificado,$dest['DIS_NOMBRE']);
                         
 
                         //DESCOMENTAR CUANDO SOLUCIONE EL TEMA DEL ID DEL CORREO    
@@ -760,19 +763,19 @@ class firmar_certificado extends Pagina{
 
 
     //ml: enviamos correo de notificacion con certificado adjunto ||| REVISAR NO FUNCIONA
-    public function fun_enviar_correo_notificacion($email_destino,$ruta_pdf){
+    public function fun_enviar_correo_notificacion($email_destino,$ruta_pdf,$destinatario){
 
-        
+        $numero_cer = $this->_SESION->getVariable("NUMERO_CER");   
+        $fecha_cer = $this->_SESION->getVariable("FECHA_CER");    
         $correo = new Correo();
 
         $correo->ORA = $this->_ORA;
         $correo->DESDE = 'noresponder@svs.cl';
         $correo->DESDE_NOMBRE = 'Comisión para el Mercado Financiero';                                                                    
 
-        $correo->ASUNTO = 'PRUEBA Envio documento XXXXX'; //XXXXX => CER:xxx    
-
-        $correo->TEXTO = 'Estimado (a) xxxxxxx
-        Con fecha xxxxxx, esta Comisión hace envío del documento adjunto XXXXXX
+        $correo->ASUNTO = 'PRUEBA Envio documento '.$numero_cer; //XXXXX => CER:xxx    
+        $correo->TEXTO = 'Estimado (a) '.$destinatario.'
+        Con fecha '.$fecha_cer.', esta Comisión hace envío del documento adjunto XXXXXX
         Atentamente, Comisión para el Mercado Financiero.';
 
         $correo->APLIC = 'PUGDE';

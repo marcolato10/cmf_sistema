@@ -4075,7 +4075,8 @@ class modificar_docto extends Pagina{
    //validamos medio de envio electronico
    public function fun_validar_medio_electronico(){
 
-    
+    $sin_usuario = array();
+    $this->_SESION->setVariable('SIN_USUARIO_SEIL',$sin_usuario);
     
     $wf                 = $this->_SESION->getVariable("WF");
     $version            = $this->_SESION->getVariable("VERSION_CERTIFICADO");
@@ -4090,10 +4091,11 @@ class modificar_docto extends Pagina{
     $cursor = $this->_ORA->retornaCursor("GDE.GDE_DISTRIBUCION_PKG.fun_listar_distribucion_xme",'function', $bind);
     $registros =$this->_ORA->FetchAll($cursor);
 
+    
     $errores = 0;
 
     
-
+    $x=0;
     foreach($registros as $dest){
         
         if($dest['DIS_MEDIO_ENVIO'] == 'SEIL'){
@@ -4104,10 +4106,17 @@ class modificar_docto extends Pagina{
             //echo "<pre>";var_dump(count($data));echo "</pre>";
             if(count($data) == 0){
                 $errores++;
+                $sin_usuario['SIN_USUARIO'][$x]['RUT'] =  $dest['DIS_RUT'];
+                $sin_usuario['SIN_USUARIO'][$x]['DV'] =  $dest['DIS_DV'];
+                $sin_usuario['SIN_USUARIO'][$x]['NOMBRE'] =  $dest['DIS_NOMBRE']; 
+                $x++;
             }
         }
     }
     
+    $this->_SESION->setVariable('SIN_USUARIO_SEIL',$sin_usuario);
+    //echo "<pre>"; var_dump($sin_usuario);echo "</pre>";exit();
+
     if($errores > 0){
         //var_dump("HAY ERRORES");
         return 'NOK';//no paso la validacion , no se puede firmar
@@ -4121,6 +4130,9 @@ class modificar_docto extends Pagina{
   //validamos medio de envio manual
    public function fun_validar_medio_manual(){
 
+    $sin_direccion = array();
+    $this->_SESION->setVariable('SIN_DIRECCION_POSTAL',$sin_direccion);
+
     $wf                 = $this->_SESION->getVariable("WF");
     $version            = $this->_SESION->getVariable("VERSION_CERTIFICADO");
     $tipo_certificado   = $this->_SESION->getVariable("TIPO_CERTIFICADO");
@@ -4131,16 +4143,22 @@ class modificar_docto extends Pagina{
 
     //var_dump($wf."///".$version."///".$medio_envio);
     //var_dump($registros);exit();
-
+   
     $errores = 0;
+    $x=0;
     foreach($registros as $dest){
         if($dest['DIS_DIRECCION'] == 'undefine' or $dest['DIS_DIRECCION'] == null){
             $errores++;
-            //var_dump("hay errores");
+            $sin_direccion['SIN_DIRECCION_POSTAL'][$x]['RUT'] =  $dest['DIS_RUT'];
+            $sin_direccion['SIN_DIRECCION_POSTAL'][$x]['DV'] =  $dest['DIS_DV'];
+            $sin_direccion['SIN_DIRECCION_POSTAL'][$x]['NOMBRE'] =  $dest['DIS_NOMBRE']; 
+            $x++;
         }   
     }
 
     
+    $this->_SESION->setVariable('SIN_DIRECCION_POSTAL',$sin_direccion);
+
     if($errores > 0){
         return 'NOK';//no paso la validacion , no se puede firmar
     }else{
@@ -4159,12 +4177,19 @@ class modificar_docto extends Pagina{
     $CAMBIA = array();	
     $OPEN = array();			
     
+    $sin_usuario_seil = $this->_SESION->getVariable('SIN_USUARIO_SEIL');
+    $sin_direccion_postal = $this->_SESION->getVariable('SIN_DIRECCION_POSTAL');
+
+    //echo "<pre>"; var_dump($sin_usuario_seil);echo "</pre>"; exit();
+    //echo "<pre>"; var_dump(count($sin_usuario_seil['SIN_USUARIO']));echo "</pre>"; exit();
    
    if($_POST['medio_envio'] == 'manual'){
-        $mensaje_respuesta = 'Se ha detectado que tiene seleccionado envio XXX (manual), sin embargo, el destinatario XXX no tiene dirección postal, seleccione algún tipo envio distinto o modifique el destinatario.';
+        $mensaje_respuesta = 'Se ha detectado que tiene seleccionado envio manual, sin embargo, el destinatario '.$sin_direccion_postal['SIN_DIRECCION_POSTAL'][0]['NOMBRE'].' no tiene dirección postal, seleccione algún tipo envio distinto o modifique el destinatario.';
    }else if($_POST['medio_envio'] == 'electronico'){
-        $mensaje_respuesta = 'Se ha detectado que tiene seleccionado envio electrónico, sin embargo, el destinatario XXX no tiene configurado usuarios SEIL que permitan su lectura, seleccione algún envio distinto de electrónico o borre el destinatario e incorpórelo como “Otro” ingresando el correo electrónico.';
-   }else{
+        if(count($sin_usuario_seil['SIN_USUARIO']) > 0){
+            $mensaje_respuesta = 'Se ha detectado que tiene seleccionado envio electrónico, sin embargo, el destinatario '.$sin_usuario_seil['SIN_USUARIO'][0]['NOMBRE'].' no tiene configurado usuarios SEIL que permitan su lectura, seleccione algún envio distinto de electrónico o borre el destinatario e incorpórelo como “Otro” ingresando el correo electrónico.';
+        }
+    }else{
         $mensaje_respuesta = '';
    }
 
