@@ -708,7 +708,7 @@ class firmar_certificado extends Pagina{
             }
         }
 
-        $this->_ORA->Commit();
+        $this->_ORA->Commit(); 
        
     }
 
