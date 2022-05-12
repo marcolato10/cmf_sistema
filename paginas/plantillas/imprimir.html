@@ -1,66 +1,73 @@
 <!-- BEGIN: main -->
-
+<link href='../pugde/Sistema/css/bootstrap.min.css' rel='stylesheet' type='text/css' />
 <div id="div_imprimir_documentos" title="Imprimir Documentos" class="ui-widget">
-
-
-
+    <!-- BEGIN: table_certificado -->
     <div class="row">
-        <div class="col-xs-12 col-sm-6 col-md-8">
+        <div class="col-xs-12 col-sm-12 col-md-12">
             <fieldset class="fieldset">
-                <legend class="legend">Forma de despacho : Carta certificada, Electrónica </legend>
+                <legend class="legend" style="font-weight: bold; background-color:#d7a227; color:#ffffff; text-align: center;">Forma de despacho : {forma_despacho} </legend>
                 <div class="sec1Destinatario">
-                    <table class="table" border="1">
+                    <table class="table table-bordered table-striped table-sm table-hover">
                         <thead>
-                            <tr>
-                                <th scope="col">Fecha</th>
-                                <th scope="col">Descripcion Archivo</th>
-                                <th scope="col">SGD</th>
-                                <th scope="col">FOLIO</th>
-                                <th scope="col">Ver</th>
+                            <tr style="font-weight: bold; background-color:#d7a227; color:#000000; text-align: center;">
+                                <th>Fecha</th>
+                                <th>Descripcion Archivo</th>
+                                <th>SGD</th>
+                                <th>FOLIO</th>
+                                <th>Ver</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <!-- BEGIN: table_certificado -->
+
                             {listar_certificado}
-                            <!-- END: table_certificado -->
+
                         </tbody>
                     </table>
                 </div>
             </fieldset>
         </div>
-        <br><br>
-        <div class="col-xs-6 col-md-4">
+    </div>
+    <div class="div_oculto">
+        {lista_oculta}
+    </div>
+
+    <br>
+    <!-- END: table_certificado -->
+    <!-- BEGIN: table_destinatarios -->
+    <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-12">
             <fieldset class="fieldset">
-                <legend class="legend">Destinatario</legend>
+                <legend class="legend" style="font-weight: bold; background-color:#d7a227; color:#ffffff; text-align: center;">Destinatario</legend>
                 <div class="sec1Destinatario">
-                    <table class="table" border="1">
+                    <table class="table table-bordered table-sm table-striped table-hover">
                         <thead>
-                            <tr>
-                                <th scope="col">Destinatario</th>
-                                <th scope="col">Dirección</th>
-                                <th scope="col">Correo</th>
+                            <tr style="font-weight: bold; background-color:#d7a227; color:#000000; text-align: center;">
+                                <th>Destinatario</th>
+                                <th>Dirección</th>
+                                <th>Correo</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <!-- BEGIN: table_destinatarios -->
+
                             {lista_destinatarios}
-                            <!-- END: table_destinatarios -->
+
                         </tbody>
                     </table>
                 </div>
             </fieldset>
         </div>
-        <br><br>
-        <fieldset class="fieldset">
-            <div class="form-group row">
-                <div class="col-sm-3">&nbsp;</div>
-                <div class="col-sm-6" style="text-align: center;">
-                    <button class="btn btn-warning" type="button" id="BtnImprimir" name="BtnImprimir">&nbsp;Imprimir Etiqueta&nbsp;</button> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                    <button class="btn btn-warning" type="button" id="BtnCancelarImprimir" name="BtnCancelarImprimir">Cancelar</button></div>
-                <div class="col-sm-3">&nbsp;</div>
-            </div>
-        </fieldset>
     </div>
+    <br>
+    <fieldset class="fieldset">
+        <div class="form-group row">
+            <div class="col-sm-2">&nbsp;</div>
+            <div class="col-sm-8" style="text-align: center;">
+                <button class="btn btn-warning" type="button" id="BtnImprimir" name="BtnImprimir">&nbsp;Imprimir Etiqueta&nbsp;</button> &nbsp;&nbsp;&nbsp;
+                <button class="btn btn-warning" type="button" id="BtnCancelarImprimir" name="BtnCancelarImprimir">Cancelar</button></div>
+            <div class="col-sm-2">&nbsp;</div>
+        </div>
+    </fieldset>
+    <!-- END: table_destinatarios -->
 </div>
 
 

@@ -16,53 +16,79 @@ class imprimir extends Pagina{
         //var_dump($_GET['caso']);exit();
 
         $verDocumento = new verDocumento();
-        //echo $verDocumento->getUrl('2022051463510');
-        //exit();
+        //echo $verDocumento->getUrl('2022051463510');exit();
 
         $wf = $_GET['caso'];
-        $tipo = 'certificado';
+        $tipo_certificado = 'certificado';
         $url_certificado = $verDocumento->getUrl($wf);
-        $certificado_uv = $this->fun_listar_ultima_version($wf,$tipo);
+        $certificado_uv = $this->fun_listar_ultima_version($wf,$tipo_certificado);
         $version = $certificado_uv[0]['DOC_VERSION'];
+        $estado_certificado = $certificado_uv[0]['GDE_ESTADO_DOCUMENTO_ESTDOC_ID'];
+        
+        $resultado_tipo = $this->fun_get_tipo_documento($tipo_certificado);
+        $label_certificado = $resultado_tipo[0]['TIPDOC_LABEL_NUMERO'];
 
+        //echo $estado_certificado; exit();
+        if($estado_certificado == 'firma'){
+            
+            //echo "<pre>";var_dump($certificado_uv);echo "</pre>";
+            //$this->ULTIMA_VERSION = $certificado_uv[0]['DOC_VERSION'];
+
+            $html_certificado = '';
+            $html_certificado .= '<tr>
+                                        <td>'.$certificado_uv[0]['DOC_FECHA'].'</td>
+                                        <td>'.$label_certificado.' '.$certificado_uv[0]['DOC_FOLIO'].'</td>
+                                        <td>'.$certificado_uv[0]['DOC_SGD'].'</td>
+                                        <td>'.$certificado_uv[0]['DOC_FOLIO'].'</td>
+                                        <td><a href="'.$url_certificado.'" target="_blank">Ver Documento</a></td>
+                                    </tr>'; 
         
 
-        //echo "<pre>";var_dump($certificado_uv);echo "</pre>";
-        //$this->ULTIMA_VERSION = $certificado_uv[0]['DOC_VERSION'];
 
-        $html_certificado = '';
-        $html_certificado .= '<tr>
-                                    <td>'.$certificado_uv[0]['DOC_FECHA'].'</td>
-                                    <td>'.$certificado_uv[0]['GDE_TIPOS_DOCUMENTO_TIPDOC_ID'].'</td>
-                                    <td>'.$certificado_uv[0]['DOC_SGD'].'</td>
-                                    <td>'.$certificado_uv[0]['DOC_FOLIO'].'</td>
-                                    <td><a href="'.$url_certificado.'" target="_blank">Ver Documento</a></td>
-                                </tr>'; 
-     
+            $destinatarios = $this->fun_listar_distribucion($wf,$version);
+            $html_destinatarios = '';
+            $html_lista_oculta = '';
+            foreach($destinatarios as $dest){
+                if($dest['DIS_CORREO'] == null or $dest['DIS_CORREO'] == 'undefined'){
+                    $correo = ''; 
+                }else{
+                    $correo = $dest['DIS_CORREO'];
+                }
+                $html_destinatarios .= '<tr>
+                                            <td>'.$dest['DIS_NOMBRE'].'</td>
+                                            <td>'.$dest['DIS_DIRECCION'].'</td>
+                                            <td>'.$correo.'</td>
+                                        </tr>'; 
+                
+                $html_lista_oculta .= '<input type="hidden" class="numero" value="'.$certificado_uv[0]['DOC_FOLIO'].'">
+                <input type="hidden" class="sgd" value="'.$certificado_uv[0]['DOC_SGD'].'">
+                <input type="hidden" class="cargo" value="'.$dest['DIS_CARGO'].'">
+                <input type="hidden" class="nombre" value="'.$dest['DIS_NOMBRE'].'">
+                <input type="hidden" class="direccion" value="'.$dest['DIS_DIRECCION'].'">
+                <input type="hidden" class="fecha" value="'.$certificado_uv[0]['DOC_FECHA'].'">';                        
+            }
 
+            $forma_despacho = $certificado_uv[0]['TIPENV_NOMBRE'];
 
-        $destinatarios = $this->fun_listar_distribucion($wf,$version);
-        $html_destinatarios = '';
-        foreach($destinatarios as $dest){
-            $html_destinatarios .= '<tr>
-                                        <td>'.$dest['DIS_NOMBRE'].'</td>
-                                        <td>'.$dest['DIS_DIRECCION'].'</td>
-                                        <td>'.$dest['DIS_CORREO'].'</td>
-                                    </tr>'; 
+            $this->_TEMPLATE->assign('forma_despacho', $forma_despacho);
+            $this->_TEMPLATE->assign('listar_certificado', $html_certificado);
+            $this->_TEMPLATE->assign('lista_oculta', $html_lista_oculta);
+            $this->_TEMPLATE->parse('main.table_certificado');
+            $this->_TEMPLATE->assign('lista_destinatarios', $html_destinatarios);
+            $this->_TEMPLATE->parse('main.table_destinatarios');
+
+            //echo "<pre>";var_dump($destinatarios);echo "</pre>";    
+        
+        }else{
+            echo "NO SE PUEDE IMPRIMIR , CERTIFICADO AUN NO ESTA FIRMADO";
         }
 
 
-        $this->_TEMPLATE->assign('listar_certificado', $html_certificado);
-        $this->_TEMPLATE->parse('main.table_certificado');
-        $this->_TEMPLATE->assign('lista_destinatarios', $html_destinatarios);
-        $this->_TEMPLATE->parse('main.table_destinatarios');
-
-        //echo "<pre>";var_dump($destinatarios);echo "</pre>";    
 
     }
 
-     //ml: obtenemos la ultima version del certificado
-     public function fun_listar_ultima_version($wf,$tipo){
+    //ml: obtenemos la ultima version del certificado
+    public function fun_listar_ultima_version($wf,$tipo){
         $bind = array(":p_wf"=>$wf, ":p_tipo" =>$tipo);
         $cursor = $this->_ORA->retornaCursor("GDE.GDE_DOCUMENTO_PKG.fun_listar_ultima_version",'function', $bind);
     
@@ -90,6 +116,9 @@ class imprimir extends Pagina{
                         $r['DOC_SGD']=$r['DOC_SGD'];
                         $r['DOC_USUARIO_FIRMA']=$r['DOC_USUARIO_FIRMA'];
                         $r['DOC_ANO']=$r['DOC_ANO'];
+                        $r['ESTDOC_DESCRIPCION']=$r['ESTDOC_DESCRIPCION'];
+                        $r['TIPENV_NOMBRE']=$r['TIPENV_NOMBRE'];
+                        
 
                         $resCertificado[]=$r;    
                     }
@@ -109,9 +138,8 @@ class imprimir extends Pagina{
         return $registros;
     }
 
-
-      //ml: lista el certificado por id y tipo
-      public function fun_listar_certificado($wf,$tipo){
+    //ml: lista el certificado por id y tipo
+    public function fun_listar_certificado($wf,$tipo){
         $bind = array(":p_wf"=>$wf, ":p_tipo" =>$tipo);
         $cursor = $this->_ORA->retornaCursor("GDE.GDE_DOCUMENTO_PKG.fun_listar_certificado_wf",'function', $bind);
     
@@ -143,9 +171,8 @@ class imprimir extends Pagina{
         return $resCertificado;
     }
 
-
-     //ml: obtenemos el tipo de documento
-     public function fun_get_tipo_documento($gde_tipdoc_id){
+    //ml: obtenemos el tipo de documento
+    public function fun_get_tipo_documento($gde_tipdoc_id){
         
         $bindTipo =  array(
             ":p_tipo_doc_id" => $gde_tipdoc_id 

@@ -344,7 +344,7 @@ class modificar_docto extends Pagina{
     }
 
 
-    //xxxxxxxxx
+ 
     public function fun_mostrar_plantilla($opcion){
         
         $html='<div style="clear:both">
@@ -2769,6 +2769,29 @@ class modificar_docto extends Pagina{
     
     //ml: mostramos el modal de enviar a vb
     public function fun_mostrar_modal_evb(){
+        
+        $tipo_certificado = $this->_SESION->getVariable('TIPO_CERTIFICADO');
+        $wf = $this->_SESION->getVariable("WF");
+       
+        $accion_caso = $this->fun_modifica_o_versiona($wf, $tipo_certificado);
+        $existen_cambios = $this->fun_verificar_exiten_cambios();
+
+        if($accion_caso == 'MODIFICAR_VERSION'){//es el mismo usuario 
+            $opciones_visaciones = '<option value="SI">De acuerdo</option>';
+        }else if($accion_caso == 'GENERA_NUEVA_VERSION'){
+            if($existen_cambios == 'SI'){
+                $opciones_visaciones = '<option value="SI">De acuerdo</option>';
+            }else{
+                $opciones_visaciones = '<option value="SI">De acuerdo</option>   			
+                                    <option value="NO">En desacuerdo</option>			
+                                    <option value="IN">Indiferente</option>';
+            }
+        }else{//USUARIO NO AUTORIZADO 
+            $opciones_visaciones = '<option value="SI">De acuerdo (Usuario No autorizado)</option>';
+        }
+
+        
+        
         $json = array();
         $MENSAJES = array();
         $CAMBIA = array();	
@@ -2809,8 +2832,12 @@ class modificar_docto extends Pagina{
         
          $this->_TEMPLATE->assign('division_OtraUnidadEnviarVB',$listar_division);
          
+         
        
 
+
+
+         $this->_TEMPLATE->assign('opciones_visaciones',$opciones_visaciones);
          $this->_TEMPLATE->assign('para_enviarvb',$listar_para);
          $this->_TEMPLATE->assign('copia_enviarvb',$listar_copia);
          $this->_TEMPLATE->assign('para_enviarvbtodos',$listar_copia);
@@ -2963,8 +2990,9 @@ class modificar_docto extends Pagina{
             $p_vis_id = mt_rand();
             $p_paraVB= $_POST['p_otraUnidadParaVB'];//usuario para enviar vb
             $p_comentarioVB= $_POST['p_otraUnidadComentarioVB']; //comentario visacion enviar vb
-            $p_visacionVB='SI';
-    
+            //$p_visacionVB='SI';
+            $p_visacionVB=$_POST['p_otraUnidadVisacionVB'];    
+
             //ENVIO A VB
             $dataMV_EVB = array (
                 'mi_usuario' => $mi_usuario,
@@ -3046,7 +3074,7 @@ class modificar_docto extends Pagina{
     }
 
 
-    //ml: funcion para poder actualizar envio a visto bueno desde OTRA UNIDAD
+    //ml: funcion para poder actualizar envio a visto bueno desde OTRA UNIDAD ////////////////  NO SE ESTA OCUPANDO :: CHEQUEAR
     public function fun_otraunidad_evb(){
 
         try{
@@ -3141,7 +3169,7 @@ class modificar_docto extends Pagina{
     }    
 
 
-    //ml: solo controla envio a vb
+    //ml: solo controla envio a vb  ////////////////  NO SE ESTA OCUPANDO :: CHEQUEAR
     public function fun_enviar_visto_bueno(){
         
         try{
@@ -3388,7 +3416,8 @@ class modificar_docto extends Pagina{
             $p_vis_id = mt_rand();
             $p_paraVB= $_POST['p_paraVBTodos'];//usuario para enviar vb
             $p_comentarioVB= $_POST['p_comentarioVBTodos']; //comentario visacion enviar vb
-            $p_visacionVB='SI';
+            //$p_visacionVB='SI';
+            $p_visacionVB=$_POST['p_visacionVBTodos'];
 
             //ENVIO A VB
             $dataMV_EVB = array (
@@ -3626,7 +3655,8 @@ class modificar_docto extends Pagina{
             $p_vis_id = mt_rand();
             $p_paraVB= $_POST['p_paraVB'];//usuario para enviar vb
             $p_comentarioVB= $_POST['p_comentarioVB']; //comentario visacion enviar vb
-            $p_visacionVB='SI';
+            //$p_visacionVB='SI';
+            $p_visacionVB=$_POST['p_visacionVB'];
 
             //ENVIO A VB
             $dataMV_EVB = array (
@@ -3975,7 +4005,7 @@ class modificar_docto extends Pagina{
              
              $CAMBIA['#div_eliminar_certificado'] = $this->_TEMPLATE->text('main.div_eliminar_certificado');
              $OPEN['#div_eliminar_certificado'] = 'open';
-             $json['MENSAJES'] =  $MENSAJES;
+             $json['MENSAJES'] = $MENSAJES;
              $json['CAMBIA'] = $CAMBIA;
              $json['OPEN'] = $OPEN;
              return json_encode($json);		
