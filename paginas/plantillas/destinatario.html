@@ -41,7 +41,7 @@
                 var distribucion = $("#div_buscarFiscalizado").find('#input_tipoDistribucion').val();
                 var valores = "checkbox_fiscalizado[]=" + arreglo[0] + "&hidden_" + arreglo[0] + "=" + encodeURIComponent(arreglo[1]) + "&hidden_tipoDistribucion=" + distribucion + "&hidden_tipoEntidad=" + arreglo[2] + "&medio_envio=" + medio_envio;
 
-                alert("PASO :: LO AGREGUE DESDE EL AUTOCOMPLETADO");
+                console.log("PASO :: LO AGREGUE DESDE EL AUTOCOMPLETADO");
 
                 //alert(arreglo.serialize())
                 callback_gral("index.php?pagina=paginas.generar_docto&funcion=fun_agregarSeleccionadoDestinatario",
@@ -119,7 +119,7 @@
 
     function fun_enviarOtro(distribucion) {
 
-        alert("PASO :: LO AGREGUE DESDE EL OTRO");
+        console.log("PASO :: LO AGREGUE DESDE EL OTRO");
 
         fun_limpiarFormularioOtroLabel();
         var errorOtro = false;
@@ -572,7 +572,7 @@
 
         function fun_agregarSeleccionadoDestinatario() {
 
-            alert("PASO :: LO AGREGUE DESDE EL LISTADO");
+            console.log("PASO :: LO AGREGUE DESDE EL LISTADO");
 
             //console.log("agregamos los destinatarios selelccionados");
             $.each($("[name='checkbox_fiscalizado[]']:checked"), function(key, value) {

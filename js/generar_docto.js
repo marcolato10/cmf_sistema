@@ -409,20 +409,20 @@ function accionEVB_Todos() {
 
     //validamos si existen errores
     if (errores > 0) {
-        console.log("ERRORES : Usted tiene " + errores + " errores.");
+        //console.log("ERRORES : Usted tiene " + errores + " errores.");
         callback_gral("index.php?pagina=paginas.generar_docto&funcion=fun_respuesta", {
             errores: errores,
             respuesta: 'NOK'
         });
     } else {
-        console.log("PASO:: NO EXISTEN ERRORES EVB DESDE TODAS");
+        //console.log("PASO:: NO EXISTEN ERRORES EVB DESDE TODAS");
         $.ajax({
             data: formData,
             url: 'index.php?pagina=paginas.generar_docto&funcion=fun_enviarvb_todas',
             type: 'post',
             success: function(html) {
                 if (html == 'OK') {
-                    console.log("RESPUESTA: OK , SE ENVIO A VB CORRECTAMENTE DESDE PESTAÑA TODAS");
+                    //console.log("RESPUESTA: OK , SE ENVIO A VB CORRECTAMENTE DESDE PESTAÑA TODAS");
                     callback_gral("index.php?pagina=paginas.generar_docto&funcion=fun_respuesta", {
                         errores: errores,
                         respuesta: html

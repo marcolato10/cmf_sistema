@@ -4,7 +4,7 @@
         <ul id=lista>
             <li id="pestana1" style="display: inline-block !important;"><a class="btn btn-warning btn-mk" href='javascript:cambiarPestanna(pestanas,pestana1,1);'>Mi unidad</a></li>
             <li id="pestana2" style="display: inline-block !important;"><a class="btn btn-warning btn-mk" href='javascript:cambiarPestanna(pestanas,pestana2,2);'>Otra unidad</a></li>
-            <li id="pestana3" style="display: inline-block !important;"><a class="btn btn-warning btn-mk" href='javascript:cambiarPestanna(pestanas,pestana3,3);'>Buscar</a></li>
+            <li id="pestana3" style="display: inline-block !important;"><a class="btn btn-warning btn-mk" href='javascript:cambiarPestanna(pestanas,pestana3,3);'>Todas</a></li>
         </ul>
     </div>
 
@@ -26,9 +26,8 @@
                         <div class="sec1Destinatario">
                             <label class='seleccionaPdf' for='visacion_vb'>Visación:&nbsp;&nbsp;&nbsp;</label>
                             <select class="js-example-basic-single" name="visacion_vb" id="visacion_vb" style="width: 85%">
-                                    <option value>Seleccione</option>
-                                    <option value="de acuerdo">De acuerdo</option>
-                                </select>
+                                   {opciones_visaciones}
+                            </select>
                             <spam class="errorModificar" id="errorVisacionVB" style="display:none;">(*) Usted debe seleccionar una opción</spam>
                         </div>
                         <div class="sec1Destinatario">
@@ -72,9 +71,8 @@
                         <div class="sec1Destinatario">
                             <label class='seleccionaPdf' for='OtraUnidadVisacion_vb'>Visación:</label>
                             <select class="js-example-basic-single" name="OtraUnidadVisacion_vb" id="OtraUnidadVisacion_vb" style="width: 85%">
-                                    <option value>Seleccione</option>
-                                    <option value="de acuerdo">De acuerdo</option>
-                                </select>
+                                {opciones_visaciones}
+                            </select>
                             <spam class="errorModificar" id="errorOtraUnidadVisacionVB" style="display:none;">(*) Usted debe seleccionar una opción</spam>
                         </div>
                         <div class="sec1Destinatario">
@@ -114,9 +112,8 @@
                         <div class="sec1Destinatario" id="div_visacion_todos" style="display:none;">
                             <label class='seleccionaPdf' for='visacionVBTodos'>Visación:</label>
                             <select class="js-example-basic-single" name="visacionVBTodos" id="visacionVBTodos" style="width: 85%">
-                                    <option value>Seleccione</option>
-                                    <option value="de acuerdo">De acuerdo</option>
-                                </select>
+                                {opciones_visaciones}
+                            </select>
                             <spam class="errorModificar" id="errorVisacionVBTodos" style="display:none;">(*) Usted debe seleccionar una opción</spam>
                         </div>
                         <div class="sec1Destinatario" id="div_comentario_todos" style="display:none;">

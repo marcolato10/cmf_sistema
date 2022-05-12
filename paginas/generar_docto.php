@@ -1589,13 +1589,13 @@ public function modificar_certificado($wf,$tipo){
                 $arrayMiMedioEnvioCopia     = explode("_,", substr($_POST["p_arrayMiMedioEnvioCopia"], 0, -1)); 
 
 
-                $p_medio_envio = 'SEIL';
+                $p_medio_envio              = 'SEIL';
                 //$p_id =$this->_ORA->ejecutaFunc("utl_frm_html.seq_get",array(':caso_seq'=>'CASO_SEQ'));
-                $p_id =$_POST['p_miccertificado'];
+                $p_id                       = $_POST['p_miccertificado'];
                 //parametros adjuntos
-                $gde_documento_doc_version = 0; //sera 0 en caso que es 1era vez 
-                $adj_usuario =$this->_SESION->USUARIO; 
-                $adjuntos = $this->_SESION->getVariable("RSO_ADJUNTO");
+                $gde_documento_doc_version  = 0; //sera 0 en caso que es 1era vez 
+                $adj_usuario                = $this->_SESION->USUARIO; 
+                $adjuntos                   = $this->_SESION->getVariable("RSO_ADJUNTO");
                 
                 
                 $p_tipo_envio           = $_POST['p_tipo_envio'];
@@ -1677,14 +1677,14 @@ public function modificar_certificado($wf,$tipo){
 
 
                 
-                $p_comentario= $_POST['p_comentarioVB']; //comentario visacion enviar vb
-                $p_paraVB= $_POST['p_paraVB'];//usuario para enviar vb
-                //$p_visacionVB= $_POST['p_visacionVB'];
-                $p_visacionVB='SI';
+                $p_comentario   = $_POST['p_comentarioVB']; //comentario visacion enviar vb
+                $p_paraVB       = $_POST['p_paraVB'];//usuario para enviar vb
+                $p_visacionVB   = $_POST['p_visacionVB'];
+                //$p_visacionVB='SI';
                 
                 //$p_vis_id = mt_rand();//validar como agregar este campo (id tabla visaciones)
-                $p_vis_id = 0;
-                $p_vis_id = $this->fun_agregar_visacion_vb($p_vis_id,$p_id,$p_doc_version,$p_paraVB,$p_comentario,$p_visacionVB);        
+                $p_vis_id       = 0;
+                $p_vis_id       = $this->fun_agregar_visacion_vb($p_vis_id,$p_id,$p_doc_version,$p_paraVB,$p_comentario,$p_visacionVB);        
             
                 //validamos que venga archivo adjunto en envioVB
                 if(isset($_FILES['file2']['tmp_name'])){
@@ -1942,8 +1942,8 @@ public function modificar_certificado($wf,$tipo){
                 
             $p_comentario= $_POST['p_comentarioVBTodos']; //comentario visacion enviar vb
             $p_paraVB= $_POST['p_paraVBTodos'];//usuario para enviar vb
-            //$p_visacionVB= $_POST['p_visacionVB'];
-            $p_visacionVB='SI';
+            $p_visacionVB= $_POST['p_visacionVBTodos'];
+            //$p_visacionVB='SI';
             
             //$p_vis_id = mt_rand();//validar como agregar este campo (id tabla visaciones)
             $p_vis_id = 0;
@@ -1958,12 +1958,8 @@ public function modificar_certificado($wf,$tipo){
                 $this->_ORA->Commit();
             }
 
-
-
-            ////////////////////////////////////////mlatorre
-
-
-              //||||||||||||||||||||||||||||||||AGREGAR DESTINATARIO y COPIA si existe|||||||||||||||||||||||||||||||||||||||||||||||||||
+            
+            //||||||||||||||||||||||||||||||||AGREGAR DESTINATARIO y COPIA si existe|||||||||||||||||||||||||||||||||||||||||||||||||||
                 //se agrega destinatario siempre y cuando exista destinatario por agregar 
                 if($_POST["p_arrayDestinatario"] != ""){
                     //llamar la funcion agregar destinatario
@@ -2346,10 +2342,10 @@ public function modificar_certificado($wf,$tipo){
             //var_dump($_FILES['file3']['tmp_name']);        
             //validamos que venga archivo adjunto en envioVB
             
-            $p_visacionVB   = 'SI';
+            //$p_visacionVB   = 'SI';
+            $p_visacionVB   = $_POST['p_otraUnidadVisacionVB'];
             $p_comentario   = $_POST['p_otraUnidadComentarioVB']; //comentario visacion enviar vb
             $p_paraVB       = $_POST['p_otraUnidadParaVB'];//usuario para enviar vb
-            //$p_visacionVB= $_POST['p_otraUnidadVisacionVB'];
             //$p_copiaVB =  $_POST['p_otraUnidadCopiaVB'];
            
 

@@ -125,10 +125,9 @@ class firmar_certificado extends Pagina{
 
         $bind = array(":p_wf"=>$wf, ":p_version" =>$version);
         $cursor = $this->_ORA->retornaCursor("GDE.GDE_DOCUMENTO_PKG.fun_listar_cert_xversion",'function', $bind);
-    
-    
-                if ($cursor) {
-                      while($r = $this->_ORA->FetchArray($cursor)){ 
+                
+            if ($cursor) {
+                while($r = $this->_ORA->FetchArray($cursor)){ 
                         $r['DOC_ID']=$r['DOC_ID'];
                         $r['DOC_VERSION']=$r['DOC_VERSION'];
                         $r['DOC_DATOS_SENSIBLES']=$r['DOC_DATOS_SENSIBLES'];
@@ -146,11 +145,10 @@ class firmar_certificado extends Pagina{
                         $r['DOC_ULTIMA_VERSION']=$r['DOC_ULTIMA_VERSION'];
                         $r['DOC_CUERPO']=$r['DOC_CUERPO']; 
                         
-    
                         $resCertificado[]=$r;    
-                    }
-                    $this->_ORA->FreeStatement($cursor);
-                }    
+                }
+                $this->_ORA->FreeStatement($cursor);
+            }    
                 
         return $resCertificado;
 

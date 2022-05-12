@@ -256,7 +256,7 @@ function accionFirmarCertificado() {
 
 //ml:quiero firmar el certificado desde el modal
 function quieroFirmarCertificado() {
-    alert("Accionamos la Firma del certificado");
+    console.log("Accionamos la Firma del certificado");
     var miPassword = document.getElementById('password_equipo').value;
     var miFirma = document.getElementById('tipo_firma').value;
 
@@ -1046,7 +1046,8 @@ function accionOtraUnidadEVB() {
             success: function(html) {
                 if (html == 'OK') {
                     //console.log("respuesta: OK");
-                    callback_gral("index.php?pagina=paginas.modificar_docto&funcion=fun_respuesta", {
+                    //callback_gral("index.php?pagina=paginas.modificar_docto&funcion=fun_respuesta", {
+                    callback_gral("index.php?pagina=paginas.modificar_docto&funcion=fun_respuesta_evb", {
                         errores: errores,
                         respuesta: html
                     });
@@ -1527,37 +1528,21 @@ function medioEnvioElectronico() {
                 });
             } else {
 
-                //alert(html);
+                //console.log(html);
                 if (html == 'SI') {
                     //console.log("PASO 2 :: EXISTEN CAMBIOS, se procede a guardar los cambios");
                     var opcion = confirm("Usted tiene cambios pendientes , ¿Desea guardar los cambios?");
                     if (opcion == true) {
-                        /*
-                          1.- Aqui hay que guardar los nuevos cambios [OK]
-                          2.- Hay que validar el tipo de envio electronico [OK]
-                          3.- Hay que firmar [OK]
-                    
-                         */
-
+                        //console.log("PASO :: GUARDAMOS LOS CAMBIOS Y CHEQUEAMOS MEDIO ELECTRONICO PARA FIRMAR");
                         formData = obtenerDataParaFirmar();
                         inicioGuardarCambiosRealizados(formData, 'electronico'); //guardamos los cambios y chequeamos medio de envio
 
                     } else {
-                        /*
-                          1. -No se toman en cuenta los cambios
-                          2.- Hay que validar el tipo de envio electronico 
-                          3.- Hay que firmar
-                         */
-
                         //console.log("PASO 3 :: no se toma en cuenta los cambios , se valida envio electronico y se procede a firmar");
                         chequearMedioElectronico();
                     }
 
                 } else {
-                    /*  
-                        1.- Hay que validar el tipo de envio electronico 
-                        2.- Hay que firmar
-                        */
                     //console.log("PASO 2 :: NO EXISTEN CAMBIOS , se valida envio electronico , se firma");
                     chequearMedioElectronico();
                 }
