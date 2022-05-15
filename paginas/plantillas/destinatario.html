@@ -78,7 +78,13 @@
 
     function fun_eliminarSeleccionadoDestinatario(rut) {
         //$("#div_dialogPara").html("Cargando... Un momento");
-        //callback_gral("index.php?pagina=paginas.redactar&funcion=fun_eliminarSeleccionadoDestinatario", {
+
+        ////controlamos el destinatario eliminado 
+        callback_gral("index.php?pagina=paginas.modificar_docto&funcion=fun_controlar_eliminados", {
+            rut: rut
+
+        });
+
         callback_gral("index.php?pagina=paginas.generar_docto&funcion=fun_eliminarSeleccionadoDestinatario", {
             rut: rut
         });
@@ -128,9 +134,9 @@
             $("#label_errorOtroNombre").text("Debe ingresar nombre del destinatario.")
         }
 
-        if ($.trim($("#input_otroDireccion").val()) == "" && $.trim($("#input_otroCorreoElectronico").val()) == "") {
+        if ($.trim($("#input_otroDireccion").val()) == "" || $.trim($("#input_otroCorreoElectronico").val()) == "") {
             errorOtro = true;
-            $("#label_errorOtro").text("Debe ingresar dirección o correo electrónico.")
+            $("#label_errorOtroDireccion").text("Debe ingresar dirección y correo electrónico.")
         }
 
         var valor_rut = $.trim($("#input_otroRut").val());
@@ -572,7 +578,7 @@
 
         function fun_agregarSeleccionadoDestinatario() {
 
-            console.log("PASO :: LO AGREGUE DESDE EL LISTADO");
+            alert("PASO :: QUIERO AGREGAR DESTINATARIOS");
 
             //console.log("agregamos los destinatarios selelccionados");
             $.each($("[name='checkbox_fiscalizado[]']:checked"), function(key, value) {
@@ -690,10 +696,10 @@
             <div class="form-group row">
                 <label for="staticEmail" class="col-sm-2 col-form-label">Direcci&oacute;n</label>
                 <div class="col-sm-9">
-                    <input class="form-control" onclick="$('#label_errorOtro').text('')" type="text" id="input_otroDireccion" name="input_otroDireccion" size="70" maxlength="4000" value="{CIU.DES_DIRECCION}" />
+                    <input class="form-control" onclick="$('#label_errorOtroDireccion').text('')" type="text" id="input_otroDireccion" name="input_otroDireccion" size="70" maxlength="4000" value="{CIU.DES_DIRECCION}" />
 
                     <font style="color:#F00">
-                        <label id="label_errorOtroNombre" />
+                        <label id="label_errorOtroDireccion" />
                     </font>
                 </div>
             </div>

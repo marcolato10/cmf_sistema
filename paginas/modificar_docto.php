@@ -71,6 +71,9 @@ class modificar_docto extends Pagina{
         $this->_SESION->setVariable('ESTADO_DESTINATARIO', 1);
         $this->_SESION->setVariable('ESTADO_EXPEDIENTE', 1);
         
+        //INICIALIZAMOS CONTROL DESTINATARIOS
+        $eliminados = array();
+        $this->_SESION->setVariable('CTL_ELIMINADOS',$eliminados);
 
         //mostrar titulo de formulario
         $titulo_formulario = "<h1>Modificar Certificado (WF : ".$wf.")</h1>";
@@ -636,6 +639,32 @@ class modificar_docto extends Pagina{
         $json['RESULTADO'] = 'OK';
         return json_encode($json);	
     }
+
+
+
+    //|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+    //ml: controlamos lo destinatarios eliminados 
+    public function fun_controlar_eliminados(){
+
+        $cantidad = count($this->_SESION->getVariable('CTL_ELIMINADOS'));
+        $arrayEliminados = array();
+        
+        if($cantidad == 0){
+            $arrayEliminados[0] = $_POST['rut']; 
+        }else{
+            $arrayEliminados = $this->_SESION->getVariable('CTL_ELIMINADOS');
+            $arrayEliminados[$cantidad+1]= $_POST['rut']; 
+        }
+
+        $arrayEliminados = array_unique($arrayEliminados);
+
+        $this->_SESION->setVariable('CTL_ELIMINADOS', $arrayEliminados);
+        $arrayEliminados = $this->_SESION->getVariable('CTL_ELIMINADOS');
+
+        var_dump($arrayEliminados);
+      
+    }
+
 
     //Cambiamos el estado en DESTINATARIOS
     public function fun_cambia_estado_destinatario(){
@@ -1493,18 +1522,22 @@ class modificar_docto extends Pagina{
 
 
 
-    public function fun_modificar_certificado_OLD(){
-
-        $p_tipo_envio= $_POST['p_tipo_envio'];
-
-        var_dump($p_tipo_envio);exit();
-
-
-    }
+   
 
 
    
     public function fun_modificar_certificado(){
+
+        /* ///////////////// AQUI ESTOY      
+        $destinatario = $this->_SESION->getVariable('DESTINATARIO');
+        $eliminados = $this->_SESION->getVariable('CTL_ELIMINADOS');
+        $arrayDestinatario          = explode("_,", substr($_POST["p_arrayDestinatario"], 0, -1)); 
+        $arrayDestinatarioE     = explode("_,", substr($_POST["p_arrayDestinatarioE"], 0, -1));
+        //var_dump($destinatario);
+        var_dump($eliminados);
+        var_dump($arrayDestinatario);
+        exit();
+        */
 
         //print_r("PASO 1: fun_modificar_certificado");print("<br>");
         
@@ -1569,6 +1602,9 @@ class modificar_docto extends Pagina{
         //data destinatario a eliminar
         $arrayDestinatarioE     = explode("_,", substr($_POST["p_arrayDestinatarioE"], 0, -1)); 
         $arrayDestinatarioCE    = explode("_,", substr($_POST["p_arrayDestinatarioCE"], 0, -1)); 
+
+
+       
 
         
         //obtenemos la ultima version del certificado
@@ -4104,6 +4140,15 @@ class modificar_docto extends Pagina{
    
    //validamos medio de envio electronico
    public function fun_validar_medio_electronico(){
+
+    //$destinatarios = $this->_SESION->getVariable('DESTINATARIO');
+    //var_dump($destinatarios);exit();
+
+    //$p_destinatarioE    = $_POST['p_arrayDestinatarioE']; //destinatario eliminado
+    //$p_destinatarioCE   = $_POST['p_arrayDestinatarioCE']; //dest. copia eliminado
+
+    
+
 
     $sin_usuario = array();
     $this->_SESION->setVariable('SIN_USUARIO_SEIL',$sin_usuario);

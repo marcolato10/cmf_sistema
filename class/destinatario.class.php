@@ -255,7 +255,7 @@
 			$MENSAJES[] = 'El tipo de distribucion enviado es: '.$_POST['hidden_tipoDistribucion'];			
 			
 			foreach($checkbox_fiscalizado as $rut){
-				$MENSAJES[] = 'Rut es'.$rut;
+				$MENSAJES[] = 'Rut es :: '.$rut;
 				$arreglo_piezas = explode('&|C',$_POST['hidden_'.$rut]);
 				$arreglo_rut = array();
 				$arreglo_rut['DES_RUT'] = $rut;
@@ -264,7 +264,6 @@
 				$arreglo_rut['DES_CARGO'] = $arreglo_piezas[2];
 				$arreglo_rut['DES_TIPO_ENT'] = $_POST['hidden_tipoEntidad'];
 				$arreglo_rut['DES_CON_COPIA'] = ((int)$_POST['hidden_tipoDistribucion'] === 1) ? 'N' : 'S';
-
 				$arreglo_rut['MEDIO_ENVIO'] = $_POST['medio_envio'];
 
 				if(isset($arreglo_piezas[3]) && strlen($arreglo_piezas[3]) > 5){
@@ -285,6 +284,11 @@
 			//print_r($lista_distribucion);
 			$this->_SESION->setVariable('DESTINATARIO',$lista_distribucion);
 			
+			//controlamos los destinatarios que se agregan 
+			$this->_SESION->setVariable('CTL_DESTINATARIO',$arreglo_rut);
+
+
+
 			$CAMBIA['#div_listaDistribucion'] = $this->seteaHtml(1);
 			$CAMBIA['#div_listaDistribucionCopia'] = $this->seteaHtml(2);
 			$MENSAJES[] = 'Total de Entidades son: '.$TOTAL;
@@ -430,6 +434,13 @@
 		
 		
 		public function eliminarSeleccionadoDestinatario(){
+		
+				
+			//$ctr_destinatarios = $this->_SESION->getVariable('CTL_DESTINATARIO');
+			//var_dump("INICIO |||||||||||||");
+			//var_dump($ctr_destinatarios); 
+
+
 			$json = array();
 			$json['RESULTADO'] = 'OK';			
 			$MENSAJES = array();
@@ -443,6 +454,8 @@
 				foreach($tipos_entidades as $fiscalizado){
 					if( $fiscalizado['DES_RUT'] == $_POST['rut'] ){
 						unset($lista_distribucion[$key_entidad][$fiscalizado['DES_RUT']]);
+
+						
 					}
 					
 					/*foreach($_POST['rut'] as $rut_eliminar){

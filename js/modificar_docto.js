@@ -1328,7 +1328,10 @@ function accionActualizar() {
 
 function fun_eliminarSeleccionadoDestinatarioM(rut, copia) {
 
-    console.log("Usted quiere eliminar Este rut:" + rut);
+    alert("ELIMINAR RUT ::: " + rut);
+
+    //controlamos el destinatario eliminado 
+    callback_gral("index.php?pagina=paginas.modificar_docto&funcion=fun_controlar_eliminados", { rut: rut });
 
     opcion = 2; //cambiamos el estado para saber que se hizo un cambio en destinatarios
     callback_gral("index.php?pagina=paginas.modificar_docto&funcion=fun_cambia_estado_destinatario&estado=" + opcion);
@@ -1429,23 +1432,16 @@ function accionInicioFirmar() {
     } else {
         //validamos medio de envio antes de firmar certificado 
         //console.log("IDENTIFICAMOS EL OTRO MEDIO DE ENVIO, distinto a NO SE ENVIA");
-        identificarOtroMedioEnvio(tipo_envio);
-
+        if (tipo_envio == 'elect') {
+            //console.log("USTED SELECCIONO LA OPCION MEDIO DE ENVIO ELECTRONICO");
+            medioEnvioElectronico();
+        } else {
+            //console.log("USTED SELECCIONO LA OPCION MEDIO DE ENVIO MANUAL");
+            medioEnvioManual();
+        }
     }
 }
 
-//ml: funcion para validar metodo de envio al firmar
-function identificarOtroMedioEnvio(tipo_envio) {
-
-    //console.log("IDENTIFICAMOS EL OTRO MEDIO DE ENVIO");
-    if (tipo_envio == 'elect') {
-        //console.log("USTED SELECCIONO LA OPCION MEDIO DE ENVIO ELECTRONICO");
-        medioEnvioElectronico();
-    } else {
-        //console.log("USTED SELECCIONO LA OPCION MEDIO DE ENVIO MANUAL");
-        medioEnvioManual();
-    }
-}
 
 
 //iniciamos la validacion para el medio de envio manual
@@ -1620,8 +1616,28 @@ function chequearMedioManual() {
 //chequeamos medio electronico para poder firmar
 function chequearMedioElectronico() {
 
+    var rutDestinatarioE = document.getElementsByClassName("miDestinatarioE"),
+        arrayDestinatarioE = [];
+    for (var x = 0; x < rutDestinatarioE.length; x++) {
+        arrayDestinatarioE[x] = rutDestinatarioE[x].value + '_';
+        //console.log("Usted quiere eliminar este Destinatario: " + arrayDestinatarioE[x]);
+    }
+    //destinatario copia a eliminar
+    var rutDestinatarioCE = document.getElementsByClassName("miDestinatarioCE"),
+        arrayDestinatarioCE = [];
+    for (var x = 0; x < rutDestinatarioCE.length; x++) {
+        arrayDestinatarioCE[x] = rutDestinatarioCE[x].value + '_';
+        //console.log("Usted quiere eliminar este Destinatario Copia: " + arrayDestinatarioCE[x]);
+    }
+
+
+
     //realizamos la validacion medio de envio electronico
     $.ajax({
+        data: {
+            p_arrayDestinatarioE: arrayDestinatarioE,
+            p_arrayDestinatarioCE: arrayDestinatarioCE
+        },
         url: 'index.php?pagina=paginas.modificar_docto&funcion=fun_validar_medio_electronico',
         type: 'post',
         success: function(html) {

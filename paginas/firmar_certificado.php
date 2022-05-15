@@ -24,6 +24,7 @@ class firmar_certificado extends Pagina{
     public function fun_accion_firmar_certificado(){
         
         
+        
 
 
         $miFirma            = $_POST['firma'];
@@ -661,6 +662,9 @@ class firmar_certificado extends Pagina{
         $cursor     = $this->_ORA->retornaCursor("GDE.GDE_DISTRIBUCION_PKG.fun_listar_distribucion_xme",'function', $bind);
         $registros  = $this->_ORA->FetchAll($cursor);
 
+
+
+
         if($medio_envio != 'noen'){
             if($medio_envio == 'elect'){//medio envio electronico
                 foreach($registros as $dest){
@@ -695,6 +699,8 @@ class firmar_certificado extends Pagina{
                         
                     }
                 }
+                $this->fun_notificar_participanes();
+            
             }else{//medio envio manual
 
                 //Se debe derivar el caso a oficina de partes para que pueda despachar el 
@@ -702,13 +708,64 @@ class firmar_certificado extends Pagina{
                 $this->fun_derivar_oficina_parte();
 
                 //FALTA AQUI:: falta el envio del correo de notificacion
-
+                $this->fun_notificar_participanes();
             }
         }
 
         $this->_ORA->Commit(); 
        
     }
+
+    //ml: notificamos a todos los participantes del certificado
+    public function fun_notificar_participanes(){
+        
+        $wf                 = $this->_SESION->getVariable("WF");         
+        $bind               = array(":p_wf"=>$wf);
+        $cursor             = $this->_ORA->retornaCursor("GDE.GDE_VISACIONES_PKG.fun_notificar_participantes",'function', $bind);
+        $participantes      = $this->_ORA->FetchAll($cursor);
+        
+        $numero_cer         = $this->_SESION->getVariable("NUMERO_CER");   
+        $fecha_cer          = $this->_SESION->getVariable("FECHA_CER");    
+        $tipo_certificado   = $this->_SESION->getVariable('TIPO_CERTIFICADO');
+        $resultado_tipo     = $this->fun_get_tipo_documento($tipo_certificado);
+        $label_certificado  = $resultado_tipo[0]['TIPDOC_LABEL_NUMERO'];
+
+
+
+        $CORREO_DESTINO = array();
+        $NOMBRE_USUARIO = array();
+        //notificamos a todos los participantes 
+        if($participantes){
+
+            $correo = new Correo();
+            $correo->ORA = $this->_ORA;
+            $correo->DESDE = 'noresponder@svs.cl';
+            $correo->DESDE_NOMBRE = 'Comisión para el Mercado Financiero'; 
+
+            //echo "EXISTEN";
+            foreach($participantes as $key => $part){
+
+                $bind = array(':redactor' => $part['VIS_USUARIO']);
+                $CORREO_DESTINO[$key] = $this->_ORA->ejecutaFunc("wfa_usr.getEmailUsuario",$bind);
+                $NOMBRE_USUARIO[$key] = $this->_ORA->ejecutaFunc("wfa_usr.getNombreUsuario",$bind);
+
+            }
+
+            $email_destino = implode(",", $CORREO_DESTINO); 
+
+            $correo->ASUNTO = 'Notificación firma documento '.$label_certificado.' '.$numero_cer;   
+            $correo->TEXTO = 'Estimado (a)
+            Con fecha '.$fecha_cer.', infomamos que el documento '.$label_certificado.' '.$numero_cer.'
+            se encuentra firmado, Atentamente, Comisión para el Mercado Financiero.';
+    
+            $correo->APLIC = 'PUGDE';
+            $correo->setPara($email_destino);
+            $correo->setCopiaOculta('culloa@svs.cl');
+            $correo->enviar();    
+
+        }
+    }
+
 
     //ml: derivamos a la oficina de partes
     public function fun_derivar_oficina_parte(){

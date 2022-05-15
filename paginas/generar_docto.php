@@ -501,7 +501,7 @@ public function modificar_certificado($wf,$tipo){
 		return $this->_RESOLUCION->DESTINATARIO_OBJ->editarDestinatario();
 	}
 
-    //mmmmm
+
     public function fun_agregarSeleccionadoDestinatario(){
 		return $this->_RESOLUCION->agregarSeleccionadoDestinatario();
 	}
