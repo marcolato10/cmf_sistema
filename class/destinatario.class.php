@@ -3,6 +3,9 @@
 	class Destinatario extends ClaseSistema{
 		
 
+		 
+
+
 		/*
 		 * Funcion: getDestinatariosTipo
 		 * Busca los fiscalizados una vez que se selecciona el tipo de entidad en el paso1 de resoluciones

@@ -604,10 +604,10 @@ class firmar_certificado extends Pagina{
                                         //$this->_ORA->Commit();   
                                     
                                     
-                                    //poblamos quien firma el certificado
+                                    //ml: POBLAMOS QUIEN FIRMA EL CERTIFICADO 
                                     $this->fun_agregar_quien_firma($numeroSGD);
                                     
-                                    //AQUI DEBERIA NOTIFICAR LOS ENVIOS |||||||||||||||||mlatorre
+                                    //ml: NOTIFICAMOS LOS ENVIOS 
                                     $this->fun_notificar_envios($medio_envio,$documento,$numeroSGD); 
                                 }
                                 
@@ -669,45 +669,35 @@ class firmar_certificado extends Pagina{
             if($medio_envio == 'elect'){//medio envio electronico
                 foreach($registros as $dest){
                     if($dest['DIS_MEDIO_ENVIO'] == 'SEIL'){
-
-                        //1.- [ok] Hay agregar los destinatarios a la tabla GDE_CONTROL_SEIL 
-                        //2.- Enviar correo de notificación a los usuarios indicando del envio del correo.
-                        
-                        $bind2 =  array(
+                        //ml: AGREGAMOS EL CONTROL SEIL
+                        $bind2 = array(
                             ":p_doc_id"=> $wf,
                             ":p_doc_version"=>$version,
                             ":p_dis_secuencia"=> $dest['DIS_SECUENCIA']
                         );    
                         $this->_ORA->ejecutaProc("GDE.GDE_CONTROL_SEIL_PKG.PRC_AGREGAR_CONTROL_SEIL",$bind2);
-
-                        //FALTA AQUI :: falta el envio del correo de notificacion
-                            
-
+                    
                     }else if($dest['DIS_MEDIO_ENVIO'] == 'EMAIL'){
                         
-                        //despachar el certificado vía correo electrónico a el/los correos que se encuentran configurados, estos se deben enviar mediante la clase que retorna un ID de correo, este se debe actualizar en la tabla GDE_DISTRIBUCION.DIS_ID_CORREO.
-                          
-                        
-                        //AQUI VOY :: FUNCIONA PERO NO RETORNA ID
+                        //ml: NOTIFICAMOS X CORREO A LOS DESTINATARIOS EMAIL   
                         $id_correo = $this->fun_enviar_correo_notificacion($dest['DIS_CORREO'],$ruta_certificado,$dest['DIS_NOMBRE'],$numeroSGD);
-                        
-
-                        //DESCOMENTAR CUANDO SOLUCIONE EL TEMA DEL ID DEL CORREO    
                         //echo "<pre>";var_dump($id_correo);echo "</pre>";    
+                        
+                        //ml: ASOCIAMOS EL ID CORREO AL DESTINATARIO EMAIL
                         $this->fun_agregar_correo_envio($id_correo,$dest['DIS_SECUENCIA']);
 
                         
                     }
                 }
+                //ml: NOTIFICAMOS A TODOS LOS PARTICIPANTES EN LA FIRMA DEL CERTIFICADO (VISACIONES)
                 $this->fun_notificar_participanes();
             
             }else{//medio envio manual
 
-                //Se debe derivar el caso a oficina de partes para que pueda despachar el 
-                //documento (acá se debe generar un Módulo de despacho en wf)
+                //ml: DERIVAMOS CASO A OFICINA DE PARTES
                 $this->fun_derivar_oficina_parte();
 
-                //FALTA AQUI:: falta el envio del correo de notificacion
+                //ml: NOTIFICAMOS A TODOS LOS PARTICIPANTES EN LA FIRMA DEL CERTIFICADO (VISACIONES)
                 $this->fun_notificar_participanes();
             }
         }
@@ -716,7 +706,7 @@ class firmar_certificado extends Pagina{
        
     }
 
-    //ml: notificamos a todos los participantes del certificado
+    //ml: NOTIFICAMOS A TODOS LOS PARTICIPANTES EN LA FIRMA DEL CERTIFICADO (VISACIONES)
     public function fun_notificar_participanes(){
         
         $wf                 = $this->_SESION->getVariable("WF");         
@@ -812,7 +802,7 @@ class firmar_certificado extends Pagina{
     }
 
 
-    //ml: enviamos correo de notificacion con certificado adjunto ||| REVISAR NO FUNCIONA
+    //ml: NOTIFICAMOS X CORREO A LOS DESTINATARIOS EMAIL 
     public function fun_enviar_correo_notificacion($email_destino,$ruta_pdf,$destinatario,$numeroSGD){
 
         $numero_cer = $this->_SESION->getVariable("NUMERO_CER");   

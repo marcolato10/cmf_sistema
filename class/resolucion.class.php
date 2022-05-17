@@ -90,7 +90,41 @@ require_once(dirname(__FILE__).'/funcionario.class.php');
 		
 		
 		
+		    //ml: chequeamos los datos sensibles si existen para habilitar opciones DATOS SENSIBLES
+			/*public function fun_chequea_datos_sensibles($sensible,$tipo_certificado){
+
+				try{  
+					
+					//$tipo_certificado = $this->_SESION->getVariable('TIPO_CERTIFICADO');
+	
+					if($sensible == 'NO'){
+						$identifica = 'NO';    
+						$bind = array(":p_tipodoc_id"=>$tipo_certificado, ":p_identifica" =>$identifica);
+						$resultado = $this->_ORA->ejecutaFunc("GDE.GDE_PRIVACIDAD_PKG.FUN_EXISTE_DATOS_SENSIBLES", $bind);
+					}else{
+						$identifica = 'SI';    
+						$bind = array(":p_tipodoc_id"=>$tipo_certificado, ":p_identifica" =>$identifica);
+						$resultado = $this->_ORA->ejecutaFunc("GDE.GDE_PRIVACIDAD_PKG.FUN_EXISTE_DATOS_SENSIBLES", $bind);
+					}
+					
+					if($resultado > 0){
+						$resultado = '';
+					}else{
+						$resultado = 'disabled';
+					}
+					
+					return $resultado; 
 		
+		
+				}catch (Exception $e){
+					$this->util->mailError($e);
+				}
+				
+			}*/
+	
+
+
+
 		/******************************** PASO 1 *************************************************/
 		public function setTipoResolucion(){
 			$json = array();

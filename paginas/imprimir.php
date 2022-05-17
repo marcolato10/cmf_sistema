@@ -4,11 +4,16 @@ error_reporting(E_ERROR | E_WARNING | E_PARSE);
 ini_set("display_errors", 1); 
 
 require 'class/mostrarDocumento.class.php';
+include('Sistema/class/certificado.class.php');
 
 class imprimir extends Pagina{
 
     public function onLoad(){
-           #PREPRO $_VAR_GLOBAL->usa_plantilla_gral = 'NO'; 
+
+        $this->_CERTIFICADO = new Certificado($this); 
+
+        #PREPRO $_VAR_GLOBAL->usa_plantilla_gral = 'NO'; 
+           
     }
 
     public function main(){	
@@ -21,7 +26,8 @@ class imprimir extends Pagina{
         $wf = $_GET['caso'];
         $tipo_certificado = 'certificado';
         $url_certificado = $verDocumento->getUrl($wf);
-        $certificado_uv = $this->fun_listar_ultima_version($wf,$tipo_certificado);
+        //$certificado_uv = $this->fun_listar_ultima_version($wf,$tipo_certificado);
+        $certificado_uv = $this->_CERTIFICADO->fun_listar_ultima_version($wf,$tipo_certificado);
         $version = $certificado_uv[0]['DOC_VERSION'];
         $estado_certificado = $certificado_uv[0]['GDE_ESTADO_DOCUMENTO_ESTDOC_ID'];
         
@@ -87,46 +93,7 @@ class imprimir extends Pagina{
 
     }
 
-    //ml: obtenemos la ultima version del certificado
-    public function fun_listar_ultima_version($wf,$tipo){
-        $bind = array(":p_wf"=>$wf, ":p_tipo" =>$tipo);
-        $cursor = $this->_ORA->retornaCursor("GDE.GDE_DOCUMENTO_PKG.fun_listar_ultima_version",'function', $bind);
-    
-    
-                if ($cursor) {
-                      while($r = $this->_ORA->FetchArray($cursor)){ 
-                        $r['DOC_ID']=$r['DOC_ID'];
-                        $r['DOC_VERSION']=$r['DOC_VERSION'];
-                        $r['DOC_DATOS_SENSIBLES']=$r['DOC_DATOS_SENSIBLES'];
-                        $r['DOC_USA_PLANTILLA']=$r['DOC_USA_PLANTILLA'];
-                        $r['DOC_PDF']=$r['DOC_PDF'];
-                        $r['DOC_FECHA']=$r['DOC_FECHA'];
-                        $r['DOC_REDACTOR']=$r['DOC_REDACTOR'];
-                        $r['DOC_ENVIADO_A']=$r['DOC_ENVIADO_A'];
-                        $r['GDE_TIPOS_DOCUMENTO_TIPDOC_ID']=$r['GDE_TIPOS_DOCUMENTO_TIPDOC_ID'];
-                        //$r['GDE_DISTRIBUCION_DIS_SECUENCIA']=$r['GDE_DISTRIBUCION_DIS_SECUENCIA'];
-                        $r['GDE_ESTADO_DOCUMENTO_ESTDOC_ID']=$r['GDE_ESTADO_DOCUMENTO_ESTDOC_ID'];
-                        $r['GDE_PRIVACIDAD_PRI_ID']=$r['GDE_PRIVACIDAD_PRI_ID'];
-                        $r['DOC_GENERA_VERSION']=$r['DOC_GENERA_VERSION'];
-                        $r['DOC_CASO_PADRE']=$r['DOC_CASO_PADRE'];
-                        $r['DOC_ULTIMA_VERSION']=$r['DOC_ULTIMA_VERSION'];
-                        $r['TIPENV_ID']=$r['TIPENV_ID'];
-                        //$r['DOC_CUERPO']=$r['DOC_CUERPO']->load(); 
-                        $r['DOC_FOLIO']=$r['DOC_FOLIO'];    
-                        $r['DOC_SGD']=$r['DOC_SGD'];
-                        $r['DOC_USUARIO_FIRMA']=$r['DOC_USUARIO_FIRMA'];
-                        $r['DOC_ANO']=$r['DOC_ANO'];
-                        $r['ESTDOC_DESCRIPCION']=$r['ESTDOC_DESCRIPCION'];
-                        $r['TIPENV_NOMBRE']=$r['TIPENV_NOMBRE'];
-                        
-
-                        $resCertificado[]=$r;    
-                    }
-                    $this->_ORA->FreeStatement($cursor);
-                }    
-                
-        return $resCertificado;
-    }
+  
 
     //ml: listar distribucion segun la version
     public function fun_listar_distribucion($wf,$version){
