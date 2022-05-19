@@ -16,6 +16,7 @@ include_once ( "class/conexion_ora.class.php" );
 include_once ( "svslib/connection.php" );	
         
 include('Sistema/class/certificado.class.php');
+include('Sistema/class/correoCertificado.class.php');
 
 
 		
@@ -46,6 +47,7 @@ class generar_docto extends Pagina{
 	public function onLoad(){
             
             $this->_CERTIFICADO = new Certificado($this);
+            $this->_CORREOCERTIFICADO = new correoCertificado($this);
 
             $this->_RESOLUCION = new Resolucion($this);
 			if(!$this->_RESOLUCION->isValidoModificar()){
@@ -57,7 +59,7 @@ class generar_docto extends Pagina{
     
     public function main(){
     
-    
+        
         
         //iniciamos los adjuntos para que no se acumulen
         $this->RSO_ADJUNTO = array();
@@ -124,7 +126,7 @@ class generar_docto extends Pagina{
             $cadena                         = $this->_CERTIFICADO->privacidad_cadena($tipo);
     
             $this->_SESION->setVariable('MI_DOC_ID',$idCCertificado);
-            $this->cargarExpedientes($padre); //se puede mejorar
+            //$this->cargarExpedientes($padre); //se puede mejorar
             
             
             $this->_TEMPLATE->assign('miCCertificado',$idCCertificado);
@@ -238,6 +240,7 @@ class generar_docto extends Pagina{
     public function fun_verExpediente($param){
         $padre = $param['padre'];
         return $this->_RESOLUCION->verExpediente($padre);
+       
     }
     public function fun_agregarOtro(){
 		return $this->_RESOLUCION->DESTINATARIO_OBJ->agregarOtro();
@@ -248,6 +251,7 @@ class generar_docto extends Pagina{
     public function click_eliminarAdjunto(){
 		return $this->_RESOLUCION->ADJUNTO_OBJ->eliminarAdjunto();
 	}
+
     public function cargarExpedientes($padre){
 			
         try{
@@ -296,8 +300,8 @@ class generar_docto extends Pagina{
                     'SGD'=>$sgd,
                     'VER'=>$ver);
                 
-                $exp['VAL'] = substr(md5(md5($exp['VAL'])),3,5);
-            
+                $exp['VAL'] = substr(md5(md5($exp['ID_DOC'])),3,5);
+               
             
             
                 $this->_TEMPLATE->assign('EXP',$exp);
@@ -781,8 +785,10 @@ class generar_docto extends Pagina{
         return json_encode($json);		
 
     }
+
+    //COMUN
     //ml :: correo de notificación 
-    public function fun_enviar_correo($correo_para,$correo_copia,$NUMERO_CASO,$comentario,$usuario_desde){
+    /*public function fun_notificarDerivarCaso($correo_para,$correo_copia,$NUMERO_CASO,$comentario,$usuario_desde){
 
 
         $correo = new Correo();
@@ -801,7 +807,8 @@ class generar_docto extends Pagina{
         $correo->setCopia($correo_copia);
         $correo->enviar();
 
-    } 
+    }*/
+
     //ml ::: enviamos a VB desde pestaña MI UNIDAD
     public function fun_agregar_enviar_vb(){
     
@@ -1063,7 +1070,8 @@ class generar_docto extends Pagina{
                 }
 
                 //enviamos el correo //esta tirando error email null 
-                $this->fun_enviar_correo($correo_para,$copia_correo,$p_id,$comentario,$usuario_desde);     
+                //$this->fun_notificarDerivarCaso($correo_para,$copia_correo,$p_id,$comentario,$usuario_desde);     
+                $this->_CORREOCERTIFICADO->fun_notificarDerivarCaso($correo_para,$copia_correo,$p_id,$comentario,$usuario_desde);     
 
                 //derivamos a la bandeja de WF [DESCOMENTAR]
                 $this->setAsignar($usuarioPara, $_POST['p_comentarioVB'],$p_id);
@@ -1330,7 +1338,8 @@ class generar_docto extends Pagina{
                 }
 
                 //enviamos el correo 
-                $this->fun_enviar_correo($correo_para,$copia_correo,$p_id,$comentario,$usuario_desde);     
+                //$this->fun_notificarDerivarCaso($correo_para,$copia_correo,$p_id,$comentario,$usuario_desde);     
+                $this->_CORREOCERTIFICADO->fun_notificarDerivarCaso($correo_para,$copia_correo,$p_id,$comentario,$usuario_desde); 
 
                 //derivamos a la bandeja de WF [DESCOMENTAR]
                 $this->setAsignar($usuarioPara, $_POST['p_comentarioVBTodos'],$p_id);
@@ -1717,8 +1726,9 @@ class generar_docto extends Pagina{
             }
 
             //enviamos el correo 
-            $this->fun_enviar_correo($correo_para,$copia_correo,$p_id,$comentario,$usuario_desde);      
-            
+            //$this->fun_notificarDerivarCaso($correo_para,$copia_correo,$p_id,$comentario,$usuario_desde);      
+            $this->_CORREOCERTIFICADO->fun_notificarDerivarCaso($correo_para,$copia_correo,$p_id,$comentario,$usuario_desde);          
+
             //derivamos a la bandeja de WF [DESCOMENTAR]
             $this->setAsignar($usuarioPara, $_POST['p_otraUnidadComentarioVB'],$p_id);
             $this->_ORA->Commit();

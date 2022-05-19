@@ -141,6 +141,9 @@ function callback_gral(url, data, fn_callback) {
 }
 
 function fun_dropSubirAdjunto(tipo, id) {
+
+
+
     opcion = 2; //cambiamos el estado para saber que se hizo un cambio en expedientes
     callback_gral("index.php?pagina=paginas.modificar_docto&funcion=fun_cambia_estado_expediente&estado=" + opcion);
     callback_gral("index.php?pagina=paginas.generar_docto&funcion=fun_dropSubirAdjunto", {

@@ -4,6 +4,8 @@ error_reporting(E_ERROR | E_WARNING | E_PARSE);
 ini_set("display_errors", 1); 
 
   
+include('Sistema/class/paginapurso.class.php');
+include('Sistema/class/claseSistema.class.php');
 
 require_once("class/correo.class.php");
 require_once('class/crearDocumento.class.php');
@@ -16,7 +18,17 @@ require_once('Sistema/dompdf/autoload.inc.php');
 use Dompdf\Dompdf;
 
 
+include('Sistema/class/certificado.class.php');
+include('Sistema/class/correoCertificado.class.php');
+
 class firmar_certificado extends Pagina{
+
+
+    public function onLoad(){
+        
+        $this->_CORREOCERTIFICADO = new correoCertificado($this);
+        $this->_CERTIFICADO = new Certificado($this);
+    }
 
     public function main(){	}
 
@@ -24,96 +36,98 @@ class firmar_certificado extends Pagina{
     public function fun_accion_firmar_certificado(){
         
         
-        
+        try{
 
 
-        $miFirma            = $_POST['firma'];
-        $miPassword         = $_POST['password'];
-        $cuerpo             = $_POST['p_cuerpo'];
-        $tipo_certificado   = $this->_SESION->getVariable('TIPO_CERTIFICADO');
-        $accion             = $this->_SESION->getVariable('ACCION_CERTIFICADO');
-        $estado             = $this->_SESION->getVariable("ESTADO_CUERPO");
-        $wf                 = $this->_SESION->getVariable("WF");
-        $version            = $this->_SESION->getVariable("VERSION_CERTIFICADO"); 
-        $mi_certificado     = $this->fun_listar_certificado_xversion($wf,$version);
+                $miFirma            = $_POST['firma'];
+                $miPassword         = $_POST['password'];
+                $cuerpo             = $_POST['p_cuerpo'];
+                $tipo_certificado   = $this->_SESION->getVariable('TIPO_CERTIFICADO');
+                $accion             = $this->_SESION->getVariable('ACCION_CERTIFICADO');
+                $estado             = $this->_SESION->getVariable("ESTADO_CUERPO");
+                $wf                 = $this->_SESION->getVariable("WF");
+                $version            = $this->_SESION->getVariable("VERSION_CERTIFICADO"); 
+                $mi_certificado     = $this->fun_listar_certificado_xversion($wf,$version);
 
 
-        $this->_SESION->setVariable('MI_FIRMA',$miFirma);
-        $this->_SESION->setVariable('MI_PASSWORD',$miPassword);
+                $this->_SESION->setVariable('MI_FIRMA',$miFirma);
+                $this->_SESION->setVariable('MI_PASSWORD',$miPassword);
 
 
-        //echo "<pre>";var_dump($mi_certificado);echo "</pre>";exit();
-        //var_dump($miFirma."//".$miPassword); exit();   
-        //var_dump("ESTAMOS EN EL PHP DE FIRMAR CERTIFICADO");
-        //var_dump($accion."//".$estado);
-        //var_dump($_FILES);
-        //var_dump($_POST);
-        //exit();
-        
-        if($accion == 'M'){//ESTAMOS EN LA ACCION MODIFICAR CERTIFICADO
-            //print_r('PASO 1:: estamos en la accion modificar');
-            if($estado == 1){ //no hizo ningun cambio en el cuerpo o se cancelo el cambio
-               //hay que mostrar lo que hay en la bbdd
-               //print_r('PASO 1.1:: estamos en la accion modificar');
-               if(!$mi_certificado[0]['DOC_PDF']){//no hay pdf
-                    if($mi_certificado[0]['DOC_CUERPO']){
-                        //$this->_TEMPLATE->assign('r_cuerpo',$mi_certificado[0]['DOC_CUERPO']->load()); 
-                        $this->_SESION->setVariable('CUERPO_CERTIFICADO',$mi_certificado[0]['DOC_CUERPO']->load());
-                        return "OK";
-                    }else{
-                        $this->_SESION->setVariable('CUERPO_CERTIFICADO','ATENCIÓN:: Esta información no existe.'); 
-                        return "OK";
-                    }
-                }else{//hay pdf
-                    $mi_archivo = $mi_certificado[0]['DOC_PDF']->load();
-                    //$this->_SESION->setVariable('archivo_pdf_adjunto',file_get_contents($mi_archivo));
-                    $this->_SESION->setVariable('archivo_pdf_adjunto',$mi_archivo);
-                    return "OK1";
-
-                   
-
-                }
-            
-            
-            
-            }else if($estado == 2){
-                //print_r('PASO 1.2:: estamos en la accion modificar');
-                //echo "<pre>"; var_dump($_FILES); echo "</pre>";
-                //echo "<pre>"; var_dump($_POST); echo "</pre>";
+                //echo "<pre>";var_dump($mi_certificado);echo "</pre>";exit();
+                //var_dump($miFirma."//".$miPassword); exit();   
+                //var_dump("ESTAMOS EN EL PHP DE FIRMAR CERTIFICADO");
+                //var_dump($accion."//".$estado);
+                //var_dump($_FILES);
+                //var_dump($_POST);
+                //exit();
                 
-                
-                if(isset($_FILES['file']['tmp_name'])){
-                    //print_r('PASO 1.2.1:: tiene archivo');exit();
-                    if($_FILES['file']['error'] == UPLOAD_ERR_OK){
-                        $version =  $this->pdfVersion($_FILES['file']['tmp_name']);
-                        $ARCHIVO_NAME = $_FILES['file']['tmp_name']; 
-                        if($version != '1.4'){
-                            $ARCHIVO = tempnam('', 'resol_');
-                            system("ghostscript -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -dNOPAUSE -dQUIET -dBATCH -sOutputFile=".$ARCHIVO." ".$ARCHIVO_NAME."");
-                            $ARCHIVO_NAME = $ARCHIVO;
+                if($accion == 'M'){//ESTAMOS EN LA ACCION MODIFICAR CERTIFICADO
+                    //print_r('PASO 1:: estamos en la accion modificar');
+                    if($estado == 1){ //no hizo ningun cambio en el cuerpo o se cancelo el cambio
+                    //hay que mostrar lo que hay en la bbdd
+                    //print_r('PASO 1.1:: estamos en la accion modificar');
+                    if(!$mi_certificado[0]['DOC_PDF']){//no hay pdf
+                            if($mi_certificado[0]['DOC_CUERPO']){
+                                //$this->_TEMPLATE->assign('r_cuerpo',$mi_certificado[0]['DOC_CUERPO']->load()); 
+                                $this->_SESION->setVariable('CUERPO_CERTIFICADO',$mi_certificado[0]['DOC_CUERPO']->load());
+                                return "OK";
+                            }else{
+                                $this->_SESION->setVariable('CUERPO_CERTIFICADO','ATENCIÓN:: Esta información no existe.'); 
+                                return "OK";
+                            }
+                        }else{//hay pdf
+                            $mi_archivo = $mi_certificado[0]['DOC_PDF']->load();
+                            //$this->_SESION->setVariable('archivo_pdf_adjunto',file_get_contents($mi_archivo));
+                            $this->_SESION->setVariable('archivo_pdf_adjunto',$mi_archivo);
+                            return "OK1";
+
+                        
+
                         }
-                        $this->_SESION->setVariable('archivo_pdf_adjunto',file_get_contents($ARCHIVO_NAME));
-                        //$this->_SESION->setVariable('archivo_pdf_adjunto_md5',md5_file($ARCHIVO_NAME));
-                        unlink($ARCHIVO_NAME);
-                        return "OK1";
-                    }    
                     
-                }else{
                     
-                    //print_r('PASO 1.2.2:: usamos el cuerpo');exit();
+                    
+                    }else if($estado == 2){
+                        //print_r('PASO 1.2:: estamos en la accion modificar');
+                        //echo "<pre>"; var_dump($_FILES); echo "</pre>";
+                        //echo "<pre>"; var_dump($_POST); echo "</pre>";
+                        
+                        
+                        if(isset($_FILES['file']['tmp_name'])){
+                            //print_r('PASO 1.2.1:: tiene archivo');exit();
+                            if($_FILES['file']['error'] == UPLOAD_ERR_OK){
+                                $version =  $this->pdfVersion($_FILES['file']['tmp_name']);
+                                $ARCHIVO_NAME = $_FILES['file']['tmp_name']; 
+                                if($version != '1.4'){
+                                    $ARCHIVO = tempnam('', 'resol_');
+                                    system("ghostscript -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -dNOPAUSE -dQUIET -dBATCH -sOutputFile=".$ARCHIVO." ".$ARCHIVO_NAME."");
+                                    $ARCHIVO_NAME = $ARCHIVO;
+                                }
+                                $this->_SESION->setVariable('archivo_pdf_adjunto',file_get_contents($ARCHIVO_NAME));
+                                //$this->_SESION->setVariable('archivo_pdf_adjunto_md5',md5_file($ARCHIVO_NAME));
+                                unlink($ARCHIVO_NAME);
+                                return "OK1";
+                            }    
+                            
+                        }else{
+                            
+                            //print_r('PASO 1.2.2:: usamos el cuerpo');exit();
 
-                    $this->CUERPO_CERTIFICADO = $_POST['p_cuerpo'];
-                    $this->_SESION->setVariable('CUERPO_CERTIFICADO',$this->CUERPO_CERTIFICADO);
-                    return "OK";
+                            $this->CUERPO_CERTIFICADO = $_POST['p_cuerpo'];
+                            $this->_SESION->setVariable('CUERPO_CERTIFICADO',$this->CUERPO_CERTIFICADO);
+                            return "OK";
+                        }
+                    }else{
+                        return "NOK";//NO SE PUEDE FIRMAR EL DOCUMENTO
+                    }
+                
+                
                 }
-            }else{
-                return "NOK";//NO SE PUEDE FIRMAR EL DOCUMENTO
-            }
-        
-        
-        }
     
-
+        }catch (Exception $e){
+            $this->util->mailError($e);
+        }         
 
 
     }
@@ -124,156 +138,165 @@ class firmar_certificado extends Pagina{
     //listamos el certificado por la version
     public function fun_listar_certificado_xversion($wf,$version){
 
-        $bind = array(":p_wf"=>$wf, ":p_version" =>$version);
-        $cursor = $this->_ORA->retornaCursor("GDE.GDE_DOCUMENTO_PKG.fun_listar_cert_xversion",'function', $bind);
-                
-            if ($cursor) {
-                while($r = $this->_ORA->FetchArray($cursor)){ 
-                        $r['DOC_ID']=$r['DOC_ID'];
-                        $r['DOC_VERSION']=$r['DOC_VERSION'];
-                        $r['DOC_DATOS_SENSIBLES']=$r['DOC_DATOS_SENSIBLES'];
-                        $r['DOC_USA_PLANTILLA']=$r['DOC_USA_PLANTILLA'];
-                        $r['DOC_PDF']=$r['DOC_PDF'];
-                        $r['DOC_FECHA']=$r['DOC_FECHA'];
-                        $r['DOC_REDACTOR']=$r['DOC_REDACTOR'];
-                        $r['DOC_ENVIADO_A']=$r['DOC_ENVIADO_A'];
-                        $r['GDE_TIPOS_DOCUMENTO_TIPDOC_ID']=$r['GDE_TIPOS_DOCUMENTO_TIPDOC_ID'];
-                        $r['GDE_DISTRIBUCION_DIS_SECUENCIA']=$r['GDE_DISTRIBUCION_DIS_SECUENCIA'];
-                        $r['GDE_ESTADO_DOCUMENTO_ESTDOC_ID']=$r['GDE_ESTADO_DOCUMENTO_ESTDOC_ID'];
-                        $r['GDE_PRIVACIDAD_PRI_ID']=$r['GDE_PRIVACIDAD_PRI_ID'];
-                        $r['DOC_GENERA_VERSION']=$r['DOC_GENERA_VERSION'];
-                        $r['DOC_CASO_PADRE']=$r['DOC_CASO_PADRE'];
-                        $r['DOC_ULTIMA_VERSION']=$r['DOC_ULTIMA_VERSION'];
-                        $r['DOC_CUERPO']=$r['DOC_CUERPO']; 
-                        
-                        $resCertificado[]=$r;    
-                }
-                $this->_ORA->FreeStatement($cursor);
-            }    
-                
-        return $resCertificado;
+        try{
 
+            $bind = array(":p_wf"=>$wf, ":p_version" =>$version);
+            $cursor = $this->_ORA->retornaCursor("GDE.GDE_DOCUMENTO_PKG.fun_listar_cert_xversion",'function', $bind);
+                    
+                if ($cursor) {
+                    while($r = $this->_ORA->FetchArray($cursor)){ 
+                            $r['DOC_ID']=$r['DOC_ID'];
+                            $r['DOC_VERSION']=$r['DOC_VERSION'];
+                            $r['DOC_DATOS_SENSIBLES']=$r['DOC_DATOS_SENSIBLES'];
+                            $r['DOC_USA_PLANTILLA']=$r['DOC_USA_PLANTILLA'];
+                            $r['DOC_PDF']=$r['DOC_PDF'];
+                            $r['DOC_FECHA']=$r['DOC_FECHA'];
+                            $r['DOC_REDACTOR']=$r['DOC_REDACTOR'];
+                            $r['DOC_ENVIADO_A']=$r['DOC_ENVIADO_A'];
+                            $r['GDE_TIPOS_DOCUMENTO_TIPDOC_ID']=$r['GDE_TIPOS_DOCUMENTO_TIPDOC_ID'];
+                            $r['GDE_DISTRIBUCION_DIS_SECUENCIA']=$r['GDE_DISTRIBUCION_DIS_SECUENCIA'];
+                            $r['GDE_ESTADO_DOCUMENTO_ESTDOC_ID']=$r['GDE_ESTADO_DOCUMENTO_ESTDOC_ID'];
+                            $r['GDE_PRIVACIDAD_PRI_ID']=$r['GDE_PRIVACIDAD_PRI_ID'];
+                            $r['DOC_GENERA_VERSION']=$r['DOC_GENERA_VERSION'];
+                            $r['DOC_CASO_PADRE']=$r['DOC_CASO_PADRE'];
+                            $r['DOC_ULTIMA_VERSION']=$r['DOC_ULTIMA_VERSION'];
+                            $r['DOC_CUERPO']=$r['DOC_CUERPO']; 
+                            
+                            $resCertificado[]=$r;    
+                    }
+                    $this->_ORA->FreeStatement($cursor);
+                }    
+                    
+            return $resCertificado;
+
+        }catch (Exception $e){
+            $this->util->mailError($e);
+        }   
     }
 
     //ml: realizar firma con cuerpo 
     public function fun_firmar_con_cuerpo(){
 
-        $medio_envio = $_POST['medio_envio'];
-        $numero = $this->fun_obtener_numero();
-        $fecha = date('d/m/Y');
-        $this->_SESION->setVariable('FECHA_CER',$fecha);
-        //var_dump("EL NUMERO ES :".$numero);exit();
+        try{
 
-        $RUTA = dirname (__FILE__)."/../img/logocmf.png";
-        $html = "<html>
-        <head>
-            <style type='text/css'>
-                    body {
-                        margin: 0;
-                        padding: 0;
-                        font-family: Verdana, Arial, Helvetica, sans-serif;
-                    }
-                    #cabecera {
-                        margin: 20px;
-                        margin-right: 100px;
-                        padding: 0;
-                        border-bottom: #0000ff solid thin;
-                    }
-                    #pie {
-                        clear: both;
-                        margin: 1em;
-                        padding: 1em 0 0 0;
-                        text-align: center;
-                        border-top: #0000ff solid thin;
-                        font-size: 80%;
-                    }
-                    #contenido {
-                        
-                        margin-left: 50px;
-                        margin-right: 100px;
-                    }
-                    
-                    #contenedor {
-                        width: 800px;
-                        margin: 0 auto;
-                        padding: 0;
-                    }
-                    table {
-                        width:500px;
-                        cellpadding:5px;
-                        cellspacing:5px;
-                        border: 1px solid #000;
-                    }
-                    td {
-                        border-width: 1px;
-                    }
-                    thead td, thead th {
-                        border-width: 1px 1px 1px 1px;
-                    }
-            </style>
-        </head>
-        <body><div id='contenedor'>";
-                    
-        $html .=  '<div id="contenido">'. $this->limpiarTexto($this->_SESION->getVariable('CUERPO_CERTIFICADO'));
-        $html .= '</div></div></body></html>';
+                $medio_envio = $_POST['medio_envio'];
+                $numero = $this->fun_obtener_numero();
+                $fecha = date('d/m/Y');
+                $this->_SESION->setVariable('FECHA_CER',$fecha);
+                //var_dump("EL NUMERO ES :".$numero);exit();
 
-        $dompdf = new Dompdf();
-        $dompdf->loadHtml($html);
-        $dompdf->render();
+                $RUTA = dirname (__FILE__)."/../img/logocmf.png";
+                $html = "<html>
+                <head>
+                    <style type='text/css'>
+                            body {
+                                margin: 0;
+                                padding: 0;
+                                font-family: Verdana, Arial, Helvetica, sans-serif;
+                            }
+                            #cabecera {
+                                margin: 20px;
+                                margin-right: 100px;
+                                padding: 0;
+                                border-bottom: #0000ff solid thin;
+                            }
+                            #pie {
+                                clear: both;
+                                margin: 1em;
+                                padding: 1em 0 0 0;
+                                text-align: center;
+                                border-top: #0000ff solid thin;
+                                font-size: 80%;
+                            }
+                            #contenido {
+                                
+                                margin-left: 50px;
+                                margin-right: 100px;
+                            }
+                            
+                            #contenedor {
+                                width: 800px;
+                                margin: 0 auto;
+                                padding: 0;
+                            }
+                            table {
+                                width:500px;
+                                cellpadding:5px;
+                                cellspacing:5px;
+                                border: 1px solid #000;
+                            }
+                            td {
+                                border-width: 1px;
+                            }
+                            thead td, thead th {
+                                border-width: 1px 1px 1px 1px;
+                            }
+                    </style>
+                </head>
+                <body><div id='contenedor'>";
+                            
+                $html .=  '<div id="contenido">'. $this->limpiarTexto($this->_SESION->getVariable('CUERPO_CERTIFICADO'));
+                $html .= '</div></div></body></html>';
+
+                $dompdf = new Dompdf();
+                $dompdf->loadHtml($html);
+                $dompdf->render();
 
 
 
-        $PDF_ARC = $dompdf->output();
-        $pdf = new FPDI_R();
+                $PDF_ARC = $dompdf->output();
+                $pdf = new FPDI_R();
 
-        $gde_tipdoc_id = 'certificado';
-        $res_tipo = $this->fun_get_tipo_documento($gde_tipdoc_id);
-        $TITULO_DOCUMENTO = $res_tipo[0]['TIPDOC_TITULO'];
-        $X_DOCUMENTO = $res_tipo[0]['TIPDOC_POSICION_X_NUM'];
-        $Y_DOCUMENTO = $res_tipo[0]['TIPDOC_POSICION_Y_NUM'];
+                $gde_tipdoc_id = 'certificado';
+                $res_tipo = $this->fun_get_tipo_documento($gde_tipdoc_id);
+                $TITULO_DOCUMENTO = $res_tipo[0]['TIPDOC_TITULO'];
+                $X_DOCUMENTO = $res_tipo[0]['TIPDOC_POSICION_X_NUM'];
+                $Y_DOCUMENTO = $res_tipo[0]['TIPDOC_POSICION_Y_NUM'];
 
-        $respuesta = $pdf->generarPDF($PDF_ARC,$TITULO_DOCUMENTO,$X_DOCUMENTO,$Y_DOCUMENTO,$fecha,$numero);
+                $respuesta = $pdf->generarPDF($PDF_ARC,$TITULO_DOCUMENTO,$X_DOCUMENTO,$Y_DOCUMENTO,$fecha,$numero);
+                
+                //firmamos y obtenemos el numero SGD  
+                $numeroSGD = $this->fun_firmar_certificado($respuesta,$medio_envio);
+                return $numeroSGD;     
         
-        //firmamos y obtenemos el numero SGD  
-        $numeroSGD = $this->fun_firmar_certificado($respuesta,$medio_envio);
-        return $numeroSGD;            
+        }catch (Exception $e){
+            $this->util->mailError($e);
+        }   
     }
 
     //ml: realizar firma con adjunto
     public function fun_firmar_con_adjunto(){
 
-
-        //return "OK";exit();
-
-        $medio_envio = $_POST['medio_envio'];
-        $numero = $this->fun_obtener_numero();
-        $fecha = date('d/m/Y');
-        $this->_SESION->setVariable('FECHA_CER',$fecha);
-        //var_dump("EL NUMERO ES :".$numero);exit();
-
-        $PDF_ARC = $this->_SESION->getVariable('archivo_pdf_adjunto'); //binario
-        $pdf = new FPDI_R();
-
-        $gde_tipdoc_id = 'certificado';
-        $res_tipo = $this->fun_get_tipo_documento($gde_tipdoc_id);
-        $TITULO_DOCUMENTO = $res_tipo[0]['TIPDOC_TITULO'];
-        $X_DOCUMENTO = $res_tipo[0]['TIPDOC_POSICION_X_NUM'];
-        $Y_DOCUMENTO = $res_tipo[0]['TIPDOC_POSICION_Y_NUM'];
-        $respuesta = $pdf->generarPDF($PDF_ARC,$TITULO_DOCUMENTO,$X_DOCUMENTO,$Y_DOCUMENTO,$fecha,$numero);
-    
-        //firmamos y obtenemos el numero SGD   
-        $numeroSGD = $this->fun_firmar_certificado($respuesta,$medio_envio);
+        try{
         
- 
-        return $numeroSGD;
-    }
+            //return "OK";exit();
 
+            $medio_envio = $_POST['medio_envio'];
+            $numero = $this->fun_obtener_numero();
+            $fecha = date('d/m/Y');
+            $this->_SESION->setVariable('FECHA_CER',$fecha);
+            //var_dump("EL NUMERO ES :".$numero);exit();
 
+            $PDF_ARC = $this->_SESION->getVariable('archivo_pdf_adjunto'); //binario
+            $pdf = new FPDI_R();
 
-
-   
+            $gde_tipdoc_id = 'certificado';
+            $res_tipo = $this->fun_get_tipo_documento($gde_tipdoc_id);
+            $TITULO_DOCUMENTO = $res_tipo[0]['TIPDOC_TITULO'];
+            $X_DOCUMENTO = $res_tipo[0]['TIPDOC_POSICION_X_NUM'];
+            $Y_DOCUMENTO = $res_tipo[0]['TIPDOC_POSICION_Y_NUM'];
+            $respuesta = $pdf->generarPDF($PDF_ARC,$TITULO_DOCUMENTO,$X_DOCUMENTO,$Y_DOCUMENTO,$fecha,$numero);
+        
+            //firmamos y obtenemos el numero SGD   
+            $numeroSGD = $this->fun_firmar_certificado($respuesta,$medio_envio);
+            
     
-
+            return $numeroSGD;
+        
+        }catch (Exception $e){
+            $this->util->mailError($e);
+        }   
+    }
 
 
     public function pdfVersion($filename){ 
@@ -309,115 +332,138 @@ class firmar_certificado extends Pagina{
     //ml: obtenemos el tipo de documento
     public function fun_get_tipo_documento($gde_tipdoc_id){
         
-        $bindTipo =  array(
-            ":p_tipo_doc_id" => $gde_tipdoc_id 
-        );
-        $cursor = $this->_ORA->retornaCursor("GDE.GDE_TIPO_DOCUMENTO_PKG.FUN_TIPO_DOCUMENTO_GET",'function', $bindTipo);
-        if ($cursor) {
-            while($tipo = $this->_ORA->FetchArray($cursor)){ 
+        try{
+
+                $bindTipo =  array(
+                    ":p_tipo_doc_id" => $gde_tipdoc_id 
+                );
+                $cursor = $this->_ORA->retornaCursor("GDE.GDE_TIPO_DOCUMENTO_PKG.FUN_TIPO_DOCUMENTO_GET",'function', $bindTipo);
+                if ($cursor) {
+                    while($tipo = $this->_ORA->FetchArray($cursor)){ 
+                        
+                        $tipo['TIPDOC_ID']=$tipo['TIPDOC_ID'];
+                        $tipo['TIPDOC_GRABA_SDG']=$tipo['TIPDOC_GRABA_SDG'];
+                        $tipo['TIPDOC_USA_PLANTILLA']=$tipo['TIPDOC_USA_PLANTILLA'];
+                        $tipo['TIPDOC_SUBE_PDF']=$tipo['TIPDOC_SUBE_PDF'];
+                        $tipo['TIPDOC_TIPO_DOCTO_SGD']=$tipo['TIPDOC_TIPO_DOCTO_SGD'];
+                        $tipo['TIPDOC_SELECCIONA_PRIV']=$tipo['TIPDOC_SELECCIONA_PRIV'];
+                        $tipo['TIPDOC_TIENE_ADJ']=$tipo['TIPDOC_TIENE_ADJ'];
+                        $tipo['TIPDOC_TIENE_DEST']=$tipo['TIPDOC_TIENE_DEST'];
+                        $tipo['TIPDOC_CIERRA_CASO']=$tipo['TIPDOC_CIERRA_CASO'];
+                        $tipo['TIPDOC_AVANZA_ROL']=$tipo['TIPDOC_AVANZA_ROL'];
+                        $tipo['TIPDOC_CIERRA_PADRE']=$tipo['TIPDOC_CIERRA_PADRE'];
+                        $tipo['TIPDOC_TIENE_NUMERACION']=$tipo['TIPDOC_TIENE_NUMERACION'];
+                        $tipo['TIPDOC_TIENE_FECHA']=$tipo['TIPDOC_TIENE_FECHA'];
+                        $tipo['TIPDOC_FUNCION_NUMERACION']=$tipo['TIPDOC_FUNCION_NUMERACION'];
+                        $tipo['TIPDOC_TIENE_FECHA']=$tipo['TIPDOC_TIENE_FECHA'];
+                        $tipo['TPDOC_TIENE_VALIDADOR']=$tipo['TPDOC_TIENE_VALIDADOR'];
+                        $tipo['TIPDOC_POSICION_X_NUM']=$tipo['TIPDOC_POSICION_X_NUM'];
+                        $tipo['TIPDOC_POSICION_Y_NUM']=$tipo['TIPDOC_POSICION_Y_NUM'];
+                        $tipo['TIPDOC_TITULO']=$tipo['TIPDOC_TITULO'];
+                        $tipo['TIPDOC_LABEL_NUMERO']=$tipo['TIPDOC_LABEL_NUMERO'];
+                        $tipo['TIPDOC_NUM_PROC']=$tipo['TIPDOC_NUM_PROC'];
+                        $tipo['TIPDOC_TIENE_ENV']=$tipo['TIPDOC_TIENE_ENV'];
+                        $tipo['TIPDOC_APFIRMA']=$tipo['TIPDOC_APFIRMA'];
+            
+            
+                    $res_tipo[]=$tipo;
+            
+                    }			
+                    $this->_ORA->FreeStatement($cursor);
+                }  
                 
-                $tipo['TIPDOC_ID']=$tipo['TIPDOC_ID'];
-                $tipo['TIPDOC_GRABA_SDG']=$tipo['TIPDOC_GRABA_SDG'];
-                $tipo['TIPDOC_USA_PLANTILLA']=$tipo['TIPDOC_USA_PLANTILLA'];
-                $tipo['TIPDOC_SUBE_PDF']=$tipo['TIPDOC_SUBE_PDF'];
-                $tipo['TIPDOC_TIPO_DOCTO_SGD']=$tipo['TIPDOC_TIPO_DOCTO_SGD'];
-                $tipo['TIPDOC_SELECCIONA_PRIV']=$tipo['TIPDOC_SELECCIONA_PRIV'];
-                $tipo['TIPDOC_TIENE_ADJ']=$tipo['TIPDOC_TIENE_ADJ'];
-                $tipo['TIPDOC_TIENE_DEST']=$tipo['TIPDOC_TIENE_DEST'];
-                $tipo['TIPDOC_CIERRA_CASO']=$tipo['TIPDOC_CIERRA_CASO'];
-                $tipo['TIPDOC_AVANZA_ROL']=$tipo['TIPDOC_AVANZA_ROL'];
-                $tipo['TIPDOC_CIERRA_PADRE']=$tipo['TIPDOC_CIERRA_PADRE'];
-                $tipo['TIPDOC_TIENE_NUMERACION']=$tipo['TIPDOC_TIENE_NUMERACION'];
-                $tipo['TIPDOC_TIENE_FECHA']=$tipo['TIPDOC_TIENE_FECHA'];
-                $tipo['TIPDOC_FUNCION_NUMERACION']=$tipo['TIPDOC_FUNCION_NUMERACION'];
-                $tipo['TIPDOC_TIENE_FECHA']=$tipo['TIPDOC_TIENE_FECHA'];
-                $tipo['TPDOC_TIENE_VALIDADOR']=$tipo['TPDOC_TIENE_VALIDADOR'];
-                $tipo['TIPDOC_POSICION_X_NUM']=$tipo['TIPDOC_POSICION_X_NUM'];
-                $tipo['TIPDOC_POSICION_Y_NUM']=$tipo['TIPDOC_POSICION_Y_NUM'];
-                $tipo['TIPDOC_TITULO']=$tipo['TIPDOC_TITULO'];
-                $tipo['TIPDOC_LABEL_NUMERO']=$tipo['TIPDOC_LABEL_NUMERO'];
-                $tipo['TIPDOC_NUM_PROC']=$tipo['TIPDOC_NUM_PROC'];
-                $tipo['TIPDOC_TIENE_ENV']=$tipo['TIPDOC_TIENE_ENV'];
-                $tipo['TIPDOC_APFIRMA']=$tipo['TIPDOC_APFIRMA'];
+                return $res_tipo;
     
-    
-              $res_tipo[]=$tipo;
-    
-            }			
-            $this->_ORA->FreeStatement($cursor);
-        }  
-        
-        return $res_tipo;
-    
+        }catch (Exception $e){
+            $this->util->mailError($e);
+        }   
     }
 
     //ml: obtenemos el numero de folio segun el el tipo de certificado
     public function fun_obtener_numero(){
-        $numero = 0;
-        $this->_SESION->setVariable("NUMERO_CER",$numero);
-        $tipo_certificado = $this->_SESION->getVariable('TIPO_CERTIFICADO');
-
-        $bind =  array(
-            ":p_documento" => $tipo_certificado 
-        );
         
-        $numero = $this->_ORA->ejecutaFunc("GDE.GDE_NROS_PKG.fun_getNroDocumento",$bind);	
-        $this->_SESION->setVariable("NUMERO_CER",$numero);
-        return $numero;
+        try{
+
+            $numero = 0;
+            $this->_SESION->setVariable("NUMERO_CER",$numero);
+            $tipo_certificado = $this->_SESION->getVariable('TIPO_CERTIFICADO');
+
+            $bind =  array(
+                ":p_documento" => $tipo_certificado 
+            );
+            
+            $numero = $this->_ORA->ejecutaFunc("GDE.GDE_NROS_PKG.fun_getNroDocumento",$bind);	
+            $this->_SESION->setVariable("NUMERO_CER",$numero);
+            return $numero;
+        
+        }catch (Exception $e){
+            $this->util->mailError($e);
+        }   
     }
 
     
     //ml: genero el archivo nuevo con los expedientes adjuntos
     public function fun_generar_documento($documento){
 
-        $adjuntos = $this->_SESION->getVariable("RSO_ADJUNTO");
-        
-        //var_dump($documento);exit();
-        //var_dump($adjuntos);exit();
-        //$ARCHIVO = tempnam('', 'resol_');
-       
-        $files[] = $documento;
-        if($adjuntos != ""){
-            foreach($adjuntos as $adj){
-                //print_r($adj['ID']);print("<br>");
-                if($this->fun_obtener_blob($adj['ID']) != 'NOK'){
-                    $miAdjunto = $this->fun_obtener_blob($adj['ID']);
-                    $ARCHIVO = tempnam('', 'resol_');
-                    file_put_contents($ARCHIVO.".pdf",$miAdjunto);
-                    $files[] = $ARCHIVO.".pdf";
+        try{
+
+                $adjuntos = $this->_SESION->getVariable("RSO_ADJUNTO");
+                
+                //var_dump($documento);exit();
+                //var_dump($adjuntos);exit();
+                //$ARCHIVO = tempnam('', 'resol_');
+            
+                $files[] = $documento;
+                if($adjuntos != ""){
+                    foreach($adjuntos as $adj){
+                        //print_r($adj['ID']);print("<br>");
+                        if($this->fun_obtener_blob($adj['ID']) != 'NOK'){
+                            $miAdjunto = $this->fun_obtener_blob($adj['ID']);
+                            $ARCHIVO = tempnam('', 'resol_');
+                            file_put_contents($ARCHIVO.".pdf",$miAdjunto);
+                            $files[] = $ARCHIVO.".pdf";
+                        }
+                    }
                 }
-            }
-        }
 
-        //agregamos el adicional
-        $files[] = $this->fun_agregar_hoja_adicional();
-        
-        //echo "<pre>";var_dump($files);echo "</pre>";exit();
-        $ARCHIVO_NUEVO = $this->mergePDF($files);
+                //agregamos el adicional
+                $files[] = $this->fun_agregar_hoja_adicional();
+                
+                //echo "<pre>";var_dump($files);echo "</pre>";exit();
+                $ARCHIVO_NUEVO = $this->mergePDF($files);
 
-        return $ARCHIVO_NUEVO;
+                return $ARCHIVO_NUEVO;
       
+        }catch (Exception $e){
+            $this->util->mailError($e);
+        }   
     }
 
 
     //ml: ontenemos el blob segun el numero de expediente
     public function fun_obtener_blob($numero_expediente){
 
-        $row = $this->getExpedienteDocumento($numero_expediente);	
+        try{
 
-        $bind_v = array(':id' => $row['ID_SISTEMA']);
-        $cursor_variable = $this->_ORA->retornaCursor('WFA_DOCTOS_PKG.getVariablesFuncion','function',$bind_v);
-        $array = array();
-        while($row_var = $this->_ORA->FetchArray($cursor_variable)){
-            $array[] = $row[$row_var['WFA_VARIABLE']];		
-        }
-        $xml = $this->ejecutarFuncionXml($row['WFA_PACKAGE'],$row['WFA_FUNCION_XML'],$array );
-        if ((string)$xml->Link == ""){
-            $obj = $this->ejecutarFuncionArchivo($row['WFA_PACKAGE'],$row['WFA_FUNCION_ARCHIVO'],$array);
-            return $obj->load();
-        }else{
-            return 'NOK';
-        }
+                $row = $this->getExpedienteDocumento($numero_expediente);	
+
+                $bind_v = array(':id' => $row['ID_SISTEMA']);
+                $cursor_variable = $this->_ORA->retornaCursor('WFA_DOCTOS_PKG.getVariablesFuncion','function',$bind_v);
+                $array = array();
+                while($row_var = $this->_ORA->FetchArray($cursor_variable)){
+                    $array[] = $row[$row_var['WFA_VARIABLE']];		
+                }
+                $xml = $this->ejecutarFuncionXml($row['WFA_PACKAGE'],$row['WFA_FUNCION_XML'],$array );
+                if ((string)$xml->Link == ""){
+                    $obj = $this->ejecutarFuncionArchivo($row['WFA_PACKAGE'],$row['WFA_FUNCION_ARCHIVO'],$array);
+                    return $obj->load();
+                }else{
+                    return 'NOK';
+                }
+        
+        }catch (Exception $e){
+            $this->util->mailError($e);
+        }   
     }
 
 
@@ -653,109 +699,118 @@ class firmar_certificado extends Pagina{
     //ml: aqui notificamos los envios a los dstinatarios correspondiente
     public function fun_notificar_envios($medio_envio,$ruta_certificado,$numeroSGD){
 
-        //var_dump($medio_envio);
+        try{
 
-        $wf         = $this->_SESION->getVariable("WF");
-        $version    = $this->_SESION->getVariable("VERSION_CERTIFICADO");
-        //$tipo_certificado   = $this->_SESION->getVariable("TIPO_CERTIFICADO");
-        $bind       = array(":p_doc_id"=>$wf, ":p_doc_version" =>$version);
-        $cursor     = $this->_ORA->retornaCursor("GDE.GDE_DISTRIBUCION_PKG.fun_listar_distribucion_xme",'function', $bind);
-        $registros  = $this->_ORA->FetchAll($cursor);
+                //var_dump($medio_envio);
+
+                $wf         = $this->_SESION->getVariable("WF");
+                $version    = $this->_SESION->getVariable("VERSION_CERTIFICADO");
+                //$tipo_certificado   = $this->_SESION->getVariable("TIPO_CERTIFICADO");
+                $bind       = array(":p_doc_id"=>$wf, ":p_doc_version" =>$version);
+                $cursor     = $this->_ORA->retornaCursor("GDE.GDE_DISTRIBUCION_PKG.fun_listar_distribucion_xme",'function', $bind);
+                $registros  = $this->_ORA->FetchAll($cursor);
 
 
 
 
-        if($medio_envio != 'noen'){
-            if($medio_envio == 'elect'){//medio envio electronico
-                foreach($registros as $dest){
-                    if($dest['DIS_MEDIO_ENVIO'] == 'SEIL'){
-                        //ml: AGREGAMOS EL CONTROL SEIL
-                        $bind2 = array(
-                            ":p_doc_id"=> $wf,
-                            ":p_doc_version"=>$version,
-                            ":p_dis_secuencia"=> $dest['DIS_SECUENCIA']
-                        );    
-                        $this->_ORA->ejecutaProc("GDE.GDE_CONTROL_SEIL_PKG.PRC_AGREGAR_CONTROL_SEIL",$bind2);
+                if($medio_envio != 'noen'){
+                    if($medio_envio == 'elect'){//medio envio electronico
+                        foreach($registros as $dest){
+                            if($dest['DIS_MEDIO_ENVIO'] == 'SEIL'){
+                                //ml: AGREGAMOS EL CONTROL SEIL
+                                $bind2 = array(
+                                    ":p_doc_id"=> $wf,
+                                    ":p_doc_version"=>$version,
+                                    ":p_dis_secuencia"=> $dest['DIS_SECUENCIA']
+                                );    
+                                $this->_ORA->ejecutaProc("GDE.GDE_CONTROL_SEIL_PKG.PRC_AGREGAR_CONTROL_SEIL",$bind2);
+                            
+                            }else if($dest['DIS_MEDIO_ENVIO'] == 'EMAIL'){
+                                
+                                //ml: NOTIFICAMOS X CORREO A LOS DESTINATARIOS EMAIL   
+                                $id_correo = $this->fun_enviar_correo_notificacion($dest['DIS_CORREO'],$ruta_certificado,$dest['DIS_NOMBRE'],$numeroSGD);
+                                //echo "<pre>";var_dump($id_correo);echo "</pre>";    
+                                
+                                //ml: ASOCIAMOS EL ID CORREO AL DESTINATARIO EMAIL
+                                $this->fun_agregar_correo_envio($id_correo,$dest['DIS_SECUENCIA']);
+
+                                
+                            }
+                        }
+                        //ml: NOTIFICAMOS A TODOS LOS PARTICIPANTES EN LA FIRMA DEL CERTIFICADO (VISACIONES)
+                        $this->fun_notificar_participanes();
+
+                        //ml: CERRAMOS EL CASO UNA VEZ FIRMADO
+                        $this->_CERTIFICADO->fun_cerrar_caso($wf);
+                      
+
                     
-                    }else if($dest['DIS_MEDIO_ENVIO'] == 'EMAIL'){
-                        
-                        //ml: NOTIFICAMOS X CORREO A LOS DESTINATARIOS EMAIL   
-                        $id_correo = $this->fun_enviar_correo_notificacion($dest['DIS_CORREO'],$ruta_certificado,$dest['DIS_NOMBRE'],$numeroSGD);
-                        //echo "<pre>";var_dump($id_correo);echo "</pre>";    
-                        
-                        //ml: ASOCIAMOS EL ID CORREO AL DESTINATARIO EMAIL
-                        $this->fun_agregar_correo_envio($id_correo,$dest['DIS_SECUENCIA']);
+                    }else{//medio envio manual
 
-                        
+                        //ml: DERIVAMOS CASO A OFICINA DE PARTES
+                        $this->fun_derivar_oficina_parte();
+
+                        //ml: NOTIFICAMOS A TODOS LOS PARTICIPANTES EN LA FIRMA DEL CERTIFICADO (VISACIONES)
+                        $this->fun_notificar_participanes();
                     }
                 }
-                //ml: NOTIFICAMOS A TODOS LOS PARTICIPANTES EN LA FIRMA DEL CERTIFICADO (VISACIONES)
-                $this->fun_notificar_participanes();
-            
-            }else{//medio envio manual
 
-                //ml: DERIVAMOS CASO A OFICINA DE PARTES
-                $this->fun_derivar_oficina_parte();
-
-                //ml: NOTIFICAMOS A TODOS LOS PARTICIPANTES EN LA FIRMA DEL CERTIFICADO (VISACIONES)
-                $this->fun_notificar_participanes();
-            }
-        }
-
-        $this->_ORA->Commit(); 
+                $this->_ORA->Commit(); 
+        
+        }catch (Exception $e){
+            $this->util->mailError($e);
+        }   
        
     }
+
+
+
+
 
     //ml: NOTIFICAMOS A TODOS LOS PARTICIPANTES EN LA FIRMA DEL CERTIFICADO (VISACIONES)
     public function fun_notificar_participanes(){
         
-        $wf                 = $this->_SESION->getVariable("WF");         
-        $bind               = array(":p_wf"=>$wf);
-        $cursor             = $this->_ORA->retornaCursor("GDE.GDE_VISACIONES_PKG.fun_notificar_participantes",'function', $bind);
-        $participantes      = $this->_ORA->FetchAll($cursor);
-        
-        $numero_cer         = $this->_SESION->getVariable("NUMERO_CER");   
-        $fecha_cer          = $this->_SESION->getVariable("FECHA_CER");    
-        $tipo_certificado   = $this->_SESION->getVariable('TIPO_CERTIFICADO');
-        $resultado_tipo     = $this->fun_get_tipo_documento($tipo_certificado);
-        $label_certificado  = $resultado_tipo[0]['TIPDOC_LABEL_NUMERO'];
+        try{
+
+            $wf                 = $this->_SESION->getVariable("WF");         
+            $bind               = array(":p_wf"=>$wf);
+            $cursor             = $this->_ORA->retornaCursor("GDE.GDE_VISACIONES_PKG.fun_notificar_participantes",'function', $bind);
+            $participantes      = $this->_ORA->FetchAll($cursor);
+            
+            $numero_cer         = $this->_SESION->getVariable("NUMERO_CER");   
+            $fecha_cer          = $this->_SESION->getVariable("FECHA_CER");    
+            $tipo_certificado   = $this->_SESION->getVariable('TIPO_CERTIFICADO');
+            $resultado_tipo     = $this->fun_get_tipo_documento($tipo_certificado);
+            $label_certificado  = $resultado_tipo[0]['TIPDOC_LABEL_NUMERO'];
 
 
 
-        $CORREO_DESTINO = array();
-        $NOMBRE_USUARIO = array();
-        //notificamos a todos los participantes 
-        if($participantes){
+            $CORREO_DESTINO = array();
+            $NOMBRE_USUARIO = array();
+            //notificamos a todos los participantes 
+            if($participantes){
 
-            $correo = new Correo();
-            $correo->ORA = $this->_ORA;
-            $correo->DESDE = 'noresponder@svs.cl';
-            $correo->DESDE_NOMBRE = 'Comisión para el Mercado Financiero'; 
+                
+                //echo "EXISTEN";
+                foreach($participantes as $key => $part){
 
-            //echo "EXISTEN";
-            foreach($participantes as $key => $part){
+                    $bind = array(':redactor' => $part['VIS_USUARIO']);
+                    $CORREO_DESTINO[$key] = $this->_ORA->ejecutaFunc("wfa_usr.getEmailUsuario",$bind);
+                    $NOMBRE_USUARIO[$key] = $this->_ORA->ejecutaFunc("wfa_usr.getNombreUsuario",$bind);
 
-                $bind = array(':redactor' => $part['VIS_USUARIO']);
-                $CORREO_DESTINO[$key] = $this->_ORA->ejecutaFunc("wfa_usr.getEmailUsuario",$bind);
-                $NOMBRE_USUARIO[$key] = $this->_ORA->ejecutaFunc("wfa_usr.getNombreUsuario",$bind);
+                }
+
+                $email_destino = implode(",", $CORREO_DESTINO); 
+
+                $this->_CORREOCERTIFICADO->fun_notificarAllParticipanes($email_destino,$label_certificado,$numero_cer);
 
             }
 
-            $email_destino = implode(",", $CORREO_DESTINO); 
-
-            $correo->ASUNTO = 'Notificación firma documento '.$label_certificado.' '.$numero_cer;   
-            $correo->TEXTO = 'Estimado (a)
-            Con fecha '.$fecha_cer.', infomamos que el documento '.$label_certificado.' '.$numero_cer.'
-            se encuentra firmado, Atentamente, Comisión para el Mercado Financiero.';
-    
-            $correo->APLIC = 'PUGDE';
-            $correo->setPara($email_destino);
-            $correo->setCopiaOculta('culloa@svs.cl');
-            $correo->enviar();    
-
-        }
+        }catch (Exception $e){
+            $this->util->mailError($e);
+        }   
     }
-
+    
 
     //ml: derivamos a la oficina de partes
     public function fun_derivar_oficina_parte(){
@@ -777,16 +832,17 @@ class firmar_certificado extends Pagina{
 
         }catch(Exception $e){
             $this->_LOG->error(print_r($e));
-    }
+        }
+
     }
 
     
     //ml: asignamos todos los usuarios a la oficina de parte
     public function fun_asignarVarios($usuarios){ //usuarios es un arreglo con los usuarios.
         
-        $wf = $this->_SESION->getVariable("WF");
+        try{    
         
-        try{                                       
+            $wf = $this->_SESION->getVariable("WF");                                   
             $usuarios_coll = $this->_ORA->NewCollection("VALUE_ARRAY");
             
             foreach ($usuarios as $usr){
@@ -796,102 +852,99 @@ class firmar_certificado extends Pagina{
                 $bind = array(':caso'=>$wf, ':usuario' => $usuarios_coll);
                 $this->_ORA->ejecutaProc("wfa.wf_rso_pkg.fun_asignarVarios", $bind);
                 $this->_LOG->log("Se fun_asignarVarios el WF: ".$wf.' con bind '.print_r($bind,true));
+        
         }catch(Exception $e){
                 $this->_LOG->error(print_r($e));
         }
     }
 
-
     //ml: NOTIFICAMOS X CORREO A LOS DESTINATARIOS EMAIL 
     public function fun_enviar_correo_notificacion($email_destino,$ruta_pdf,$destinatario,$numeroSGD){
 
-        $numero_cer = $this->_SESION->getVariable("NUMERO_CER");   
-        $fecha_cer = $this->_SESION->getVariable("FECHA_CER");    
-        $correo = new Correo();
+        try{
 
-        $tipo_certificado = $this->_SESION->getVariable('TIPO_CERTIFICADO');
-        $resultado_tipo = $this->fun_get_tipo_documento($tipo_certificado);
-        $label_certificado = $resultado_tipo[0]['TIPDOC_LABEL_NUMERO'];
+            $numero_cer = $this->_SESION->getVariable("NUMERO_CER");   
+            $fecha_cer = $this->_SESION->getVariable("FECHA_CER");    
+           
+            $tipo_certificado = $this->_SESION->getVariable('TIPO_CERTIFICADO');
+            $resultado_tipo = $this->fun_get_tipo_documento($tipo_certificado);
+            $label_certificado = $resultado_tipo[0]['TIPDOC_LABEL_NUMERO'];
 
-
-        $correo->ORA = $this->_ORA;
-        $correo->DESDE = 'noresponder@svs.cl';
-        $correo->DESDE_NOMBRE = 'Comisión para el Mercado Financiero';                                                                    
-
-        $correo->ASUNTO = 'PRUEBA Envio documento '.$numero_cer; //XXXXX => CER:xxx    
-        $correo->TEXTO = 'Estimado (a) '.$destinatario.'
-        Con fecha '.$fecha_cer.', esta Comisión hace envío del documento adjunto '.$label_certificado.' '.$numero_cer.'
-        Atentamente, Comisión para el Mercado Financiero.';
-
-        $correo->APLIC = 'PUGDE';
-        $correo->ADJUNTO = true;        
-        $correo->setPara($email_destino);
-        $correo->setCopiaOculta('culloa@svs.cl');
-        $correo->setAdjunto($ruta_pdf,$numeroSGD.'.pdf');
-        $correo->enviar();
+            $ID_CORREO = $this->_CORREOCERTIFICADO->fun_notificarDestinatarioEmail($email_destino,$ruta_pdf,$destinatario,$numeroSGD,$numero_cer,$fecha_cer,$label_certificado); 
+          
+            return $ID_CORREO; 
         
-        //var_dump();exit();
-
-        return $correo->ID_CORREO; 
-
         
-
-
+        }catch(Exception $e){
+            $this->_LOG->error(print_r($e));
+        }
     }
+
 
     //ml: agregamos el id del correo enviado en la firma a los destinatarios
     public function fun_agregar_correo_envio($id_correo,$secuencia){
 
-        $wf         = $this->_SESION->getVariable("WF");
-        $version    = $this->_SESION->getVariable("VERSION_CERTIFICADO");
+        try{
 
-        $bind =  array(
-            ":p_dis_id_correo" => $id_correo,
-            ":p_version" => $version,
-            ":p_doc_id" => $wf,
-            ":p_secuencia" => $secuencia
-        );
-        
-        $this->_ORA->ejecutaProc("GDE.GDE_DISTRIBUCION_PKG.PRC_ACTUALIZAR_CORREO",$bind);
-        $this->_ORA->Commit();
+            $wf         = $this->_SESION->getVariable("WF");
+            $version    = $this->_SESION->getVariable("VERSION_CERTIFICADO");
+
+            $bind =  array(
+                ":p_dis_id_correo" => $id_correo,
+                ":p_version" => $version,
+                ":p_doc_id" => $wf,
+                ":p_secuencia" => $secuencia
+            );
+            
+            $this->_ORA->ejecutaProc("GDE.GDE_DISTRIBUCION_PKG.PRC_ACTUALIZAR_CORREO",$bind);
+            $this->_ORA->Commit();
+
+        }catch(Exception $e){
+            $this->_LOG->error(print_r($e));
+        }
     }
 
 
     public function fun_respuesta_firma_certificado(){
 
-
-        $json = array();
-        $MENSAJES = array();
-        $CAMBIA = array();	
-        $OPEN = array();			
+        try{
         
-        $numero_sgd = $_POST['numero_sgd'];
-        $mensaje_respuesta_firma = 'El documento fue firmado con éxito y se adjuntó al expediente con el numero SGD : '.$numero_sgd.' .';
-        $botonera_respuesta = '<div class="secBotonera">
-        <button class="btn btn-warning" type="button" id="btnFormCerrar" name="btnFormCerrar" onclick="accionBtnFormCerrarFirma();">OK</button></div>';               
+            $json = array();
+            $MENSAJES = array();
+            $CAMBIA = array();	
+            $OPEN = array();			
+            
+            $numero_sgd = $_POST['numero_sgd'];
+            $mensaje_respuesta_firma = 'El documento fue firmado con éxito y se adjuntó al expediente con el numero SGD : '.$numero_sgd.' .';
+            $botonera_respuesta = '<div class="secBotonera">
+            <button class="btn btn-warning" type="button" id="btnFormCerrar" name="btnFormCerrar" onclick="accionBtnFormCerrarFirma();">OK</button></div>';               
+            
         
-       
-        $json['RESULTADO'] = 'OK';			
-        $MENSAJES[] = $mensaje_respuesta_firma;
+            $json['RESULTADO'] = 'OK';			
+            $MENSAJES[] = $mensaje_respuesta_firma;
 
-        //$this->_TEMPLATE->assign('mensaje_respuesta',$mensaje_respuesta);
-        //$this->_TEMPLATE->parse('main.div_respuesta_firma');
-         
-        //cambiamos el estado del certificado
-        $estado = "firma";
-        $this->fun_cambia_estado_certificado($estado);
+            //$this->_TEMPLATE->assign('mensaje_respuesta',$mensaje_respuesta);
+            //$this->_TEMPLATE->parse('main.div_respuesta_firma');
+            
+            //cambiamos el estado del certificado
+            $estado = "firma";
+            $this->fun_cambia_estado_certificado($estado);
 
-        $this->_TEMPLATE->assign('mensaje_respuesta_firma',$mensaje_respuesta_firma);
-        $this->_TEMPLATE->assign('botonera_respuesta',$botonera_respuesta);      
-        $this->_TEMPLATE->parse('div_respuesta_firma');
-        
+            $this->_TEMPLATE->assign('mensaje_respuesta_firma',$mensaje_respuesta_firma);
+            $this->_TEMPLATE->assign('botonera_respuesta',$botonera_respuesta);      
+            $this->_TEMPLATE->parse('div_respuesta_firma');
+            
 
-         $CAMBIA['#div_respuesta_firma'] = $this->_TEMPLATE->text('div_respuesta_firma');
-         $OPEN['#div_respuesta_firma'] = 'open';
-         $json['MENSAJES'] =  $MENSAJES;
-         $json['CAMBIA'] = $CAMBIA;
-         $json['OPEN'] = $OPEN;
-         return json_encode($json);		
+            $CAMBIA['#div_respuesta_firma'] = $this->_TEMPLATE->text('div_respuesta_firma');
+            $OPEN['#div_respuesta_firma'] = 'open';
+            $json['MENSAJES'] =  $MENSAJES;
+            $json['CAMBIA'] = $CAMBIA;
+            $json['OPEN'] = $OPEN;
+            return json_encode($json);	
+            
+        }catch(Exception $e){
+            $this->_LOG->error(print_r($e));
+        }
 
     }
 
@@ -915,59 +968,72 @@ class firmar_certificado extends Pagina{
     /////HALEYM
     public function grabarSGD($contenido) {    
         
-        if($contenido){
+        try{
 
-            $s = $this->_ORA->Select("Select to_char(sysdate,'DD/MM/YYYY HH24:MI:SS') fecha from dual");
-            $r = $this->_ORA->FetchArray($s);
-            $dateCreate = $r["FECHA"];
-            $objGrabar = new crearSgd($this->_ORA, $this->_SESION);
-            $datos = array(
-                "p_origen" => 'R',
-                "p_tipo_docto" => 'DOC_SESION_COM',
-                "p_tipo_entidad" => 'PUPUB',
-                "p_medio_recepcion" => 'W',
-                "p_descripcion" => 'REGISTRO DE SESIONES',
-                "p_titulo" => NULL,
-                "p_vig_papel" => NULL,
-                "p_vig_magnetica" => NULL,
-                "p_folio_docto" => NULL,
-                "p_publica_web" => NULL,
-                "p_clasificacion" => NULL,
-                "p_forma_envio_principal" => NULL,
-                "p_fecha_despacho" => NULL,
-                "p_unidad_recepcion" => NULL,
-                "p_forma_envio2" => NULL,
-                "p_elimina_papel" => NULL,
-                "p_elimina_magnetica" => NULL
-            );
+            if($contenido){
 
-            $objGrabar->setDatos($datos);
-            $errores = $objGrabar->grabar_documento();
+                $s = $this->_ORA->Select("Select to_char(sysdate,'DD/MM/YYYY HH24:MI:SS') fecha from dual");
+                $r = $this->_ORA->FetchArray($s);
+                $dateCreate = $r["FECHA"];
+                $objGrabar = new crearSgd($this->_ORA, $this->_SESION);
+                $datos = array(
+                    "p_origen" => 'R',
+                    "p_tipo_docto" => 'DOC_SESION_COM',
+                    "p_tipo_entidad" => 'PUPUB',
+                    "p_medio_recepcion" => 'W',
+                    "p_descripcion" => 'REGISTRO DE SESIONES',
+                    "p_titulo" => NULL,
+                    "p_vig_papel" => NULL,
+                    "p_vig_magnetica" => NULL,
+                    "p_folio_docto" => NULL,
+                    "p_publica_web" => NULL,
+                    "p_clasificacion" => NULL,
+                    "p_forma_envio_principal" => NULL,
+                    "p_fecha_despacho" => NULL,
+                    "p_unidad_recepcion" => NULL,
+                    "p_forma_envio2" => NULL,
+                    "p_elimina_papel" => NULL,
+                    "p_elimina_magnetica" => NULL
+                );
 
-            $remitente = array("p_rem_rut"=>$this->_SESION->RUT, "p_rem_dv"=>$this->_SESION->getDv(), "p_rem_nombre"=>$this->_SESION->NOMBRE);
-            $errorRem = $objGrabar->graba_remitente($remitente);
+                $objGrabar->setDatos($datos);
+                $errores = $objGrabar->grabar_documento();
+
+                $remitente = array("p_rem_rut"=>$this->_SESION->RUT, "p_rem_dv"=>$this->_SESION->getDv(), "p_rem_nombre"=>$this->_SESION->NOMBRE);
+                $errorRem = $objGrabar->graba_remitente($remitente);
+                
+                $nro_sgd = $objGrabar->getNrosgd();
+                
             
-            $nro_sgd = $objGrabar->getNrosgd();
-            
-          
-            $error_doc      = $objGrabar->fun_cargar_docto_dir($contenido,0);
-            $error_doc_OCR  = $objGrabar->fun_ocr_docto_dir($contenido,0);
+                $error_doc      = $objGrabar->fun_cargar_docto_dir($contenido,0);
+                $error_doc_OCR  = $objGrabar->fun_ocr_docto_dir($contenido,0);
 
+                
+                return $nro_sgd;
             
-            return $nro_sgd;
+            //fin cont    
+            }else{
+                return "NOK";
+            }
         
-        //fin cont    
-        }else{
-            return "NOK";
+        }catch(Exception $e){
+            $this->_LOG->error(print_r($e));
         }
     }
     
     //HALEYM
     public function verDoctoSGD($nroSGD){
-        $verDocumento = new verDocumento();
-        $urlDocto = $verDocumento->getUrl($nroSGD);
-        $ver = "<a href='#' onclick='javascript:window.open(\"".$urlDocto."\");'><img src='Sistema/img/doc.png' width='24px' height='24px'></a>";
-        return $ver;
+        
+        try{
+
+            $verDocumento = new verDocumento();
+            $urlDocto = $verDocumento->getUrl($nroSGD);
+            $ver = "<a href='#' onclick='javascript:window.open(\"".$urlDocto."\");'><img src='Sistema/img/doc.png' width='24px' height='24px'></a>";
+            return $ver;
+        
+        }catch(Exception $e){
+            $this->_LOG->error(print_r($e));
+        }
     }
 
     //HALEYM
@@ -987,45 +1053,56 @@ class firmar_certificado extends Pagina{
 
      //ml: metodo para cambiar estado del certificado
      public function fun_cambia_estado_certificado($estado){
-            
-        $wf                 = $this->_SESION->getVariable("WF");
-        $version            = $this->_SESION->getVariable("VERSION_CERTIFICADO");
-        $tipo_certificado   = $this->_SESION->getVariable("TIPO_CERTIFICADO");
         
+        try{
+        
+            $wf                 = $this->_SESION->getVariable("WF");
+            $version            = $this->_SESION->getVariable("VERSION_CERTIFICADO");
+            $tipo_certificado   = $this->_SESION->getVariable("TIPO_CERTIFICADO");
+            
 
-        $bind =  array(
-            ":p_id"=> $wf,
-            ":p_version" => $version,
-            ":p_estado" => $estado
-        );
-        $this->_ORA->ejecutaProc("GDE.GDE_DOCUMENTO_PKG.PRC_CAMBIAR_ESTADO_CERT",$bind); 
-        $this->_ORA->Commit();   
+            $bind =  array(
+                ":p_id"=> $wf,
+                ":p_version" => $version,
+                ":p_estado" => $estado
+            );
+            $this->_ORA->ejecutaProc("GDE.GDE_DOCUMENTO_PKG.PRC_CAMBIAR_ESTADO_CERT",$bind); 
+            $this->_ORA->Commit();
+        
+        }catch(Exception $e){
+            $this->_LOG->error(print_r($e));
+        }
     }
 
     //ml: agregamos quien firma el certificado // poblamos GDE_DOCUMENTO con los campos obtenidos de la firma 
     public function fun_agregar_quien_firma($numero_sgd){
 
-        $wf                 = $this->_SESION->getVariable("WF");
-        $version            = $this->_SESION->getVariable("VERSION_CERTIFICADO");
-        $numero_folio       = $this->fun_obtener_numero();  
-        $usuario_firma      = $this->_SESION->USUARIO;
-        $doc_ano            = date("Y");
-        
-        
-        //var_dump($wf."///".$version."///".$numero_folio."///".$usuario_firma."///".$numero_sgd);exit();
+        try{
 
-        
-        $bind =  array(
-            ":p_id" => $wf,
-            ":p_version" => $version,
-            ":p_doc_folio" => $numero_folio,
-            ":p_doc_sgd" => $numero_sgd,
-            ":p_doc_usuario_firma" => $usuario_firma,
-            ":p_doc_ano" => $doc_ano
-        );    
-        $this->_ORA->ejecutaProc("GDE.GDE_DOCUMENTO_PKG.PRC_AGREGAR_FIRMANTE",$bind); 
-        $this->_ORA->Commit();     
+            $wf                 = $this->_SESION->getVariable("WF");
+            $version            = $this->_SESION->getVariable("VERSION_CERTIFICADO");
+            $numero_folio       = $this->fun_obtener_numero();  
+            $usuario_firma      = $this->_SESION->USUARIO;
+            $doc_ano            = date("Y");
+            
+            
+            //var_dump($wf."///".$version."///".$numero_folio."///".$usuario_firma."///".$numero_sgd);exit();
 
+            
+            $bind =  array(
+                ":p_id" => $wf,
+                ":p_version" => $version,
+                ":p_doc_folio" => $numero_folio,
+                ":p_doc_sgd" => $numero_sgd,
+                ":p_doc_usuario_firma" => $usuario_firma,
+                ":p_doc_ano" => $doc_ano
+            );    
+            $this->_ORA->ejecutaProc("GDE.GDE_DOCUMENTO_PKG.PRC_AGREGAR_FIRMANTE",$bind); 
+            $this->_ORA->Commit();     
+        
+        }catch(Exception $e){
+            $this->_LOG->error(print_r($e));
+        }
     }
 
 
@@ -1034,10 +1111,16 @@ class firmar_certificado extends Pagina{
     //||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
 
     public function getExpedienteDocumento($id){
-			
-        $bind = array(':id' => $id);
-        $cursor = $this->_ORA->retornaCursor('WFA_DOCTOS_PKG.getDocumento','function',$bind);
-        return $this->_ORA->FetchArray($cursor);
+        
+        try{
+        
+            $bind = array(':id' => $id);
+            $cursor = $this->_ORA->retornaCursor('WFA_DOCTOS_PKG.getDocumento','function',$bind);
+            return $this->_ORA->FetchArray($cursor);
+        
+        }catch(Exception $e){
+            $this->_LOG->error(print_r($e));
+        }
     }
 
     public function getAdjunto($numero_expediente){
@@ -1090,48 +1173,69 @@ class firmar_certificado extends Pagina{
     }
 
     protected function ejecutarFuncionXml($package,$funcion, $variable){
-        $cant = count($variable);			
-        $bindPkg = array();
-        foreach($variable as $key => $var){				
-            $bindPkg[":var$key"] = $var;
-        }			
-        $xml = $this->_ORA->ejecutaFunc($package.".".$funcion,$bindPkg);			
+        
         try{
-            $xml2=$this->htmlentities_entities($xml);
-            //$obj = new SimpleXMLElement(utf8_encode($xml2));
-            $obj = new SimpleXMLElement(($xml2));
-        }catch(Exception $e){	
-            $obj = NULL;
+        
+            $cant = count($variable);			
+            $bindPkg = array();
+            foreach($variable as $key => $var){				
+                $bindPkg[":var$key"] = $var;
+            }			
+            $xml = $this->_ORA->ejecutaFunc($package.".".$funcion,$bindPkg);			
+            try{
+                $xml2=$this->htmlentities_entities($xml);
+                //$obj = new SimpleXMLElement(utf8_encode($xml2));
+                $obj = new SimpleXMLElement(($xml2));
+            }catch(Exception $e){	
+                $obj = NULL;
+            }
+            return $obj;
+            
+        }catch(Exception $e){
+            $this->_LOG->error(print_r($e));
         }
-        return $obj;			
     }
 
     public function ejecutarFuncionArchivo($package,$funcion, $variable){
-        $cant = count($variable);			
-        $bindPkg = array();
-        foreach($variable as $key => $var){				
-            $bindPkg[":var$key"] = $var;
+        
+        try{
+        
+            $cant = count($variable);			
+            $bindPkg = array();
+            foreach($variable as $key => $var){				
+                $bindPkg[":var$key"] = $var;
+            }
+        
+            $blob = $this->_ORA->ejecutaFunc($package.".".$funcion,$bindPkg,'BLOB');
+            return $blob;
+        
+        }catch(Exception $e){
+            $this->_LOG->error(print_r($e));
         }
-    
-        $blob = $this->_ORA->ejecutaFunc($package.".".$funcion,$bindPkg,'BLOB');
-        return $blob;
     }
 
     public function htmlentities_entities($xml) {
-        foreach ($this->get_html_translation_table_CP1252(HTML_ENTITIES) as $key => $value) {
-                $name = substr($value, 1, strlen($value) - 2);
-                switch ($name) {
-                        // These ones we can skip because they're built into XML
-                        case 'gt':
-                        case 'lt':
-                        case 'quot':
-                        case 'apos':
-                        case 'amp': break;
-                        default: 
-                        $xml = str_replace($value, $key, $xml);
-                }
+        
+        try{
+
+            foreach ($this->get_html_translation_table_CP1252(HTML_ENTITIES) as $key => $value) {
+                    $name = substr($value, 1, strlen($value) - 2);
+                    switch ($name) {
+                            // These ones we can skip because they're built into XML
+                            case 'gt':
+                            case 'lt':
+                            case 'quot':
+                            case 'apos':
+                            case 'amp': break;
+                            default: 
+                            $xml = str_replace($value, $key, $xml);
+                    }
+            }
+            return($xml);
+        
+        }catch(Exception $e){
+            $this->_LOG->error(print_r($e));
         }
-        return($xml);
     } 
 
     public function get_html_translation_table_CP1252($type) {
@@ -1166,99 +1270,55 @@ class firmar_certificado extends Pagina{
     } 		
 
 
-    //ml: agregamos ultimo file de la firma 
-    public function fun_agregar_hoja_adicional_OLD(){
-        
-
-
-
-        $pdf_fpdi = new FPDI();
-
-		$pageCount = $pdf_fpdi->setSourceFile('Sistema/paginas/plantillas/hojaAdicional.pdf');
-
-        for ($pageNo = 1; $pageNo <= $pageCount; $pageNo++) {
-            $templateId = $pdf_fpdi->importPage($pageNo);
-            $size = $pdf_fpdi->getTemplateSize($templateId);
-
-            if ($size['w'] > $size['h']) {
-                $pdf_fpdi->AddPage('L', array($size['w'], $size['h']));
-            } else {
-                $pdf_fpdi->AddPage('P', array($size['w'], $size['h']));
-            }		
-            $pdf_fpdi->useTemplate($templateId);
-        }    
-        
-        $pdf_fpdi->AddFont('Verdana','','verdana.php');
-        $pdf_fpdi->SetFont('Verdana','',10);
-        $bind = array(':p_usuario' => $this->_SESION->USUARIO);
-        $NOMBRE_USUARIO = $this->_ORA->ejecutaFunc('wfa.wfa_usr.getNombreUsuario',$bind);
-
-        $pdf_fpdi->Text(145, 210, utf8_decode($NOMBRE_USUARIO));
-        $pdf_fpdi->Text(145, 218, utf8_decode('Comisión para el Mercado Financiero'));
-        $pdf_fpdi->Text(145, 226, date("Y.m.d"));
-
-
-        $ruta_adicional = 'Sistema/paginas/plantillas/hojaAdicional.pdf';
-        $adicional_modificado = file_get_contents($ruta_adicional, FILE_USE_INCLUDE_PATH);
-        
-        $ADICIONAL = tempnam('', 'adicional_');//temporal del adicional
-        file_put_contents($ADICIONAL.".pdf",$adicional_modificado);
-        
-        $miAdicional = $ADICIONAL.".pdf";//ruta del temporal adicional
-        
-        //var_dump($archivo_adicional); exit();
-        //var_dump($miAdicional); exit();
-        
-        return $miAdicional;
-
-
-
-
-
-    }
+   
 
 
     public function fun_agregar_hoja_adicional(){
 
-        //print_r("AGREGAMOS LA HOJA ADICIONAL");exit();
+        try{
 
-        $ruta_adicional = 'Sistema/paginas/plantillas/hojaAdicional.pdf';
-        $adicional = file_get_contents($ruta_adicional, FILE_USE_INCLUDE_PATH);
+            //print_r("AGREGAMOS LA HOJA ADICIONAL");exit();
 
-        $ARCHIVO = tempnam('', 'adicional_');
-        file_put_contents($ARCHIVO.".pdf",$adicional);
+            $ruta_adicional = 'Sistema/paginas/plantillas/hojaAdicional.pdf';
+            $adicional = file_get_contents($ruta_adicional, FILE_USE_INCLUDE_PATH);
 
-        $pdf_fpdi = new FPDI();
-        $pageCount = $pdf_fpdi->setSourceFile($ARCHIVO.".pdf");
+            $ARCHIVO = tempnam('', 'adicional_');
+            file_put_contents($ARCHIVO.".pdf",$adicional);
 
-        for ($pageNo = 1; $pageNo <= $pageCount; $pageNo++) {
-            $templateId = $pdf_fpdi->importPage($pageNo);
-            $size = $pdf_fpdi->getTemplateSize($templateId);
+            $pdf_fpdi = new FPDI();
+            $pageCount = $pdf_fpdi->setSourceFile($ARCHIVO.".pdf");
 
-            if ($size['w'] > $size['h']) {
-                $pdf_fpdi->AddPage('L', array($size['w'], $size['h']));
-            } else {
-                $pdf_fpdi->AddPage('P', array($size['w'], $size['h']));
-            }		
-            $pdf_fpdi->useTemplate($templateId);
-        }    
+            for ($pageNo = 1; $pageNo <= $pageCount; $pageNo++) {
+                $templateId = $pdf_fpdi->importPage($pageNo);
+                $size = $pdf_fpdi->getTemplateSize($templateId);
 
-        $pdf_fpdi->AddFont('Verdana','','verdana.php');
-        $pdf_fpdi->SetFont('Verdana','',10);
-        $bind = array(':p_usuario' => $this->_SESION->USUARIO);
-        $NOMBRE_USUARIO = $this->_ORA->ejecutaFunc('wfa.wfa_usr.getNombreUsuario',$bind);
+                if ($size['w'] > $size['h']) {
+                    $pdf_fpdi->AddPage('L', array($size['w'], $size['h']));
+                } else {
+                    $pdf_fpdi->AddPage('P', array($size['w'], $size['h']));
+                }		
+                $pdf_fpdi->useTemplate($templateId);
+            }    
 
-        $pdf_fpdi->Text(145, 210, utf8_decode($NOMBRE_USUARIO));
-        $pdf_fpdi->Text(145, 218, utf8_decode('Comisión para el Mercado Financiero'));
-        $pdf_fpdi->Text(145, 226, date("Y.m.d"));
+            $pdf_fpdi->AddFont('Verdana','','verdana.php');
+            $pdf_fpdi->SetFont('Verdana','',10);
+            $bind = array(':p_usuario' => $this->_SESION->USUARIO);
+            $NOMBRE_USUARIO = $this->_ORA->ejecutaFunc('wfa.wfa_usr.getNombreUsuario',$bind);
+
+            $pdf_fpdi->Text(145, 210, utf8_decode($NOMBRE_USUARIO));
+            $pdf_fpdi->Text(145, 218, utf8_decode('Comisión para el Mercado Financiero'));
+            $pdf_fpdi->Text(145, 226, date("Y.m.d"));
 
 
-        $pdf_fpdi->Output($ARCHIVO.".pdf" , 'F');
-        
-        $miArchivo = $ARCHIVO.".pdf";
+            $pdf_fpdi->Output($ARCHIVO.".pdf" , 'F');
+            
+            $miArchivo = $ARCHIVO.".pdf";
 
-        return $miArchivo;
+            return $miArchivo;
 
+        }catch(Exception $e){
+            $this->_LOG->error(print_r($e));
+        }
 
     }
 

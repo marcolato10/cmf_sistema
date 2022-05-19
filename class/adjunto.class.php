@@ -8,6 +8,8 @@
 		
 		public function dropSubirAdjunto(){
 			
+
+
 			$json = array();
 			$json['RESULTADO'] = 'OK';
 			$MENSAJES = array();
@@ -27,6 +29,8 @@
 
 			//print_r($nombre."//".$hash."//".$mime);print("<br>");exit();
 			
+		    
+
 			$MENSAJES[] = "La var: nombre es $nombre";
 			$MENSAJES[] = "La var: hash es $hash";
 			$MENSAJES[] = "La var: Nombre_Archivo es $nombreArchivo";

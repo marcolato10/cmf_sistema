@@ -878,7 +878,7 @@ require_once(dirname(__FILE__).'/funcionario.class.php');
 		}
 
 
-		//mlatorre prueba
+	
 		public function verExpediente($padre){
 		
 			//var_dump($padre);
@@ -887,7 +887,7 @@ require_once(dirname(__FILE__).'/funcionario.class.php');
 			$MENSAJES = array();
 			$CAMBIA = array();	
 			$OPEN = array();			
-			$MENSAJES[] = 'Creando dialogo para otro';
+			$MENSAJES[] = 'MOSTRAMOS MODAL CON LOS EXPEDIENTES DISPONIBLES';
 			
 			
 			//$cursor = $this->_ORA->retornaCursor($this->PREFIJO_SCHEMA.'RSO_DESTINATARIO_PKG.fun_getTratamiento','function');	
@@ -914,6 +914,8 @@ require_once(dirname(__FILE__).'/funcionario.class.php');
 
 
 		public function cargarExpedientes($padre){
+			
+			
 			
 			//Acá me falta estebecer seguridad para saber que los archivos del expediente padre tengo acceso
 			//$bind = array(':padre' => $this->CASO_PADRE);
@@ -968,10 +970,21 @@ require_once(dirname(__FILE__).'/funcionario.class.php');
 					'SGD'=>$sgd,
 					'VER'=>$ver);
 				
-				$exp['VAL'] = substr(md5(md5($exp['VAL'])),3,5);
-			   
-			   
-			   
+				$exp['VAL'] = substr(md5(md5($exp['ID_DOC'])),3,5);
+				
+				$sgd = $this->limpiar_sgd($sgd);
+
+				if($sgd){
+					//var_dump("EXISTE :: ".$sgd);
+					$exp['EXISTE_SGD'] = 'SI';	
+				}else{
+					//var_dump("NO EXISTE :: ".$sgd);
+					$exp['EXISTE_SGD'] = 'NO';
+				}
+				
+
+
+
 				$this->_TEMPLATE->assign('EXP',$exp);
 			    //if($this->SOLO_VER === FALSE){
 					if($this->esPdf($row)){
@@ -986,7 +999,16 @@ require_once(dirname(__FILE__).'/funcionario.class.php');
 			
 			
 		}
-	
+		
+		private function limpiar_sgd($sgd){
+
+			$sgd = trim($sgd);
+			if($sgd == '&nbsp;' || $sgd == 'undefined'){
+				$sgd = null;
+			}
+			return $sgd;
+
+		}
 	
 		private function esPdf($row){
 			$bind_v = array(':id' => $row['ID_SISTEMA']);

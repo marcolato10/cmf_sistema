@@ -12,6 +12,8 @@ include('Sistema/class/guardar.class.php');
 include('Sistema/class/clienteWs.class.php');
 include('Sistema/class/vista/paso4.class.php');
 include('Sistema/class/certificado.class.php');
+include('Sistema/class/correoCertificado.class.php');
+
 
 require_once('fpdf16/fpdf.php');
 require_once('fpdi_1.5.4/fpdi.php');
@@ -34,6 +36,7 @@ class modificar_docto extends Pagina{
     public function onLoad(){
         
         $this->_CERTIFICADO = new Certificado($this);
+        $this->_CORREOCERTIFICADO = new correoCertificado($this);
         
         $this->_RESOLUCION = new Resolucion($this);
         if(!$this->_RESOLUCION->isValidoModificar()){
@@ -314,12 +317,11 @@ class modificar_docto extends Pagina{
 
 
 
-            //mlatorre
-            //echo "<pre>";var_dump($mi_certificado[0]['DOC_CUERPO']);echo "</pre>";exit();
-            //echo "<pre>";var_dump($mi_certificado);echo "</pre>";exit();
+          
 
             $listado = "";
-            $plantillas = $this->fun_listar_plantillas('certificado');
+            //$plantillas = $this->fun_listar_plantillas('certificado');
+            $plantillas = $this->_CERTIFICADO->fun_listar_plantillas('certificado');
             foreach($plantillas as $key => $datos){
                 $listado .= '<li><input type="radio" name="tipoPlantilla" id="tipoPlantilla" value="'.$plantillas[$key]['PLA_ID'].'" onclick="cargarCuerpo(this.value)">'.$plantillas[$key]['PLA_NOMBRE'].'</li>';    
             }  
@@ -545,35 +547,7 @@ class modificar_docto extends Pagina{
         }
     }
 
-
-    //ml: lista las plantillas disponibles para el tipo de certificadp
-    public function fun_listar_plantillas($tipo){
-        
-        try{
-
-            //$tipo='certificado';    
-            $bind = array(":p_tipo_doc"=>$tipo);
-            $cursor = $this->_ORA->retornaCursor("GDE.GDE_PLANTILLA_PKG.FUN_LISTAR_PLANTILLA_DOC",'function', $bind);
-            if($cursor) {
-                while($r = $this->_ORA->FetchArray($cursor)){ 
-                    $r['PLA_ID']=$r['PLA_ID'];
-                    $r['PLA_NOMBRE']=$r['PLA_NOMBRE'];
-                    $r['PLA_CUERPO']=$r['PLA_CUERPO']->load();
-                    $r['PLA_USUARIO']=$r['PLA_USUARIO'];
-                    $r['PLA_VIGENTE']=$r['PLA_VIGENTE'];
-                    $r['GDE_TIPOS_DOCUMENTO_TIPDOC_ID']=$r['GDE_TIPOS_DOCUMENTO_TIPDOC_ID'];
-                    $plantillas[]=$r;
-                }
-                $this->_ORA->FreeStatement($cursor);
-            }
-        
-            return $plantillas;
-
-        }catch (Exception $e){
-            $this->util->mailError($e);
-        }
-
-    }     
+ 
 
 
      //ml: obtenemos el tipo de documento
@@ -3390,7 +3364,9 @@ class modificar_docto extends Pagina{
             }
 
             //enviamos el correo 
-            $this->fun_enviar_correo($correo_para,$copia_correo,$wf,$comentario,$usuario_desde);     
+            //$this->fun_notificarDerivarCaso($correo_para,$copia_correo,$wf,$comentario,$usuario_desde);  
+            $this->_CORREOCERTIFICADO->fun_notificarDerivarCaso($correo_para,$copia_correo,$wf,$comentario,$usuario_desde);  
+
 
             //derivamos a la bandeja de WF [DESCOMENTAR]
             $this->setAsignar($usuarioPara, $comentario,$wf);
@@ -3492,7 +3468,7 @@ class modificar_docto extends Pagina{
             }*/
 
             //enviamos el correo 
-            //$this->fun_enviar_correo($correo_para,$copia_correo,$wf,$comentario,$usuario_desde);     
+            //$this->fun_notificarDerivarCaso($correo_para,$copia_correo,$wf,$comentario,$usuario_desde);     
 
             //derivamos a la bandeja de WF [DESCOMENTAR]
             $this->setAsignar($usuarioPara, $comentario,$wf);
@@ -3593,7 +3569,7 @@ class modificar_docto extends Pagina{
             }*/
 
             //enviamos el correo 
-            //$this->fun_enviar_correo($correo_para,$copia_correo,$wf,$comentario,$usuario_desde);     
+            //$this->fun_notificarDerivarCaso($correo_para,$copia_correo,$wf,$comentario,$usuario_desde);     
 
             //derivamos a la bandeja de WF [DESCOMENTAR]
             $this->setAsignar($usuarioPara, $comentario,$wf);
@@ -3825,7 +3801,8 @@ class modificar_docto extends Pagina{
             }
 
             //enviamos el correo 
-            $this->fun_enviar_correo($correo_para,$copia_correo,$wf,$comentario,$usuario_desde);     
+            //$this->fun_notificarDerivarCaso($correo_para,$copia_correo,$wf,$comentario,$usuario_desde);     
+            $this->_CORREOCERTIFICADO->fun_notificarDerivarCaso($correo_para,$copia_correo,$wf,$comentario,$usuario_desde);     
 
             //derivamos a la bandeja de WF [DESCOMENTAR]
             $this->setAsignar($usuarioPara, $comentario,$wf);
@@ -4068,7 +4045,8 @@ class modificar_docto extends Pagina{
             }
 
             //enviamos el correo 
-            $this->fun_enviar_correo($correo_para,$copia_correo,$wf,$comentario,$usuario_desde);   
+            //$this->fun_notificarDerivarCaso($correo_para,$copia_correo,$wf,$comentario,$usuario_desde); 
+            $this->_CORREOCERTIFICADO->fun_notificarDerivarCaso($correo_para,$copia_correo,$wf,$comentario,$usuario_desde); 
 
             //derivamos a la bandeja de WF [DESCOMENTAR]
             $this->setAsignar($usuarioPara, $comentario,$wf);
@@ -4146,8 +4124,8 @@ class modificar_docto extends Pagina{
         }
     } 
     
-    
-    public function fun_enviar_correo($correo_para,$correo_copia,$NUMERO_CASO,$comentario,$usuario_desde){
+    //COMUN
+    /*public function fun_notificarDerivarCaso($correo_para,$correo_copia,$NUMERO_CASO,$comentario,$usuario_desde){
 
         try{
 
@@ -4176,7 +4154,7 @@ class modificar_docto extends Pagina{
         }
 
     } 
-
+    */
 
      //||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
     //|||||||||||||||||||||||||||||||||||| TIPO DE ENVIO |||||||||||||||||||||||||||||||||||||

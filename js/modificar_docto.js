@@ -1331,7 +1331,7 @@ function fun_eliminarSeleccionadoDestinatarioM(rut, copia) {
     console.log("ELIMINAR RUT ::: " + rut);
 
     //controlamos el destinatario eliminado 
-    callback_gral("index.php?pagina=paginas.modificar_docto&funcion=fun_controlar_eliminados", { rut: rut });
+    //callback_gral("index.php?pagina=paginas.modificar_docto&funcion=fun_controlar_eliminados", { rut: rut });
 
     opcion = 2; //cambiamos el estado para saber que se hizo un cambio en destinatarios
     callback_gral("index.php?pagina=paginas.modificar_docto&funcion=fun_cambia_estado_destinatario&estado=" + opcion);

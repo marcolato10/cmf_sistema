@@ -1,5 +1,35 @@
 <!-- BEGIN: main -->
 <link href='../pugde/Sistema/css/bootstrap.min.css' rel='stylesheet' type='text/css' />
+<script type="text/javascript">
+    function imprimirEtiqueta() {
+        var applet = document.getElementById('appletFinal');
+        if (applet.innerHTML.length < 10) {
+            applet.innerHTML = '<applet code="Label.Label.class" id="applet_imprimir" name="applet_imprimir"  width="40" height="40" archive="LabelOE.jar">\</applet>';
+        }
+        var applet = document.getElementById('applet_imprimir');
+
+
+
+        $(".div_oculto").each(function() {
+
+            applet.setNombre($(this).find('.nombre').val());
+
+            applet.setDireccion($(this).find('.direccion').val());
+
+            applet.setCargo($(this).find('.cargo').val());
+
+            applet.setNumeroOficio($(this).find('.numero').val());
+
+            applet.setSgd($(this).find('.sgd').val());
+
+            applet.setFecha($(this).find('.fecha').val());
+
+            applet.Imprimir();
+
+        });
+    }
+</script>
+
 <div id="div_imprimir_documentos" title="Imprimir Documentos" class="ui-widget">
     <!-- BEGIN: table_certificado -->
     <div class="row">
@@ -62,7 +92,7 @@
         <div class="form-group row">
             <div class="col-sm-2">&nbsp;</div>
             <div class="col-sm-8" style="text-align: center;">
-                <button class="btn btn-warning" type="button" id="BtnImprimir" name="BtnImprimir">&nbsp;Imprimir Etiqueta&nbsp;</button> &nbsp;&nbsp;&nbsp;
+                <button class="btn btn-warning" type="button" id="BtnImprimir" name="BtnImprimir" onclick="imprimirEtiqueta()">&nbsp;Imprimir Etiqueta&nbsp;</button> &nbsp;&nbsp;&nbsp;
                 <button class="btn btn-warning" type="button" id="BtnCancelarImprimir" name="BtnCancelarImprimir">Cancelar</button></div>
             <div class="col-sm-2">&nbsp;</div>
         </div>
@@ -70,6 +100,7 @@
     <!-- END: table_destinatarios -->
 </div>
 
+<div id="appletFinal" align="center"></div>
 
 
 

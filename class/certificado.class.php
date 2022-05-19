@@ -3,88 +3,39 @@ error_reporting(E_ERROR | E_WARNING | E_PARSE);
 ini_set("display_errors", 1); 
 
 
-require_once(dirname(__FILE__).'/clasificacion.class.php');
-require_once(dirname(__FILE__).'/destinatario.class.php');
-require_once(dirname(__FILE__).'/adjunto.class.php');
-require_once(dirname(__FILE__).'/notificacion.class.php');
-require_once(dirname(__FILE__).'/funcionario.class.php');
+//require_once(dirname(__FILE__).'/clasificacion.class.php');
+//require_once(dirname(__FILE__).'/destinatario.class.php');
+//require_once(dirname(__FILE__).'/adjunto.class.php');
+//require_once(dirname(__FILE__).'/notificacion.class.php');
+//require_once(dirname(__FILE__).'/funcionario.class.php');
 
 	class Certificado extends ClaseSistema{
 
   	
-		/**********************************************************  ATRIBUTOS DE LA CLASE DE RESOLUCION *******************************************/
-		// VALORES POR DEFECTO DE LAS RESOLUCIONES
-		static $DEF_TIPRES_ID = 'exenta';
-		static $DEF_CLA_ID = 1;
-		static $DEF_PRI_ID = 'publi';
-		static $DEF_PRI_NOMBRE = 'Pública';
-		static $DEF_EST_ID = 'redac';
-		static $DEF_PASO_SELECCIONADO = 1;
-		static $DEF_ENV_ID = 'elect';
-		static $DEF_RES_JURISPRUDENCIA = 'N';
-		static $DEF_DIS_ID = 'inmed';
-		static $DEF_DIS_NOMBRE = 'Inmediata';
-		static $DEF_RES_PAGO = 'N';
-		static $DEF_RES_MULTA = 'N';
-		static $DEF_PUB_ID = 'inmed';
-		static $DEF_PUB_NOMBRE = 'Inmediata';
-		static $DEF_RES_PAGO_NOMBRE = 'No';
-		static $DEF_RES_MULTA_NOMBRE = 'No';
-		static $DEF_RES_COMUNIQUESE = 'An&oacute;tese, Comun&iacute;quese y Arch&iacute;vese.';
-						
-		public $_VERSION_RSO = 'v2';
-		//ATRIBUTOS DE LA RESOLUCION EN PARTICULAR
-		//Paso1
-		public 	$TIPRES_ID;
-		public 	$CLA_ID;
-		public 	$DESTINATARIO;
-		public 	$DESTINATARIO_COPIA;
-		public  $PASO_SELECCIONADO;
-		public  $ENV_ID;
-		public  $RES_JURISPRUDENCIA;
-		public  $RES_COMUNIQUESE;
-		public 	$RES_REFERENCIA;
+		/**  ATRIBUTOS DE LA CLASE *******************************************/
+        //ATRIBUTOS 
+        public 	$RES_REFERENCIA;
 		
-		//OBJETOS DE LA CLASE RESOLUCION
-		public $CLASIFICACION_OBJ;
-		public $DESTINATARIO_OBJ;	
-		public $MODULO_OBJ;	
-		public $ADJUNTO_OBJ;
-		public $NOTIFICACION_OBJ;
+		//OBJETOS DE LA CLASE 
+		//public $DESTINATARIO_OBJ;	
 		
-		//public $CERTIFICADO_OBJ;//ml
-		/********************************************************************* FIN ATRIBUTOS *******************************************************/
+	
+		/** FIN ATRIBUTOS *******************************************************/
 		
 		
 		
 		
-		// Método constructor de la resolucion
+		// Método constructor del certificado
 		public function __construct($obj){
 			
 			$this->setControl($obj);
 				
-			// Se deben cargar los objetos de la clase resolucion
-			$this->CLASIFICACION_OBJ = new Clasificacion();
-			$this->CLASIFICACION_OBJ->setControl($obj);
-			$this->DESTINATARIO_OBJ = new Destinatario();
+            /*$this->DESTINATARIO_OBJ = new Destinatario();
 			$this->DESTINATARIO_OBJ->setControl($obj);
-			$this->MODULO_OBJ = new Modulo();
-			$this->MODULO_OBJ->setControl($obj);
-			
-			$this->ADJUNTO_OBJ =  new Adjunto();
-			$this->ADJUNTO_OBJ->setControl($obj);
-			
-			$this->NOTIFICACION_OBJ = new Notificacion();
-			$this->NOTIFICACION_OBJ->setControl($obj);
-			
-
-		
-
-			//$this->cargarSesion();
-			
-
-			//$this->DESTINATARIO_COPIA = new Destinatario();
-			//$this->DESTINATARIO->setControl($obj);
+			*/
+            
+            //$this->cargarSesion();
+            
 		}
 		
 		
@@ -218,6 +169,9 @@ require_once(dirname(__FILE__).'/funcionario.class.php');
 
         }  
         
+     
+
+
         
         //ml: html modulo CUERPO sección selecciona pdf
         public function html_selecciona_pdf(){
@@ -536,6 +490,29 @@ require_once(dirname(__FILE__).'/funcionario.class.php');
                 
         return $resCertificado;
     }
+
+    //|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+    //||||||||||||||||||||||||||||||||||| FIRMA CERTIFICADO |||||||||||||||||||||||||||||||||||||||||||||||
+    //|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+
+
+        //ml: cerramos el caso una vez firmado 
+        public function fun_cerrar_caso($wf){
+            
+            try{
+                
+                $bind = array(':ITEMKEY' => $wf,
+                ':ACTIVITY' => 'NT_REVISAR_DOCTO',
+                ':LOOKUPCODE' => ' LC_WF_GEN_SINWF ',
+                ':ITEMTYPE' => 'WF_GEN'
+                );
+        
+                $this->_ORA->ejecutaFunc('wfa.wf_siac.avanzar',$bind);
+            
+            }catch (Exception $e){
+                $this->util->mailError($e);
+            }   
+        }   
 
 
     //|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
